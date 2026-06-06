@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://dp44xpoo2ijf0"]
+
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_m634d"]
+
+[resource]
+script = ExtResource("1_m634d")
+nombre = "Romn"
+clase = "Streamer"
+nivel = 6
+nivel_maximo = 30
+pv_maximos = 45
+pv_actuales = 45
+ph_maximos = 25
+ph_actuales = 25
+ataque = 20
+defensa = 15
+agilidad = 20
+defensa_atipica = 0
+suerte = 8
+exp_necesaria_proximo_nivel = 150
+drop_experiencia = 0
+drop_whenes = 0
+metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

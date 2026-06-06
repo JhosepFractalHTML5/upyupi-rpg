@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://dk0apw57fkoqr"]
+
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_iu42v"]
+
+[resource]
+script = ExtResource("1_iu42v")
+nombre = "Jhosep"
+clase = "Desempleado"
+nivel = 5
+nivel_maximo = 25
+pv_maximos = 60
+pv_actuales = 60
+ph_maximos = 25
+ph_actuales = 25
+ataque = 15
+defensa = 20
+ataque_atipico = 0
+suerte = 0
+exp_necesaria_proximo_nivel = 200
+drop_experiencia = 0
+drop_whenes = 0
+metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

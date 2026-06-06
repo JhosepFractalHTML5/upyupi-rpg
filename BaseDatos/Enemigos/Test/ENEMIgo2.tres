@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://cin83d71bga8x"]
+
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_2odau"]
+[ext_resource type="Texture2D" uid="uid://cspuwj6nqxxph" path="res://KITANSAF.png" id="2_l08xu"]
+
+[resource]
+script = ExtResource("1_2odau")
+nombre = "Enemigo2"
+clase = "Enemigo"
+nivel = 0
+nivel_maximo = 0
+textura_sprite = ExtResource("2_l08xu")
+pv_maximos = 200
+pv_actuales = 200
+metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

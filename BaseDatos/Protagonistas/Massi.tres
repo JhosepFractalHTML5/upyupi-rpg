@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://cb5ispp132x8w"]
+
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_upn5k"]
+
+[resource]
+script = ExtResource("1_upn5k")
+nombre = "Massi"
+clase = "Técnico"
+nivel = 10
+nivel_maximo = 40
+ataque = 15
+agilidad = 30
+ataque_atipico = 0
+defensa_atipica = 0
+suerte = 15
+drop_experiencia = 0
+drop_whenes = 0
+metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

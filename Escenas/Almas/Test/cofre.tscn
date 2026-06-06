@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://d1d3hk67dndjv"]
+
+[ext_resource type="Script" uid="uid://fcry1lkdm0nq" path="res://Scripts/WintersChannel/cofre.gd" id="1_ynwns"]
+[ext_resource type="Texture2D" uid="uid://d378rwe862eiq" path="res://Graficos/WintersChannel/Test/TESTTST.png" id="2_2td3n"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4ctoc"]
+size = Vector2(300, 90)
+
+[node name="Cofre" type="StaticBody2D" unique_id=1699787337]
+script = ExtResource("1_ynwns")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=136833392]
+texture = ExtResource("2_2td3n")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1998580104]
+shape = SubResource("RectangleShape2D_4ctoc")

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://4ak7wfcwboi"]
+
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_u1ook"]
+
+[resource]
+script = ExtResource("1_u1ook")
+nombre = "Thais"
+clase = "Trabajadora"
+nivel = 15
+nivel_maximo = 35
+pv_maximos = 55
+pv_actuales = 55
+ph_maximos = 40
+ph_actuales = 40
+ataque = 20
+suerte = 0
+exp_necesaria_proximo_nivel = 250
+drop_experiencia = 0
+drop_whenes = 0
+metadata/_custom_type_script = "uid://dg4pgruc1fxgv"
