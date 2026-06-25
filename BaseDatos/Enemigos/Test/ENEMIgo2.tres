@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://cin83d71bga8x"]
 
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_2odau"]
-[ext_resource type="Texture2D" uid="uid://cspuwj6nqxxph" path="res://KITANSAF.png" id="2_l08xu"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_2odau"]
+[ext_resource type="Texture2D" uid="uid://bcleyye1vca4r" path="res://Graficos/Batalla/Enemigos/Test/KITANSAF.png" id="2_l08xu"]
 
 [resource]
 script = ExtResource("1_2odau")

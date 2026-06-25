@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Habilidad" format=3 uid="uid://dotwy7pa8rrg3"]
+
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_b5xno"]
+
+[resource]
+script = ExtResource("1_b5xno")
+nombre = "Escudo Humano"
+costo_ph = 5
+descripcion = "EEEsdf"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

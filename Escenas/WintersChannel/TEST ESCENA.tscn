@@ -1,9 +1,10 @@
 [gd_scene format=3 uid="uid://cfi33v8gkip1h"]
 
-[ext_resource type="PackedScene" uid="uid://d23ju21b6e5g6" path="res://Escenas/Almas/Test/player.tscn" id="1_f5dhs"]
+[ext_resource type="PackedScene" uid="uid://bysqc3xmpwal0" path="res://Escenas/Almas/Test/player.tscn" id="1_f5dhs"]
 [ext_resource type="PackedScene" uid="uid://d1d3hk67dndjv" path="res://Escenas/Almas/Test/cofre.tscn" id="2_6ypk8"]
 
 [node name="Node2D" type="Node2D" unique_id=969277939]
+position = Vector2(1, 1)
 
 [node name="Jugador" parent="." unique_id=814936194 instance=ExtResource("1_f5dhs")]
 position = Vector2(116, 106)

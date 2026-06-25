@@ -1,6 +1,9 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://cb5ispp132x8w"]
 
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_upn5k"]
+[ext_resource type="Texture2D" uid="uid://bfkvtndh2y7an" path="res://Graficos/Batalla/Protagonistas/Placeholder/Massi.png" id="1_210f3"]
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_hfphl"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_upn5k"]
+[ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="2_hmkp8"]
 
 [resource]
 script = ExtResource("1_upn5k")
@@ -8,6 +11,7 @@ nombre = "Massi"
 clase = "Técnico"
 nivel = 10
 nivel_maximo = 40
+retrato_base = ExtResource("1_210f3")
 ataque = 15
 agilidad = 30
 ataque_atipico = 0
@@ -15,4 +19,6 @@ defensa_atipica = 0
 suerte = 15
 drop_experiencia = 0
 drop_whenes = 0
+habilidades_disponibles = Array[ExtResource("1_hfphl")]([ExtResource("2_hmkp8")])
+item_clave_hab_1 = true
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

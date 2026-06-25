@@ -1,0 +1,12 @@
+[gd_resource type="Resource" format=3 uid="uid://ti5usuqslbq6"]
+
+[ext_resource type="Script" uid="uid://cwty2lo68pw1" path="res://BaseDatos/Protagonistas/Habilidades/ThaisHAB/ThaisHABprogram/ComidaInstantanea.gd" id="1_xy1x7"]
+
+[resource]
+script = ExtResource("1_xy1x7")
+nombre = "Comida Instantanea"
+costo_ph = 15
+costo_pt = 30
+dano_base = 0
+objetivo = "aliado"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

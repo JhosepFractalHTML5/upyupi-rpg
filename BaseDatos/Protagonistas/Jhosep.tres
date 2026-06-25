@@ -1,6 +1,11 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://dk0apw57fkoqr"]
 
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_iu42v"]
+[ext_resource type="Texture2D" uid="uid://gfrl3641478r" path="res://Graficos/Batalla/Protagonistas/Placeholder/Jhosep.png" id="1_ia5ql"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_iu42v"]
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_kj5rj"]
+[ext_resource type="Resource" uid="uid://bbvy3paasyn3w" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Alerta.tres" id="1_mwe8a"]
+[ext_resource type="Resource" uid="uid://c7608y116kd6m" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EscudoHumano.tres" id="2_kj5rj"]
+[ext_resource type="Texture2D" uid="uid://4sho352b2ho6" path="res://Graficos/Batalla/Protagonistas/Icons/Jhosep.png" id="3_36wyd"]
 
 [resource]
 script = ExtResource("1_iu42v")
@@ -8,6 +13,8 @@ nombre = "Jhosep"
 clase = "Desempleado"
 nivel = 5
 nivel_maximo = 25
+retrato_base = ExtResource("1_ia5ql")
+icono_timeline = ExtResource("3_36wyd")
 pv_maximos = 60
 pv_actuales = 60
 ph_maximos = 25
@@ -19,4 +26,7 @@ suerte = 0
 exp_necesaria_proximo_nivel = 200
 drop_experiencia = 0
 drop_whenes = 0
+habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("2_kj5rj")])
+item_clave_hab_1 = true
+habilidad_contraataque = ExtResource("1_mwe8a")
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

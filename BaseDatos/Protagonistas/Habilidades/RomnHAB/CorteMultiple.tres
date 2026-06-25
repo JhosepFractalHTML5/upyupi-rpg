@@ -1,0 +1,14 @@
+[gd_resource type="Resource" format=3 uid="uid://voiea5jv3r2m"]
+
+[ext_resource type="Script" uid="uid://5hnhs4ixu6js" path="res://BaseDatos/Protagonistas/Habilidades/RomnHAB/RomnHABprogram/CorteMultiple.gd" id="1_v0cwx"]
+
+[resource]
+script = ExtResource("1_v0cwx")
+nombre = "Corte Múltiple"
+costo_ph = 25
+costo_pt = 50
+dano_base = 0
+es_ataque_fuerte = true
+objetivo = "aleatorio"
+cooldown = 3
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

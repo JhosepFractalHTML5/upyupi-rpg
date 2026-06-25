@@ -1,6 +1,10 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://dp44xpoo2ijf0"]
 
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_m634d"]
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_52fkl"]
+[ext_resource type="Texture2D" uid="uid://cg0s65285qgxt" path="res://Graficos/Batalla/Protagonistas/Placeholder/Romn.png" id="1_huu7l"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_m634d"]
+[ext_resource type="Resource" uid="uid://voiea5jv3r2m" path="res://BaseDatos/Protagonistas/Habilidades/RomnHAB/CorteMultiple.tres" id="2_2arwj"]
+[ext_resource type="Texture2D" uid="uid://c5riynxg6aua5" path="res://Graficos/Batalla/Protagonistas/Icons/Romn.png" id="3_2arwj"]
 
 [resource]
 script = ExtResource("1_m634d")
@@ -8,6 +12,8 @@ nombre = "Romn"
 clase = "Streamer"
 nivel = 6
 nivel_maximo = 30
+retrato_base = ExtResource("1_huu7l")
+icono_timeline = ExtResource("3_2arwj")
 pv_maximos = 45
 pv_actuales = 45
 ph_maximos = 25
@@ -20,4 +26,6 @@ suerte = 8
 exp_necesaria_proximo_nivel = 150
 drop_experiencia = 0
 drop_whenes = 0
+habilidades_disponibles = Array[ExtResource("1_52fkl")]([ExtResource("2_2arwj")])
+item_clave_hab_1 = true
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

@@ -1,6 +1,9 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://4ak7wfcwboi"]
 
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_u1ook"]
+[ext_resource type="Texture2D" uid="uid://dgre7gf3fbutj" path="res://Graficos/Batalla/Protagonistas/Placeholder/Thais.png" id="1_lj6a7"]
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_q8bvq"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_u1ook"]
+[ext_resource type="Resource" uid="uid://ti5usuqslbq6" path="res://BaseDatos/Protagonistas/Habilidades/ThaisHAB/ComidaInstantanea.tres" id="2_6vocl"]
 
 [resource]
 script = ExtResource("1_u1ook")
@@ -8,6 +11,7 @@ nombre = "Thais"
 clase = "Trabajadora"
 nivel = 15
 nivel_maximo = 35
+retrato_base = ExtResource("1_lj6a7")
 pv_maximos = 55
 pv_actuales = 55
 ph_maximos = 40
@@ -17,4 +21,6 @@ suerte = 0
 exp_necesaria_proximo_nivel = 250
 drop_experiencia = 0
 drop_whenes = 0
+habilidades_disponibles = Array[ExtResource("1_q8bvq")]([ExtResource("2_6vocl")])
+item_clave_hab_1 = true
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

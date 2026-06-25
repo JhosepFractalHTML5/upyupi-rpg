@@ -1,9 +1,7 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://ctu3j2q8qrid3"]
 
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://estadisticas_personaje.gd" id="1_qj48m"]
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_qj48m"]
-load_path = "res://.godot/imported/UENOONKDS.png-184fd15dd586650ffa28c70cf894e240.ctex"
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_qj48m"]
+[ext_resource type="Texture2D" uid="uid://caavu51hbd6qy" path="res://Graficos/Batalla/Enemigos/Test/UENOONKDS.png" id="2_xu8ln"]
 
 [resource]
 script = ExtResource("1_qj48m")
@@ -11,7 +9,7 @@ nombre = "Enemigo"
 clase = "Enemigo"
 nivel = 0
 nivel_maximo = 0
-textura_sprite = SubResource("CompressedTexture2D_qj48m")
+textura_sprite = ExtResource("2_xu8ln")
 pv_maximos = 350
 pv_actuales = 350
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

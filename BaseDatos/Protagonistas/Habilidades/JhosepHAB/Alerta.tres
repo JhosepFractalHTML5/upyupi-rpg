@@ -1,0 +1,9 @@
+[gd_resource type="Resource" format=3 uid="uid://bbvy3paasyn3w"]
+
+[ext_resource type="Script" uid="uid://bvhwja02kimij" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/Alerta.gd" id="1_5wjm4"]
+
+[resource]
+script = ExtResource("1_5wjm4")
+dano_base = 0
+objetivo = "usuario"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"
