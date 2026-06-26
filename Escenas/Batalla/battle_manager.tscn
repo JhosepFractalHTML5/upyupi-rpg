@@ -5,15 +5,14 @@
 [ext_resource type="Resource" uid="uid://dk0apw57fkoqr" path="res://BaseDatos/Protagonistas/Jhosep.tres" id="3_6ldo0"]
 [ext_resource type="Resource" uid="uid://dp44xpoo2ijf0" path="res://BaseDatos/Protagonistas/Romn.tres" id="4_vnw7q"]
 [ext_resource type="Resource" uid="uid://cb5ispp132x8w" path="res://BaseDatos/Protagonistas/Massi.tres" id="5_oxep1"]
-[ext_resource type="Resource" uid="uid://ctu3j2q8qrid3" path="res://BaseDatos/Enemigos/Test/Enemigo.tres" id="5_tgs0p"]
 [ext_resource type="Resource" uid="uid://4ak7wfcwboi" path="res://BaseDatos/Protagonistas/Thais.tres" id="6_vnw7q"]
-[ext_resource type="Resource" uid="uid://cin83d71bga8x" path="res://BaseDatos/Enemigos/Test/ENEMIgo2.tres" id="8_vnw7q"]
+[ext_resource type="Resource" uid="uid://3dvratlndnh3" path="res://BaseDatos/Enemigos/Test/Electro-Paco.tres" id="7_vnw7q"]
 [ext_resource type="Script" uid="uid://cd0r8bw8gnavd" path="res://Escenas/Batalla/battle_ui.gd" id="9_oxep1"]
 
 [node name="BattleManager" type="Node" unique_id=916144311]
 script = ExtResource("1_r0ul7")
 party_jugador = Array[ExtResource("2_dpovl")]([ExtResource("3_6ldo0"), ExtResource("4_vnw7q"), ExtResource("5_oxep1"), ExtResource("6_vnw7q")])
-oleadas_enemigos = [[ExtResource("8_vnw7q"), ExtResource("5_tgs0p"), ExtResource("8_vnw7q"), ExtResource("8_vnw7q"), ExtResource("8_vnw7q")]]
+oleadas_enemigos = [[ExtResource("7_vnw7q")]]
 
 [node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064]
 script = ExtResource("9_oxep1")

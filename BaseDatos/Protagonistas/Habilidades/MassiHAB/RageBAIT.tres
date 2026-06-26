@@ -8,5 +8,6 @@ nombre = "RageBAIT"
 costo_ph = 35
 costo_pt = 25
 dano_base = 0
+categoria_ia = "tecnica"
 cooldown = 1
 metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

@@ -38,6 +38,9 @@ class_name CharacterStats
 @export var drop_experiencia: int = 25
 @export var drop_whenes: int = 10 # Cantidad de Whenes que suelta al morir
 
+@export_group("Inteligencia Artificial")
+@export_enum("easy", "normal", "hard") var nivel_ia: String = "normal"
+
 @export_group("Puntos Temperamento (PT)")
 @export var pt_maximos: int = 100
 var pt_actuales: int = 0 # Empezamos el combate con 0 PT
@@ -122,29 +125,116 @@ func subir_nivel():
 # (Al final de estadisticas_personaje.gd)
 var cooldowns_actuales: Dictionary = {} # Guarda la cuenta regresiva de cada magia
 
-# --- IA ENEMIGA ---
+# --- IA ENEMIGA MEGA-ACTUALIZADA ---
 func ejecutar_ia(bm: Node, party_jugador: Array):
-	# Filtrar posibles objetivos
-	var vivos = party_jugador.filter(func(h): return h.pv_actuales > 0)
-	var provocadores = vivos.filter(func(h): return h.turnos_provocacion > 0)
-	var defensor = provocadores.pick_random() if provocadores.size() > 0 else vivos.pick_random()
+	var heroes_vivos = party_jugador.filter(func(h): return h.pv_actuales > 0)
+	var aliados_vivos = bm.enemigos_actuales.filter(func(e): return e.pv_actuales > 0)
 	
-	var probabilidad = randi() % 100 
 	await bm.get_tree().create_timer(0.8).timeout
 	
-	if turnos_distraido > 0 and probabilidad >= 60 and probabilidad < 90: probabilidad = 95 
-	
-	if probabilidad < 60:
-		bm.ui.narrar("¡" + nombre + " ataca a " + defensor.nombre + "!")
-		await bm.get_tree().create_timer(0.8).timeout
-		await defensor.recibir_ataque(self, bm)
-	elif probabilidad < 90:
-		bm.ui.narrar("¡" + nombre + " usa un ataque especial!")
-		await bm.get_tree().create_timer(0.8).timeout
-		await defensor.recibir_ataque_atipico(self, bm)
-	else:
-		bm.ui.narrar("¡" + nombre + (" está mirando a otro lado y pierde su turno!" if turnos_distraido > 0 else " tropezó y falló!"))
+	# 1. Distracción y pérdida de turno
+	if turnos_distraido > 0 and (randi() % 100) < 80:
+		bm.ui.narrar("¡" + nombre + " está mirando a otro lado y pierde su turno!")
 		bm.pasar_turno()
+		return
+		
+	# 2. Calcular % de Aleatoriedad según Dificultad
+	var chance_random = 25 # Default: Normal
+	if nivel_ia == "easy": chance_random = 55
+	elif nivel_ia == "hard": chance_random = 5
+		
+	var actuar_random = (randi() % 100) < chance_random
+	
+	# 3. Filtrar habilidades que SÍ puede usar (Recursos, Cooldown y Concentración)
+	var habs_usables = []
+	for hab in habilidades_disponibles:
+		var cd = cooldowns_actuales.get(hab, 0)
+		var bloqueado = (turnos_distraido > 0 and hab.es_ataque_fuerte)
+		if cd == 0 and ph_actuales >= hab.costo_ph and pt_actuales >= hab.costo_pt and not bloqueado:
+			habs_usables.append(hab)
+
+	var accion_elegida = null
+	var objetivo_elegido = null
+	
+	if actuar_random:
+		# --- MODO ALEATORIO (Se equivoca) ---
+		if habs_usables.size() > 0 and randf() > 0.4:
+			accion_elegida = habs_usables.pick_random()
+		else:
+			accion_elegida = "atacar" if randf() > 0.3 else "atipico"
+	else:
+		# --- MODO INTELIGENTE (Táctico) ---
+		var aliado_herido = null
+		for a in aliados_vivos:
+			if a.pv_actuales < (a.pv_maximos * 0.4): # Si un compa tiene menos del 40%
+				aliado_herido = a
+				break
+				
+		var habs_curativas = habs_usables.filter(func(h): return h.categoria_ia == "curativa")
+		var habs_tecnicas = habs_usables.filter(func(h): return h.categoria_ia == "tecnica")
+		var habs_ofensivas = habs_usables.filter(func(h): return h.categoria_ia == "ofensiva")
+		
+		# Prioridad 1: Curar al herido
+		if aliado_herido != null and habs_curativas.size() > 0:
+			accion_elegida = habs_curativas.pick_random()
+			objetivo_elegido = aliado_herido
+		# Prioridad 2: Buffos y Debuffos (40% de chance para que no spamee)
+		elif habs_tecnicas.size() > 0 and randf() > 0.6: 
+			accion_elegida = habs_tecnicas.pick_random()
+		# Prioridad 3: Destruir a los héroes
+		elif habs_ofensivas.size() > 0:
+			accion_elegida = habs_ofensivas.pick_random()
+		else:
+			accion_elegida = "atacar" if randf() > 0.2 else "atipico"
+			
+	# 4. Seleccionar objetivo si la habilidad aún no lo tiene definido
+	if objetivo_elegido == null:
+		if accion_elegida is Habilidad:
+			if accion_elegida.objetivo == "aliado":
+				objetivo_elegido = aliados_vivos.pick_random()
+			elif accion_elegida.objetivo == "usuario":
+				objetivo_elegido = self
+			else:
+				objetivo_elegido = _elegir_heroe_inteligente(heroes_vivos, actuar_random)
+		else:
+			objetivo_elegido = _elegir_heroe_inteligente(heroes_vivos, actuar_random)
+
+	# 5. Ejecutar la acción
+	if accion_elegida is Habilidad:
+		# Descontar PH/PT e iniciar Cooldown
+		ph_actuales -= accion_elegida.costo_ph
+		pt_actuales -= accion_elegida.costo_pt
+		if accion_elegida.cooldown > 0:
+			cooldowns_actuales[accion_elegida] = accion_elegida.cooldown
+			
+		bm.ui.actualizar_interfaz_party(bm.party_jugador)
+		await accion_elegida.ejecutar(self, objetivo_elegido, bm)
+	else:
+		bm.ui.narrar("¡" + nombre + " ataca a " + objetivo_elegido.nombre + "!")
+		
+		# --- ¡NUEVO! EL ENEMIGO GANA PT AL ATACAR NORMALMENTE ---
+		pt_actuales = min(pt_actuales + 20, pt_maximos) 
+		
+		await bm.get_tree().create_timer(0.8).timeout
+		
+		if accion_elegida == "atipico":
+			await objetivo_elegido.recibir_ataque_atipico(self, bm)
+		else:
+			await objetivo_elegido.recibir_ataque(self, bm)
+
+# --- FUNCION DE APOYO DE LA IA ---
+func _elegir_heroe_inteligente(heroes: Array, es_random: bool) -> CharacterStats:
+	var provocadores = heroes.filter(func(h): return h.turnos_provocacion > 0)
+	if provocadores.size() > 0: return provocadores.pick_random()
+	
+	if es_random: return heroes.pick_random()
+	
+	# El Modo Inteligente busca al héroe que tiene MENOS vida para rematarlo
+	var victima = heroes[0]
+	for h in heroes:
+		if h.pv_actuales < victima.pv_actuales:
+			victima = h
+	return victima
 
 # --- FÓRMULAS DE DAÑO Y DEFENSA ---
 func recibir_ataque(atacante: Resource, bm: Node):

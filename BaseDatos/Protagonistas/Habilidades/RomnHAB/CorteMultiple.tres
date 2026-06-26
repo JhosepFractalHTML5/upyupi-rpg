@@ -9,6 +9,6 @@ costo_ph = 25
 costo_pt = 50
 dano_base = 0
 es_ataque_fuerte = true
-objetivo = "aleatorio"
+objetivo = "aleatorio_enemigos"
 cooldown = 3
 metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

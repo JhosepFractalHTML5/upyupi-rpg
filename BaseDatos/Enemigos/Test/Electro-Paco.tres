@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://3dvratlndnh3"]
+
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_6md7a"]
+[ext_resource type="Resource" uid="uid://c7608y116kd6m" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EscudoHumano.tres" id="2_4ekae"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="2_ll4ef"]
+[ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="3_l810g"]
+[ext_resource type="Texture2D" uid="uid://bwyroa7hyghg6" path="res://Graficos/Batalla/Enemigos/CAP01/Electo-Paco.png" id="3_ll4ef"]
+[ext_resource type="Resource" uid="uid://voiea5jv3r2m" path="res://BaseDatos/Protagonistas/Habilidades/RomnHAB/CorteMultiple.tres" id="4_fr6lq"]
+[ext_resource type="Resource" uid="uid://ti5usuqslbq6" path="res://BaseDatos/Protagonistas/Habilidades/ThaisHAB/ComidaInstantanea.tres" id="5_273jp"]
+
+[resource]
+script = ExtResource("2_ll4ef")
+nombre = "Electro-Paco"
+clase = "Policia"
+nivel = 5
+nivel_maximo = 5
+textura_sprite = ExtResource("3_ll4ef")
+pv_maximos = 250
+pv_actuales = 250
+ph_maximos = 300
+ph_actuales = 300
+ataque = 15
+defensa = 15
+agilidad = 30
+nivel_ia = "hard"
+habilidades_disponibles = Array[ExtResource("1_6md7a")]([ExtResource("2_4ekae"), ExtResource("3_l810g"), ExtResource("4_fr6lq"), ExtResource("5_273jp")])
+metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

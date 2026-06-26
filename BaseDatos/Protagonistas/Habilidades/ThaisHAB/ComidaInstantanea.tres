@@ -9,4 +9,5 @@ costo_ph = 15
 costo_pt = 30
 dano_base = 0
 objetivo = "aliado"
+categoria_ia = "curativa"
 metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

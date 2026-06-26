@@ -6,4 +6,5 @@
 script = ExtResource("1_5wjm4")
 dano_base = 0
 objetivo = "usuario"
+categoria_ia = "tecnica"
 metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

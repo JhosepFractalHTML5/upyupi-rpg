@@ -47,11 +47,13 @@ func _process(_delta):
 # --- PREPARACIÓN DE LA BATALLA ---
 func iniciar_batalla():
 	for heroe in party_jugador:
-		heroe.pt_actuales = 0
+		# --- NUEVO: PT aleatorios entre 0 y el máximo de cada héroe ---
+		heroe.pt_actuales = randi_range(0, heroe.pt_maximos)
+		
 		heroe.turnos_provocacion = 0
 		heroe.turnos_mejora_defensa = 0
-		heroe.turnos_mejora_ataque = 0 # <-- NUEVO
-		heroe.turnos_mejora_agilidad = 0 # <-- NUEVO
+		heroe.turnos_mejora_ataque = 0 
+		heroe.turnos_mejora_agilidad = 0 
 		heroe.turnos_distraido = 0
 		heroe.turnos_agilidad_baja = 0
 		heroe.dano_recibido_esta_ronda = 0
@@ -68,7 +70,16 @@ func cargar_oleada(indice: int):
 	var index_enemigo = 1
 	for enemigo_plantilla in oleadas_enemigos[indice]:
 		var enemigo_clon = enemigo_plantilla.duplicate(true)
-		enemigo_clon.nombre = "Enemigo" + str(index_enemigo) if index_enemigo > 1 else "Enemigo"
+		
+		# --- CORRECCIÓN: Respetar el nombre original ---
+		var nombre_base = enemigo_plantilla.nombre
+		if nombre_base == "": nombre_base = "Enemigo" # Por si te olvidas de ponerle nombre
+		
+		enemigo_clon.nombre = nombre_base + (" " + str(index_enemigo) if index_enemigo > 1 else "")
+		
+		enemigo_clon.pt_actuales = randi_range(0, enemigo_clon.pt_maximos)
+		enemigo_clon.cooldowns_actuales.clear()
+		
 		enemigos_actuales.append(enemigo_clon) 
 		index_enemigo += 1
 		
@@ -242,8 +253,14 @@ func _seleccionar_habilidad(hab: Habilidad):
 		habilidad_pendiente = hab
 		ui.grid_habilidades.hide() 
 		accion_pendiente = "HABILIDAD"
-		if hab.objetivo == "usuario" or hab.objetivo == "aleatorio": _ejecutar_habilidad_preparada(atacante, null) 
-		else: iniciar_seleccion_objetivo()
+		
+		# --- CORRECCIÓN: Lista de habilidades que no requieren apuntar manualmente ---
+		var objs_automaticos = ["usuario", "aleatorio_enemigos", "aleatorio_aliados", "todos_enemigos", "todos_aliados"]
+		
+		if hab.objetivo in objs_automaticos: 
+			_ejecutar_habilidad_preparada(atacante, null) 
+		else: 
+			iniciar_seleccion_objetivo()
 	else:
 		ui.grid_habilidades.hide()
 		ui.narrar("¡Recursos insuficientes!")
