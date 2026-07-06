@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://bgvh5vgqqdw1a"]
+
+[ext_resource type="Texture2D" uid="uid://caavu51hbd6qy" path="res://Graficos/Batalla/Enemigos/Test/UENOONKDS.png" id="1_wjq5r"]
+
+[node name="Node" type="Control" unique_id=1604403977]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 64.0
+offset_bottom = 64.0
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=2125153825]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 2.0
+offset_right = 56.0
+offset_bottom = 50.0
+texture = ExtResource("1_wjq5r")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RichTextLabel" type="RichTextLabel" parent="." unique_id=366828367]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 51.0
+offset_right = 62.0
+offset_bottom = 60.0
+theme_override_font_sizes/normal_font_size = 6
+text = "sfdfdsdsfdsf"
+horizontal_alignment = 1
+vertical_alignment = 1

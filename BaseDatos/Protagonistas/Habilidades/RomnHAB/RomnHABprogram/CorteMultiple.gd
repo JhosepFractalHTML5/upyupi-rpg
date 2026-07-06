@@ -4,29 +4,32 @@ func ejecutar(atacante: CharacterStats, _defensor_nulo: CharacterStats, bm: Node
 	bm.ui.narrar("¡" + atacante.nombre + " corta sin piedad al rival!!!")
 	await bm.get_tree().create_timer(1.0).timeout
 	
-	# --- CORRECCIÓN DE BANDO: Detectamos quién es el atacante ---
 	var grupo_rival = bm.enemigos_actuales if bm.party_jugador.has(atacante) else bm.party_jugador
+	var atk_real = atacante.get_ataque_real()
 	
 	for secuencia in range(3):
 		var vivos = grupo_rival.filter(func(e): return e.pv_actuales > 0)
 		if vivos.is_empty(): break 
-		var defensor = vivos.pick_random()
+		
+		# --- NUEVO: En lugar de pick_random, respetamos el Aggro (Provocación) ---
+		var defensor = bm.obtener_objetivo_por_aggro(vivos)
 		
 		for golpe in range(2):
 			if defensor.pv_actuales <= 0: break 
 			
-			var defensa_real = defensor.defensa
-			if defensor.turnos_mejora_defensa > 0: defensa_real = int(defensa_real * 1.5)
+			var def_real = defensor.get_defensa_real()
+			var dano_calculado = int((atk_real * 1.5) - (def_real * 0.5))
+			var dano_final = max(1, int(dano_calculado * 0.40)) 
 			
-			var dano_calculado = (atacante.ataque * 4) - defensa_real
-			var dano_final = max(1, dano_calculado)
-			if defensor.esta_defendiendo: dano_final = int(dano_final * 0.55)
+			if defensor.esta_defendiendo: dano_final = int(dano_final * 0.5)
+			if defensor.turnos_distraido > 0: dano_final = int(dano_final * 1.25)
 			
-			defensor.recibir_dano(dano_final)
-			defensor.dano_recibido_esta_ronda += dano_final
+			defensor.pv_actuales = max(defensor.pv_actuales - dano_final, 0)
+			defensor.registrar_dano_ronda(dano_final)
+			
 			bm.ui.agregar_al_log("[CORTE MÚLTIPLE " + str(secuencia+1) + "/3] " + atacante.nombre + " -> " + defensor.nombre + " (-" + str(dano_final) + " PV)")
+			bm.mostrar_numero_flotante(defensor, dano_final, "normal")
 			
-			# Efecto visual de daño (distinto si es monstruo o héroe)
 			if bm.enemigos_actuales.has(defensor):
 				var sprite = bm.sprites_enemigos[defensor]
 				sprite.modulate = Color(3, 0.5, 0.5) 

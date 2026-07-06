@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_m634d"]
 [ext_resource type="Resource" uid="uid://voiea5jv3r2m" path="res://BaseDatos/Protagonistas/Habilidades/RomnHAB/CorteMultiple.tres" id="2_2arwj"]
 [ext_resource type="Texture2D" uid="uid://c5riynxg6aua5" path="res://Graficos/Batalla/Protagonistas/Icons/Romn.png" id="3_2arwj"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="4_kspce"]
 
 [resource]
 script = ExtResource("1_m634d")
@@ -14,15 +15,21 @@ nivel = 6
 nivel_maximo = 30
 retrato_base = ExtResource("1_huu7l")
 icono_timeline = ExtResource("3_2arwj")
-pv_maximos = 45
-pv_actuales = 45
-ph_maximos = 25
-ph_actuales = 25
-ataque = 20
-defensa = 15
-agilidad = 20
+color_interfaz = Color(0, 0.8235294, 1, 1)
+pv_maximos = 65
+pv_actuales = 65
+ph_maximos = 80
+ph_actuales = 80
+ataque = 25
+agilidad = 5
 defensa_atipica = 0
-suerte = 8
+suerte = 10
+tasa_evasion = 0.0
+tasa_critico = 0.15
+bono_contraataque = 0.35
+farmacologia = 1.1
+recuperacion_pt = 1.4
+tasa_experiencia = 0.9
 exp_necesaria_proximo_nivel = 150
 drop_experiencia = 0
 drop_whenes = 0

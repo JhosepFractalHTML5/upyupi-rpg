@@ -1,7 +1,10 @@
 [gd_resource type="Resource" script_class="CharacterStats" format=3 uid="uid://cin83d71bga8x"]
 
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_2odau"]
+[ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_7r8or"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="2_eytre"]
 [ext_resource type="Texture2D" uid="uid://bcleyye1vca4r" path="res://Graficos/Batalla/Enemigos/Test/KITANSAF.png" id="2_l08xu"]
+[ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="3_ia5tv"]
 
 [resource]
 script = ExtResource("1_2odau")
@@ -10,6 +13,7 @@ clase = "Enemigo"
 nivel = 0
 nivel_maximo = 0
 textura_sprite = ExtResource("2_l08xu")
-pv_maximos = 200
-pv_actuales = 200
+pv_maximos = 5
+pv_actuales = 5
+item_dropeable = ExtResource("3_ia5tv")
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

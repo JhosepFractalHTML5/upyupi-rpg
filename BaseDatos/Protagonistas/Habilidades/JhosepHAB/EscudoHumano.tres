@@ -1,9 +1,11 @@
 [gd_resource type="Resource" format=3 uid="uid://c7608y116kd6m"]
 
 [ext_resource type="Script" uid="uid://cqs3h366tpbv7" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/EscudoHumano.gd" id="1_7hh76"]
+[ext_resource type="Texture2D" uid="uid://dgre7gf3fbutj" path="res://Graficos/Batalla/Protagonistas/Placeholder/Thais.png" id="1_xlv52"]
 
 [resource]
 script = ExtResource("1_7hh76")
+icono = ExtResource("1_xlv52")
 nombre = "Escudo Humano"
 costo_ph = 5
 costo_pt = 10
@@ -11,4 +13,5 @@ dano_base = 0
 objetivo = "usuario"
 categoria_ia = "tecnica"
 cooldown = 2
+descripcion = "Prottegegfdjfkjksdf"
 metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

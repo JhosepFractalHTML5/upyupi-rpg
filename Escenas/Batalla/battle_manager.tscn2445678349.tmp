@@ -1,0 +1,307 @@
+[gd_scene format=3 uid="uid://dvgr71kp3ywhp"]
+
+[ext_resource type="Script" uid="uid://1a67l4uqp3jc" path="res://Scripts/Batalla/battle_manager.gd" id="1_r0ul7"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="2_dpovl"]
+[ext_resource type="Texture2D" uid="uid://4sho352b2ho6" path="res://Graficos/Batalla/Protagonistas/Icons/Jhosep.png" id="2_ql3ns"]
+[ext_resource type="Resource" uid="uid://dk0apw57fkoqr" path="res://BaseDatos/Protagonistas/Jhosep.tres" id="3_6ldo0"]
+[ext_resource type="Texture2D" uid="uid://c5riynxg6aua5" path="res://Graficos/Batalla/Protagonistas/Icons/Romn.png" id="3_n2pgf"]
+[ext_resource type="Texture2D" uid="uid://bos8wl7kkwds1" path="res://icon.svg" id="4_cw1wa"]
+[ext_resource type="Resource" uid="uid://dp44xpoo2ijf0" path="res://BaseDatos/Protagonistas/Romn.tres" id="4_vnw7q"]
+[ext_resource type="Resource" uid="uid://cb5ispp132x8w" path="res://BaseDatos/Protagonistas/Massi.tres" id="5_oxep1"]
+[ext_resource type="Texture2D" uid="uid://caavu51hbd6qy" path="res://Graficos/Batalla/Enemigos/Test/UENOONKDS.png" id="5_pjwkw"]
+[ext_resource type="Resource" uid="uid://4ak7wfcwboi" path="res://BaseDatos/Protagonistas/Thais.tres" id="6_vnw7q"]
+[ext_resource type="Resource" uid="uid://3dvratlndnh3" path="res://BaseDatos/Enemigos/Test/Electro-Paco.tres" id="7_vnw7q"]
+[ext_resource type="Script" uid="uid://cd0r8bw8gnavd" path="res://Escenas/Batalla/battle_ui.gd" id="9_oxep1"]
+
+[node name="BattleManager" type="Node" unique_id=916144311]
+script = ExtResource("1_r0ul7")
+icono_bolsillo_vacio = ExtResource("2_ql3ns")
+icono_ph = ExtResource("3_n2pgf")
+icono_pt = ExtResource("4_cw1wa")
+icono_pv = ExtResource("5_pjwkw")
+party_jugador = Array[ExtResource("2_dpovl")]([ExtResource("3_6ldo0"), ExtResource("4_vnw7q"), ExtResource("5_oxep1"), ExtResource("6_vnw7q")])
+oleadas_enemigos = [[ExtResource("7_vnw7q"), ExtResource("7_vnw7q"), ExtResource("7_vnw7q")]]
+
+[node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064]
+script = ExtResource("9_oxep1")
+
+[node name="ContenedorEnemigos" type="HBoxContainer" parent="CapaGUI" unique_id=421390042]
+offset_left = 838.0
+offset_top = 220.0
+offset_right = 1896.0
+offset_bottom = 727.0
+theme_override_constants/separation = 50
+alignment = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="ContenedorParty" type="HBoxContainer" parent="CapaGUI" unique_id=1082091779]
+top_level = true
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -512.0
+offset_top = -339.0
+offset_right = 940.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelHeroe" type="Panel" parent="CapaGUI/ContenedorParty" unique_id=87701573]
+custom_minimum_size = Vector2(360, 190)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe" unique_id=290340499]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 356.0
+offset_bottom = 25.0
+
+[node name="LblNombre" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe/VBoxContainer" unique_id=979532868]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe" unique_id=1772939915]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 270.0
+offset_right = 356.0
+offset_bottom = 320.0
+
+[node name="LblPV" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe/VBoxContainer2" unique_id=1459254783]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.47058824, 0, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe/VBoxContainer2" unique_id=354788673]
+layout_mode = 2
+
+[node name="LblPH" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe/VBoxContainer2/HBoxContainer" unique_id=1065139169]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+
+[node name="LblPT" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe/VBoxContainer2/HBoxContainer" unique_id=2074851975]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="PanelHeroe2" type="Panel" parent="CapaGUI/ContenedorParty" unique_id=509769645]
+custom_minimum_size = Vector2(360, 190)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe2" unique_id=1793507353]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 356.0
+offset_bottom = 25.0
+
+[node name="LblNombre" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe2/VBoxContainer" unique_id=1748180136]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe2" unique_id=1635401264]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 270.0
+offset_right = 356.0
+offset_bottom = 320.0
+
+[node name="LblPV" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe2/VBoxContainer2" unique_id=314574956]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.47058824, 0, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe2/VBoxContainer2" unique_id=1641056938]
+layout_mode = 2
+
+[node name="LblPH" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe2/VBoxContainer2/HBoxContainer" unique_id=616106425]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+
+[node name="LblPT" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe2/VBoxContainer2/HBoxContainer" unique_id=2067097720]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="PanelHeroe3" type="Panel" parent="CapaGUI/ContenedorParty" unique_id=2100281712]
+custom_minimum_size = Vector2(360, 190)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe3" unique_id=75753523]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 356.0
+offset_bottom = 25.0
+
+[node name="LblNombre" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe3/VBoxContainer" unique_id=709833377]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe3" unique_id=206092268]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 270.0
+offset_right = 356.0
+offset_bottom = 320.0
+
+[node name="LblPV" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe3/VBoxContainer2" unique_id=298914614]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.47058824, 0, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe3/VBoxContainer2" unique_id=1653592606]
+layout_mode = 2
+
+[node name="LblPH" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe3/VBoxContainer2/HBoxContainer" unique_id=672497355]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+
+[node name="LblPT" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe3/VBoxContainer2/HBoxContainer" unique_id=787246946]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="PanelHeroe4" type="Panel" parent="CapaGUI/ContenedorParty" unique_id=729616021]
+custom_minimum_size = Vector2(360, 190)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe4" unique_id=1055623533]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 356.0
+offset_bottom = 25.0
+
+[node name="LblNombre" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe4/VBoxContainer" unique_id=2121259273]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0, 0, 1)
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe4" unique_id=1899745108]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 270.0
+offset_right = 356.0
+offset_bottom = 320.0
+
+[node name="LblPV" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe4/VBoxContainer2" unique_id=1585972538]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.47058824, 0, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CapaGUI/ContenedorParty/PanelHeroe4/VBoxContainer2" unique_id=1169569695]
+layout_mode = 2
+
+[node name="LblPH" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe4/VBoxContainer2/HBoxContainer" unique_id=1752697166]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+
+[node name="LblPT" type="Label" parent="CapaGUI/ContenedorParty/PanelHeroe4/VBoxContainer2/HBoxContainer" unique_id=1182051855]
+layout_mode = 2
+horizontal_alignment = 2
+
+[node name="MenuAcciones" type="VBoxContainer" parent="CapaGUI" unique_id=931265147]
+offset_left = 448.0
+offset_top = 15.0
+offset_right = 826.0
+offset_bottom = 665.0
+metadata/_edit_use_anchors_ = true
+
+[node name="BtnAtacar" type="Button" parent="CapaGUI/MenuAcciones" unique_id=1346873177]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Atacar"
+
+[node name="BtnDefender" type="Button" parent="CapaGUI/MenuAcciones" unique_id=1968868538]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Defender"
+
+[node name="BtnHabilidades" type="Button" parent="CapaGUI/MenuAcciones" unique_id=104888897]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Habilidades"
+
+[node name="BtnItems" type="Button" parent="CapaGUI/MenuAcciones" unique_id=1390961957]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Items"
+
+[node name="BtnHuir" type="Button" parent="CapaGUI/MenuAcciones" unique_id=1542842580]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Huir"
+
+[node name="RetratoActivo" type="TextureRect" parent="CapaGUI/MenuAcciones" unique_id=699258464]
+custom_minimum_size = Vector2(100, 380)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="PanelLog" type="Panel" parent="CapaGUI" unique_id=1879058374]
+anchors_preset = -1
+anchor_right = 0.2234375
+anchor_bottom = 1.0
+grow_vertical = 2
+
+[node name="TextoLog" type="RichTextLabel" parent="CapaGUI/PanelLog" unique_id=1464418765]
+custom_minimum_size = Vector2(421, 413)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 425.0
+offset_bottom = 417.0
+scroll_active = false
+scroll_following = true
+
+[node name="GridHabilidades" type="GridContainer" parent="CapaGUI/PanelLog" unique_id=448982781]
+custom_minimum_size = Vector2(421, 230)
+layout_mode = 0
+anchor_left = 0.0093240095
+anchor_top = 0.39074075
+anchor_right = 0.990676
+anchor_bottom = 0.6037037
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="GridItems" type="GridContainer" parent="CapaGUI/PanelLog" unique_id=1055697202]
+custom_minimum_size = Vector2(421, 421)
+layout_mode = 0
+offset_left = 4.0
+offset_top = 655.0
+offset_right = 425.0
+offset_bottom = 1076.0
+theme_override_constants/h_separation = 7
+theme_override_constants/v_separation = 7
+columns = 4
+
+[node name="ContenedorTurnos" type="HBoxContainer" parent="CapaGUI" unique_id=1884083030]
+offset_left = 448.0
+offset_top = 665.0
+offset_right = 825.0
+offset_bottom = 705.0
+theme_override_constants/separation = 5
+metadata/_edit_use_anchors_ = true
+
+[node name="PanelAccion" type="Panel" parent="CapaGUI" unique_id=929255562]
+offset_left = 838.0
+offset_top = 15.0
+offset_right = 1893.0
+offset_bottom = 216.0
+metadata/_edit_use_anchors_ = true
+
+[node name="VBox" type="VBoxContainer" parent="CapaGUI/PanelAccion" unique_id=1322249704]
+layout_mode = 0
+offset_right = 1055.0
+offset_bottom = 201.0
+
+[node name="LblNarrativa" type="Label" parent="CapaGUI/PanelAccion/VBox" unique_id=1247776667]
+layout_mode = 2
+horizontal_alignment = 1

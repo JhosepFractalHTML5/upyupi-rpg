@@ -2,32 +2,47 @@ extends Node
 
 @export var party_jugador: Array[CharacterStats]
 @export var oleadas_enemigos: Array
+@export var ayudante_actual: Ayudante # Aquí arrastrarás tu recurso de ayudante (.tres)
 
 var enemigos_actuales: Array[CharacterStats] = []
 var combatientes: Array[CharacterStats] = []
 var turno_actual: int = 0
 var indice_oleada: int = 0
+var timer_estados: Timer
+var indice_rotacion_estado: int = 0
 
 @onready var ui: BattleUI = $CapaGUI
 
 var seleccionando_objetivo: bool = false
+var seleccionando_item: bool = false 
 var indice_objetivo_actual: int = 0
 var accion_pendiente: String = "" 
 var habilidad_pendiente: Habilidad = null 
+var item_pendiente: ItemConsumible = null 
 var sprites_enemigos: Dictionary = {} 
 
 func _ready():
 	randomize()
+	timer_estados = Timer.new()
+	timer_estados.wait_time = 1.0
+	timer_estados.autostart = true
+	timer_estados.timeout.connect(_rotar_estados_enemigos)
+	add_child(timer_estados)
 	ui.btn_atacar.pressed.connect(_on_btn_atacar_pressed)
 	ui.btn_defender.pressed.connect(_on_btn_defender_pressed)
 	ui.btn_habilidades.pressed.connect(_on_btn_habilidades_pressed)
+	ui.btn_items.pressed.connect(_on_btn_items_pressed)
 	ui.btn_huir.pressed.connect(_on_btn_huir_pressed)
 	iniciar_batalla()
 
 func _process(_delta):
 	if not seleccionando_objetivo: return
 	
-	var es_apuntado_aliado = (accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado")
+	var es_apuntado_aliado = false
+	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
 	
 	if es_apuntado_aliado:
 		for enemigo in sprites_enemigos.keys(): sprites_enemigos[enemigo].modulate.a = 1.0
@@ -47,17 +62,16 @@ func _process(_delta):
 # --- PREPARACIÓN DE LA BATALLA ---
 func iniciar_batalla():
 	for heroe in party_jugador:
-		# --- NUEVO: PT aleatorios entre 0 y el máximo de cada héroe ---
 		heroe.pt_actuales = randi_range(0, heroe.pt_maximos)
-		
-		heroe.turnos_provocacion = 0
-		heroe.turnos_mejora_defensa = 0
-		heroe.turnos_mejora_ataque = 0 
-		heroe.turnos_mejora_agilidad = 0 
-		heroe.turnos_distraido = 0
-		heroe.turnos_agilidad_baja = 0
-		heroe.dano_recibido_esta_ronda = 0
 		heroe.cooldowns_actuales.clear()
+		# --- NUEVO: REINICIO DE ESTADOS DESDE EL CEREBRO ---
+		heroe.turnos_provocacion = 0
+		heroe.turnos_distraido = 0
+		heroe.esta_defendiendo = false
+		heroe.reiniciar_dano_ronda()
+		for stat in heroe.niveles_stat.keys():
+			heroe.niveles_stat[stat] = 0
+			heroe.turnos_stat[stat] = 0
 		
 	ui.agregar_al_log("[SISTEMA] Combate Iniciado.") 
 	ui.actualizar_interfaz_party(party_jugador)
@@ -70,16 +84,11 @@ func cargar_oleada(indice: int):
 	var index_enemigo = 1
 	for enemigo_plantilla in oleadas_enemigos[indice]:
 		var enemigo_clon = enemigo_plantilla.duplicate(true)
-		
-		# --- CORRECCIÓN: Respetar el nombre original ---
 		var nombre_base = enemigo_plantilla.nombre
-		if nombre_base == "": nombre_base = "Enemigo" # Por si te olvidas de ponerle nombre
-		
+		if nombre_base == "": nombre_base = "Enemigo" 
 		enemigo_clon.nombre = nombre_base + (" " + str(index_enemigo) if index_enemigo > 1 else "")
-		
 		enemigo_clon.pt_actuales = randi_range(0, enemigo_clon.pt_maximos)
 		enemigo_clon.cooldowns_actuales.clear()
-		
 		enemigos_actuales.append(enemigo_clon) 
 		index_enemigo += 1
 		
@@ -93,11 +102,22 @@ func cargar_oleada(indice: int):
 func actualizar_sprites_enemigos():
 	for hijo in ui.contenedor_enemigos.get_children(): hijo.queue_free()
 	sprites_enemigos.clear()
+	
 	for enemigo in enemigos_actuales:
 		var rect = TextureRect.new()
 		rect.texture = enemigo.textura_sprite
 		ui.contenedor_enemigos.add_child(rect)
 		sprites_enemigos[enemigo] = rect 
+		
+		var icono = TextureRect.new()
+		icono.name = "IconoEstado"
+		icono.custom_minimum_size = Vector2(24, 24)
+		icono.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icono.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icono.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+		icono.position.y = 30
+		icono.hide()
+		rect.add_child(icono)
 
 func iniciar_ronda():
 	combatientes.clear()
@@ -110,39 +130,36 @@ func iniciar_ronda():
 	iniciar_turno()
 
 func _ordenar_por_agilidad(a: CharacterStats, b: CharacterStats) -> bool:
-	var agi_a = a.agilidad / 2 if a.turnos_agilidad_baja > 0 else a.agilidad
-	if a.turnos_mejora_agilidad > 0: agi_a = int(agi_a * 1.5) # <-- NUEVO
-	var agi_b = b.agilidad / 2 if b.turnos_agilidad_baja > 0 else b.agilidad
-	if b.turnos_mejora_agilidad > 0: agi_b = int(agi_b * 1.5) # <-- NUEVO
+	# --- NUEVO: Ahora el cerebro calcula la agilidad real con buffs y debuffs ---
+	var agi_a = a.get_agilidad_real() 
+	var agi_b = b.get_agilidad_real() 
 	return agi_a > agi_b
 
 # --- CONTROL DE TURNOS ---
 func iniciar_turno():
 	var atacante = combatientes[turno_actual]
-	var perdio_provocacion = false
-	var perdio_distraccion = false
 	
-	if atacante.turnos_provocacion > 0: 
-		atacante.turnos_provocacion -= 1
-		if atacante.turnos_provocacion == 0: perdio_provocacion = true
-			
-	if atacante.turnos_mejora_defensa > 0: atacante.turnos_mejora_defensa -= 1
-	if atacante.turnos_mejora_ataque > 0: atacante.turnos_mejora_ataque -= 1 # <-- NUEVO
-	if atacante.turnos_mejora_agilidad > 0: atacante.turnos_mejora_agilidad -= 1 # <-- NUEVO
-	if atacante.turnos_agilidad_baja > 0: atacante.turnos_agilidad_baja -= 1
-	
-	if atacante.turnos_distraido > 0:
-		atacante.turnos_distraido -= 1
-		if atacante.turnos_distraido == 0: perdio_distraccion = true
+	# --- NUEVO: EL CEREBRO PROCESA LOS ESTADOS AUTOMÁTICAMENTE ---
+	var estados_expirados = atacante.procesar_turnos_estados()
+	var perdio_provocacion = "PROVOCACION" in estados_expirados
+	var perdio_distraccion = "DISTRACCION" in estados_expirados
 	
 	if party_jugador.has(atacante):
 		for hab in atacante.cooldowns_actuales.keys():
 			if atacante.cooldowns_actuales[hab] > 0: atacante.cooldowns_actuales[hab] -= 1
-	
-	if atacante.esta_defendiendo: atacante.esta_defendiendo = false
 		
 	ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 	
+	if party_jugador.has(atacante):
+		ui.animar_turno_activo(atacante, party_jugador)
+		ui.actualizar_inventario_visual(atacante, self)
+		ui.actualizar_habilidades_visual(atacante, self)
+	else:
+		ui.animar_turno_activo(null, party_jugador) 
+		ui.grid_items.hide()
+		ui.grid_habilidades.hide()
+	
+	# Narrativas de estados expirados
 	if perdio_provocacion:
 		ui.narrar(atacante.nombre + " ya no quiere ser el centro de los golpes.")
 		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Escudo Humano")
@@ -156,7 +173,7 @@ func iniciar_turno():
 	if enemigos_actuales.has(atacante):
 		ui.set_menu_activo(false)
 		ui.narrar("Turno de " + atacante.nombre + ".")
-		await atacante.ejecutar_ia(self, party_jugador) # --- DELEGACIÓN DE IA ---
+		await atacante.ejecutar_ia(self, party_jugador) 
 	else:
 		ui.retrato_activo.texture = atacante.retrato_base
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
@@ -171,102 +188,147 @@ func _on_btn_atacar_pressed():
 func _on_btn_defender_pressed():
 	ui.set_menu_activo(false)
 	var atacante = combatientes[turno_actual]
-	atacante.esta_defendiendo = true
+	atacante.activar_defensa() 
+	
 	var recuperacion = int((atacante.ph_maximos * 0.05) + 5)
 	atacante.ph_actuales = min(atacante.ph_actuales + recuperacion, atacante.ph_maximos)
-	atacante.pt_actuales = min(atacante.pt_actuales + 35, atacante.pt_maximos)
-	atacante.chance_contraataque += 1.5
+	# Aplicamos el multiplicador de Recuperación de PT
+	var pt_ganados = int(15 * atacante.recuperacion_pt)
+	atacante.pt_actuales = min(atacante.pt_actuales + pt_ganados, atacante.pt_maximos)
 	
-	ui.agregar_al_log("[ACCIÓN] " + atacante.nombre + " usó Defensa (+35 PT).")
+	ui.agregar_al_log("[ACCIÓN] " + atacante.nombre + " usó Defensa (+" + str(pt_ganados) + " PT).")
 	ui.narrar("¡" + atacante.nombre + " adopta una postura defensiva!")
 	ui.actualizar_interfaz_party(party_jugador)
+	await get_tree().create_timer(1.2).timeout
 	pasar_turno()
 
 func _on_btn_huir_pressed():
 	ui.set_menu_activo(false)
 	ui.narrar("¡Intentas escapar de la batalla!")
 
-# --- SISTEMA DE HABILIDADES ---
-func _on_btn_habilidades_pressed():
+
+# --- SISTEMA DE ITEMS ---
+func _on_btn_items_pressed():
 	ui.set_menu_activo(false)
-	ui.lbl_narrativa.hide()
-	ui.grid_habilidades.show() 
 	
 	var atacante = combatientes[turno_actual]
-	for hijo in ui.grid_habilidades.get_children(): hijo.queue_free()
-		
-	var claves_desbloqueo = [
-		atacante.item_clave_hab_1, atacante.item_clave_hab_2,
-		atacante.item_clave_hab_3, atacante.item_clave_hab_4,
-		atacante.item_clave_hab_5, atacante.item_clave_hab_6
-	]
-	var primer_boton: Button = null 
+	var primer_boton = null 
 	
-	for i in range(atacante.habilidades_disponibles.size()):
-		if i < 6 and claves_desbloqueo[i] == true:
-			var hab = atacante.habilidades_disponibles[i]
-			var btn = Button.new()
-			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			var turnos_cd = atacante.cooldowns_actuales[hab] if atacante.cooldowns_actuales.has(hab) else 0
-				
-			if turnos_cd > 0:
-				btn.text = hab.nombre + " (CD: " + str(turnos_cd) + ")"
-				btn.modulate = Color(0.6, 0.6, 0.6) 
-			elif atacante.turnos_distraido > 0 and hab.es_ataque_fuerte:
-				btn.text = hab.nombre + " (BLOQUEADO)"
-				btn.modulate = Color(0.8, 0.4, 0.4) 
-			else:
-				btn.text = hab.nombre + " (" + str(hab.costo_ph) + "PH|" + str(hab.costo_pt) + "PT)"
-			
-			btn.pressed.connect(func(): _seleccionar_habilidad(hab))
-			ui.grid_habilidades.add_child(btn)
+	for btn in ui.grid_items.get_children():
+		if btn.get_meta("es_valido"):
+			btn.disabled = false 
+			btn.focus_mode = Control.FOCUS_ALL
 			if primer_boton == null: primer_boton = btn
 			
 	if primer_boton != null:
+		accion_pendiente = "ITEM_MENU" 
 		primer_boton.grab_focus() 
+		ui.mostrar_descripcion_item(primer_boton.get_meta("desc_item"))
+	else:
+		ui.narrar("¡El inventario de " + atacante.nombre + " está vacío!")
+		await get_tree().create_timer(1.2).timeout
+		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		ui.set_menu_activo(true)
+
+func bloquear_grid_items():
+	for btn in ui.grid_items.get_children():
+		btn.disabled = true
+
+func _seleccionar_item(item: ItemConsumible):
+	bloquear_grid_items()
+	accion_pendiente = "ITEM" 
+	item_pendiente = item
+	
+	if item.objetivo == "usuario":
+		_ejecutar_item(combatientes[turno_actual], combatientes[turno_actual])
+	else:
+		iniciar_seleccion_objetivo()
+
+func _ejecutar_item(atacante: CharacterStats, defensor: CharacterStats):
+	ui.narrar("¡" + atacante.nombre + " usó " + item_pendiente.nombre + " en " + defensor.nombre + "!")
+	await get_tree().create_timer(1.0).timeout
+	
+	# Farmacología: Qué tan bien procesa el defensor las curaciones
+	var bono_farmacologia = defensor.farmacologia
+	
+	if item_pendiente.tipo_efecto == "CURAR_PV":
+		var sanacion = int(item_pendiente.poder * bono_farmacologia)
+		defensor.pv_actuales = min(defensor.pv_actuales + sanacion, defensor.pv_maximos)
+		ui.agregar_al_log("[ITEM] " + defensor.nombre + " recuperó " + str(sanacion) + " PV.")
+		ui.narrar("¡" + defensor.nombre + " recuperó salud!")
+		mostrar_numero_flotante(defensor, sanacion, "cura")
+	elif item_pendiente.tipo_efecto == "CURAR_PH":
+		var sanacion = int(item_pendiente.poder * bono_farmacologia)
+		defensor.ph_actuales = min(defensor.ph_actuales + sanacion, defensor.ph_maximos)
+		ui.agregar_al_log("[ITEM] " + defensor.nombre + " recuperó " + str(sanacion) + " PH.")
+		ui.narrar("¡" + defensor.nombre + " recuperó concentración!")
+	
+	atacante.inventario.erase(item_pendiente)
+	item_pendiente = null
+	ui.actualizar_inventario_visual(atacante, self)
+	verificar_estado_batalla(defensor, true)
+
+func _on_btn_habilidades_pressed():
+	ui.set_menu_activo(false)
+	var atacante = combatientes[turno_actual]
+	var primer_boton = null 
+	
+	for btn in ui.grid_habilidades.get_children():
+		if btn.has_meta("es_valida") and btn.get_meta("es_valida"):
+			btn.disabled = false 
+			btn.focus_mode = Control.FOCUS_ALL
+			if primer_boton == null: primer_boton = btn
+			
+	if primer_boton != null:
+		accion_pendiente = "HABILIDAD_MENU" 
+		primer_boton.grab_focus() 
+		ui.mostrar_descripcion_item(primer_boton.get_meta("desc_hab")) 
 	else:
 		ui.narrar("No hay habilidades desbloqueadas.")
 		await get_tree().create_timer(1.0).timeout
+		ui.narrar("¿Qué hará " + atacante.nombre + "?")
 		ui.set_menu_activo(true)
+
+func bloquear_grid_habilidades():
+	for btn in ui.grid_habilidades.get_children():
+		btn.disabled = true
 
 func _seleccionar_habilidad(hab: Habilidad):
 	var atacante = combatientes[turno_actual]
 	var turnos_cd = atacante.cooldowns_actuales[hab] if atacante.cooldowns_actuales.has(hab) else 0
 	
 	if turnos_cd > 0:
-		ui.grid_habilidades.hide()
-		ui.narrar("¡" + hab.nombre + " aún se está recargando! (" + str(turnos_cd) + " turnos)")
+		ui.narrar("¡Habilidad en recarga!")
 		await get_tree().create_timer(1.2).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?") 
 		ui.set_menu_activo(true)
-		return 
+		bloquear_grid_habilidades()
+		return
 		
 	if atacante.turnos_distraido > 0 and hab.es_ataque_fuerte:
-		ui.grid_habilidades.hide()
-		ui.narrar("¡" + atacante.nombre + " está muy distraído para concentrarse en eso!")
+		ui.narrar("¡" + atacante.nombre + " está muy distraído para concentrarse!")
 		await get_tree().create_timer(1.5).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?") 
 		ui.set_menu_activo(true)
+		bloquear_grid_habilidades()
 		return
 
 	if atacante.ph_actuales >= hab.costo_ph and atacante.pt_actuales >= hab.costo_pt:
+		bloquear_grid_habilidades()
 		habilidad_pendiente = hab
-		ui.grid_habilidades.hide() 
 		accion_pendiente = "HABILIDAD"
 		
-		# --- CORRECCIÓN: Lista de habilidades que no requieren apuntar manualmente ---
 		var objs_automaticos = ["usuario", "aleatorio_enemigos", "aleatorio_aliados", "todos_enemigos", "todos_aliados"]
-		
 		if hab.objetivo in objs_automaticos: 
 			_ejecutar_habilidad_preparada(atacante, null) 
 		else: 
 			iniciar_seleccion_objetivo()
 	else:
-		ui.grid_habilidades.hide()
 		ui.narrar("¡Recursos insuficientes!")
 		await get_tree().create_timer(1.0).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
 		ui.set_menu_activo(true)
+		bloquear_grid_habilidades()
 
 func _ejecutar_habilidad_preparada(atacante: CharacterStats, defensor: CharacterStats):
 	atacante.gastar_ph(habilidad_pendiente.costo_ph)
@@ -275,16 +337,51 @@ func _ejecutar_habilidad_preparada(atacante: CharacterStats, defensor: Character
 		atacante.cooldowns_actuales[habilidad_pendiente] = habilidad_pendiente.cooldown
 	ui.actualizar_interfaz_party(party_jugador)
 	await habilidad_pendiente.ejecutar(atacante, defensor, self)
+	ui.actualizar_interfaz_party(party_jugador)
 
 # --- SELECCIÓN DE OBJETIVOS MANUAL ---
 func iniciar_seleccion_objetivo():
 	seleccionando_objetivo = true
 	indice_objetivo_actual = 0
-	ui.narrar("Selecciona un aliado de la party..." if (accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado") else "Selecciona un enemigo...")
+	_actualizar_texto_seleccion() # <-- Llama al nuevo texto
+	
+	var es_apuntado_aliado = false
+	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+		
+	_actualizar_texto_seleccion()
+	
+func _actualizar_texto_seleccion():
+	var es_apuntado_aliado = false
+	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+		
+	var nombre_obj = ""
+	if es_apuntado_aliado:
+		if indice_objetivo_actual < party_jugador.size():
+			nombre_obj = party_jugador[indice_objetivo_actual].nombre
+	else:
+		if indice_objetivo_actual < enemigos_actuales.size():
+			nombre_obj = enemigos_actuales[indice_objetivo_actual].nombre
+			
+	ui.narrar("Selecciona objetivo:\n> " + nombre_obj + " <")
 	
 func _unhandled_input(event):
-	if ui.grid_habilidades.visible and event.is_action_pressed("ui_cancel"):
-		ui.grid_habilidades.hide()
+	if accion_pendiente == "HABILIDAD_MENU" and event.is_action_pressed("ui_cancel"):
+		accion_pendiente = ""
+		bloquear_grid_habilidades()
+		ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
+		ui.set_menu_activo(true)
+		get_viewport().set_input_as_handled() 
+		return
+		
+	if accion_pendiente == "ITEM_MENU" and event.is_action_pressed("ui_cancel"):
+		accion_pendiente = ""
+		bloquear_grid_items()
 		ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
 		ui.set_menu_activo(true)
 		get_viewport().set_input_as_handled() 
@@ -292,12 +389,17 @@ func _unhandled_input(event):
 		
 	if not seleccionando_objetivo: return
 	
-	var max_objetivos = party_jugador.size() if (accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado") else enemigos_actuales.size()
+	var max_objetivos = enemigos_actuales.size()
+	if (accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado") or \
+	   (accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado"):
+		max_objetivos = party_jugador.size()
 	
 	if event.is_action_pressed("ui_right"):
 		indice_objetivo_actual = (indice_objetivo_actual + 1) % max_objetivos
+		_actualizar_texto_seleccion()
 	elif event.is_action_pressed("ui_left"):
 		indice_objetivo_actual = (indice_objetivo_actual - 1 + max_objetivos) % max_objetivos
+		_actualizar_texto_seleccion()
 	elif event.is_action_pressed("ui_accept"): 
 		confirmar_seleccion()
 		get_viewport().set_input_as_handled()
@@ -317,7 +419,13 @@ func confirmar_seleccion():
 	var atacante = combatientes[turno_actual]
 	var defensor: CharacterStats = null
 	
+	var es_apuntado_aliado = false
 	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
+		es_apuntado_aliado = true
+		
+	if es_apuntado_aliado:
 		if indice_objetivo_actual >= party_jugador.size(): indice_objetivo_actual = 0
 		defensor = party_jugador[indice_objetivo_actual]
 	else:
@@ -329,11 +437,14 @@ func confirmar_seleccion():
 		
 	if accion_pendiente == "ATACAR":
 		ui.narrar("¡" + atacante.nombre + " ataca a " + defensor.nombre + "!")
-		atacante.pt_actuales = min(atacante.pt_actuales + 20, atacante.pt_maximos)
+		# Aplicamos el multiplicador de Recuperación de PT
+		atacante.pt_actuales = min(atacante.pt_actuales + int(10 * atacante.recuperacion_pt), atacante.pt_maximos)
 		await get_tree().create_timer(0.8).timeout 
-		await defensor.recibir_ataque(atacante, self) # --- DELEGACIÓN DE DAÑO ---
+		await defensor.recibir_ataque(atacante, self) 
 	elif accion_pendiente == "HABILIDAD":
 		_ejecutar_habilidad_preparada(atacante, defensor)
+	elif accion_pendiente == "ITEM":
+		_ejecutar_item(atacante, defensor)
 
 # --- RESOLUCIÓN Y DESPERTAR POR DAÑO ---
 func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
@@ -366,10 +477,18 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 func _procesar_fin_oleada():
 	indice_oleada += 1
 	if indice_oleada < oleadas_enemigos.size():
+		ui.narrar("¡Más enemigos se acercan!")
 		await get_tree().create_timer(1.0).timeout
 		cargar_oleada(indice_oleada)
 	else:
-		ui.narrar("¡Victoria total!")
+		# --- FINAL DE COMBATE SIMPLE ---
+		if timer_estados: timer_estados.stop()
+		
+		ui.narrar("¡Has ganado la batalla!")
+		await get_tree().create_timer(2.0).timeout
+		
+		ui.narrar("Presiona 'Aceptar' para continuar...")
+		# Aquí, más adelante, pondremos el código para volver al Overworld (mapa)
 
 func pasar_turno():
 	turno_actual += 1
@@ -384,19 +503,108 @@ func pasar_turno():
 
 func _procesar_fin_de_ronda():
 	var alguien_desperto = false
+	
 	for c in combatientes:
-		if c.pv_actuales > 0 and (c.turnos_distraido > 0 or c.turnos_agilidad_baja > 0):
+		if c.pv_actuales > 0 and c.turnos_distraido > 0:
 			if c.dano_recibido_esta_ronda >= (c.pv_maximos * 0.25):
 				c.turnos_distraido = 0
-				c.turnos_agilidad_baja = 0
+				ui.actualizar_interfaz_party(party_jugador) 
 				ui.agregar_al_log("[ESTADO] " + c.nombre + " -/> Distraído (Golpe Masivo)")
 				ui.narrar("¡El dolor hace que " + c.nombre + " vuelva a concentrarse!")
 				alguien_desperto = true
 				await get_tree().create_timer(1.5).timeout
-		c.dano_recibido_esta_ronda = 0 
+		c.reiniciar_dano_ronda() 
 		
+	# --- NUEVO: Lógica Modular del Ayudante ---
 	if not alguien_desperto:
-		ui.narrar("¡El ayudante interviene para apoyarlos!")
-		await get_tree().create_timer(1.2).timeout
+		if ayudante_actual != null:
+			await ayudante_actual.ejecutar_asistencia(self)
+		else:
+			# Por si acaso olvidaste equipar un ayudante~
+			ui.narrar("La batalla continúa en silencio...")
+			await get_tree().create_timer(1.0).timeout
 		
 	iniciar_ronda()
+
+func mostrar_numero_flotante(objetivo: CharacterStats, cantidad: int, tipo: String):
+	var color = Color.RED
+	if tipo == "atipico": color = Color.PURPLE
+	elif tipo == "cura": color = Color.GREEN
+
+	var nodo_objetivo = null
+	if party_jugador.has(objetivo):
+		var index = party_jugador.find(objetivo)
+		nodo_objetivo = ui.contenedor_party.get_child(index)
+	elif sprites_enemigos.has(objetivo):
+		nodo_objetivo = sprites_enemigos[objetivo]
+
+	if not nodo_objetivo: return
+
+	var lbl = Label.new()
+	lbl.text = str(cantidad)
+	lbl.modulate = color
+	lbl.add_theme_font_size_override("font_size", 28)
+	lbl.add_theme_color_override("font_outline_color", Color.BLACK)
+	lbl.add_theme_constant_override("outline_size", 6)
+	lbl.z_index = 50
+
+	var pos_global = nodo_objetivo.global_position
+	lbl.position = pos_global + (nodo_objetivo.size / 2.0) - Vector2(10, 20)
+	ui.add_child(lbl)
+
+	var tween = get_tree().create_tween()
+	tween.tween_property(lbl, "position:y", lbl.position.y - 50, 1.0).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(lbl, "modulate:a", 0.0, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_callback(lbl.queue_free)
+
+func animar_parpadeo_enemigo(enemigo: CharacterStats):
+	if sprites_enemigos.has(enemigo):
+		var sprite = sprites_enemigos[enemigo]
+		var tween = get_tree().create_tween()
+		tween.tween_property(sprite, "modulate:a", 0.0, 0.1)
+		tween.tween_property(sprite, "modulate:a", 1.0, 0.1)
+		tween.tween_property(sprite, "modulate:a", 0.0, 0.1)
+		tween.tween_property(sprite, "modulate:a", 1.0, 0.1)
+
+func _rotar_estados_enemigos():
+	indice_rotacion_estado += 1
+	for enemigo in enemigos_actuales:
+		if not sprites_enemigos.has(enemigo): continue
+		var rect = sprites_enemigos[enemigo]
+		var nodo_icono = rect.get_node_or_null("IconoEstado")
+		if not nodo_icono: continue
+
+		var activos = []
+		if enemigo.niveles_stat["ataque"] > 0 and ui.icon_atk_up: activos.append(ui.icon_atk_up)
+		elif enemigo.niveles_stat["ataque"] < 0 and ui.icon_atk_down: activos.append(ui.icon_atk_down)
+		if enemigo.niveles_stat["defensa"] > 0 and ui.icon_def_up: activos.append(ui.icon_def_up)
+		elif enemigo.niveles_stat["defensa"] < 0 and ui.icon_def_down: activos.append(ui.icon_def_down)
+		if enemigo.niveles_stat["agilidad"] > 0 and ui.icon_agi_up: activos.append(ui.icon_agi_up)
+		elif enemigo.niveles_stat["agilidad"] < 0 and ui.icon_agi_down: activos.append(ui.icon_agi_down)
+		if enemigo.niveles_stat["suerte"] > 0 and ui.icon_suerte_up: activos.append(ui.icon_suerte_up)
+		elif enemigo.niveles_stat["suerte"] < 0 and ui.icon_suerte_down: activos.append(ui.icon_suerte_down)
+
+		if enemigo.turnos_provocacion > 0 and ui.icon_provocacion: activos.append(ui.icon_provocacion)
+		if enemigo.turnos_distraido > 0 and ui.icon_distraido: activos.append(ui.icon_distraido)
+		if enemigo.esta_defendiendo and ui.icon_defensa: activos.append(ui.icon_defensa)
+
+		if activos.is_empty():
+			nodo_icono.hide()
+		else:
+			nodo_icono.show()
+			nodo_icono.texture = activos[indice_rotacion_estado % activos.size()]
+
+# --- RUEDA DE AGGRO (TASA DE OBJETIVO) ---
+func obtener_objetivo_por_aggro(objetivos_posibles: Array) -> CharacterStats:
+	var total_aggro = 0.0
+	for obj in objetivos_posibles:
+		total_aggro += obj.tasa_objetivo
+		
+	var rand_val = randf() * total_aggro
+	var acumulado = 0.0
+	
+	for obj in objetivos_posibles:
+		acumulado += obj.tasa_objetivo
+		if rand_val <= acumulado:
+			return obj
+	return objetivos_posibles[0]

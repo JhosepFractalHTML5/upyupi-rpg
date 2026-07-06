@@ -6,6 +6,11 @@
 [ext_resource type="Resource" uid="uid://bbvy3paasyn3w" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Alerta.tres" id="1_mwe8a"]
 [ext_resource type="Resource" uid="uid://c7608y116kd6m" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EscudoHumano.tres" id="2_kj5rj"]
 [ext_resource type="Texture2D" uid="uid://4sho352b2ho6" path="res://Graficos/Batalla/Protagonistas/Icons/Jhosep.png" id="3_36wyd"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="5_y3ewx"]
+[ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="6_ibe7l"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_kimsq"]
+load_path = "res://.godot/imported/JhosepNORMAL.png-61ab9c8a571fb2ee0d246804787aff1b.ctex"
 
 [resource]
 script = ExtResource("1_iu42v")
@@ -15,17 +20,29 @@ nivel = 5
 nivel_maximo = 25
 retrato_base = ExtResource("1_ia5ql")
 icono_timeline = ExtResource("3_36wyd")
-pv_maximos = 60
-pv_actuales = 60
-ph_maximos = 25
-ph_actuales = 25
+textura_panel = SubResource("CompressedTexture2D_kimsq")
+color_interfaz = Color(0.60784316, 0.34901962, 0.7137255, 1)
+pv_maximos = 120
+pv_actuales = 120
+ph_maximos = 55
+ph_actuales = 55
 ataque = 15
 defensa = 20
+agilidad = 40
 ataque_atipico = 0
-suerte = 0
+tasa_objetivo = 0.9
+tasa_acierto = 0.9
+tasa_evasion = 0.01
+tasa_critico = 0.04
+bono_contraataque = 0.1
+farmacologia = 1.25
+recuperacion_pt = 1.1
+tasa_experiencia = 1.15
 exp_necesaria_proximo_nivel = 200
+inventario = Array[ExtResource("5_y3ewx")]([ExtResource("6_ibe7l")])
 drop_experiencia = 0
 drop_whenes = 0
+max_habilidades_activas = 3
 habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("2_kj5rj")])
 item_clave_hab_1 = true
 habilidad_contraataque = ExtResource("1_mwe8a")

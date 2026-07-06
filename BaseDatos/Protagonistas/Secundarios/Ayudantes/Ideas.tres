@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="AyudanteIdeas" format=3 uid="uid://cd6s7mwi71lll"]
+
+[ext_resource type="Texture2D" uid="uid://bcleyye1vca4r" path="res://Graficos/Batalla/Enemigos/Test/KITANSAF.png" id="1_2denn"]
+[ext_resource type="Script" uid="uid://bwuhwd0stcx3l" path="res://BaseDatos/Protagonistas/Secundarios/Ayudantes/AyudantesPROGRAM/ayudante_ideas.gd" id="1_e6vcs"]
+
+[resource]
+script = ExtResource("1_e6vcs")
+nombre = "Ideas"
+descripcion = "Un foco de luz con alas raro que Massi inventó, no hace particularmente nada... Es ahora \"mascota\" de Jhosep"
+icono = ExtResource("1_2denn")
+bono_exp = 0.02
+bono_whenes = 0.02
+metadata/_custom_type_script = "uid://cjr72v8vo83e7"

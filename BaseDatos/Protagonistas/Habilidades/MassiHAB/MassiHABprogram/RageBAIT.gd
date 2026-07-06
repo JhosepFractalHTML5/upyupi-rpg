@@ -5,11 +5,13 @@ func ejecutar(atacante: CharacterStats, defensor: CharacterStats, bm: Node):
 	await bm.get_tree().create_timer(1.5).timeout
 	
 	var turnos_distra = randi_range(4, 6)
-	defensor.turnos_distraido = turnos_distra
-	defensor.turnos_agilidad_baja = 6 
 	
-	bm.ui.agregar_al_log("[ESTADO] " + defensor.nombre + " -> Distraído")
-	bm.ui.narrar(defensor.nombre + " se nota distraído!")
+	# --- NUEVO: Aplicar debuffos y estados por el canal correcto ---
+	defensor.aplicar_distraccion(turnos_distra)
+	defensor.modificar_stat("agilidad", -1, 6) # -1 Nivel de Agilidad
+	
+	bm.ui.agregar_al_log("[ESTADO] " + defensor.nombre + " -> Distraído (AGI-)")
+	bm.ui.narrar("¡" + defensor.nombre + " se nota distraído y más lento!")
 	
 	await bm.get_tree().create_timer(1.2).timeout
 	bm.pasar_turno()

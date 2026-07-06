@@ -6,10 +6,13 @@ func ejecutar(atacante: CharacterStats, _defensor_nulo: CharacterStats, bm: Node
 	
 	if randf() > 0.10: 
 		var duracion = randi_range(2, 3) 
-		atacante.turnos_provocacion = duracion 
-		atacante.turnos_mejora_defensa = duracion 
+		
+		# --- NUEVO: Usamos las funciones de estados que gestiona el Cerebro ---
+		atacante.aplicar_provocacion(duracion)
+		atacante.modificar_stat("defensa", 1, duracion) # +1 Nivel de Defensa
+		
 		bm.ui.narrar(atacante.nombre + " es ahora el centro de golpes por " + str(duracion) + " turnos!!!")
-		bm.ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -> Escudo Humano")
+		bm.ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -> Escudo Humano (DEF+)")
 	else:
 		bm.ui.narrar("¡Pero falló!")
 		bm.ui.agregar_al_log("[SISTEMA] " + atacante.nombre + " falló Escudo Humano.")

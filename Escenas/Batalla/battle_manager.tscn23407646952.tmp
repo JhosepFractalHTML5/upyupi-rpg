@@ -38,7 +38,7 @@ bg_color = Color(0.11241884, 0.44128895, 0.29660133, 1)
 [node name="BattleManager" type="Node" unique_id=916144311]
 script = ExtResource("1_r0ul7")
 party_jugador = Array[ExtResource("2_dpovl")]([ExtResource("3_6ldo0"), ExtResource("4_vnw7q"), ExtResource("5_oxep1"), ExtResource("6_vnw7q")])
-oleadas_enemigos = [[ExtResource("7_vnw7q")], [ExtResource("8_c0ri4")]]
+oleadas_enemigos = [[ExtResource("7_vnw7q")], ExtResource("8_c0ri4")]
 ayudante_actual = ExtResource("8_jknig")
 
 [node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064]
@@ -482,7 +482,6 @@ anchors_preset = -1
 anchor_right = 0.2234375
 anchor_bottom = 1.0
 grow_vertical = 2
-metadata/_edit_use_anchors_ = true
 
 [node name="TextoLog" type="RichTextLabel" parent="CapaGUI/PanelLog" unique_id=1464418765]
 custom_minimum_size = Vector2(421, 413)
@@ -540,3 +539,55 @@ offset_bottom = 201.0
 [node name="LblNarrativa" type="Label" parent="CapaGUI/PanelAccion/VBox" unique_id=1247776667]
 layout_mode = 2
 horizontal_alignment = 1
+
+[node name="PanelVictoria" type="Panel" parent="CapaGUI" unique_id=800073945]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -515.0
+offset_top = -525.0
+offset_right = 938.0
+offset_bottom = 178.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LblTituloVictoria" type="RichTextLabel" parent="CapaGUI/PanelVictoria" unique_id=1532073831]
+layout_mode = 0
+offset_right = 1453.0
+offset_bottom = 151.0
+theme_override_font_sizes/normal_font_size = 90
+text = "¡¡¡Victoria Total :D!!!"
+fit_content = true
+horizontal_alignment = 1
+
+[node name="SeccionExperiencia" type="VBoxContainer" parent="CapaGUI/PanelVictoria" unique_id=2003146576]
+layout_mode = 0
+offset_top = 151.0
+offset_right = 772.0
+offset_bottom = 703.0
+
+[node name="LblTituloEXP" type="RichTextLabel" parent="CapaGUI/PanelVictoria/SeccionExperiencia" unique_id=1697496773]
+layout_mode = 2
+text = "Crecimiento del Grupo"
+
+[node name="ContenedorPersonajes" type="VBoxContainer" parent="CapaGUI/PanelVictoria/SeccionExperiencia" unique_id=1174862149]
+layout_mode = 2
+
+[node name="SeccionBotin" type="VBoxContainer" parent="CapaGUI/PanelVictoria" unique_id=343112774]
+layout_mode = 0
+offset_left = 772.0
+offset_top = 150.0
+offset_right = 1453.0
+offset_bottom = 703.0
+
+[node name="LblTituloBotin" type="RichTextLabel" parent="CapaGUI/PanelVictoria/SeccionBotin" unique_id=628897879]
+layout_mode = 2
+
+[node name="LblWhenes" type="RichTextLabel" parent="CapaGUI/PanelVictoria/SeccionBotin" unique_id=1586600388]
+layout_mode = 2
+
+[node name="GridObjetos" type="GridContainer" parent="CapaGUI/PanelVictoria/SeccionBotin" unique_id=1418325756]
+layout_mode = 2
+columns = 4
