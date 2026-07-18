@@ -1,14 +1,7 @@
 [gd_scene format=3 uid="uid://dvgr71kp3ywhp"]
 
 [ext_resource type="Script" uid="uid://1a67l4uqp3jc" path="res://Scripts/Batalla/battle_manager.gd" id="1_r0ul7"]
-[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="2_dpovl"]
-[ext_resource type="Resource" uid="uid://dk0apw57fkoqr" path="res://BaseDatos/Protagonistas/Jhosep.tres" id="3_6ldo0"]
 [ext_resource type="Texture2D" uid="uid://bos8wl7kkwds1" path="res://icon.svg" id="4_cw1wa"]
-[ext_resource type="Resource" uid="uid://dp44xpoo2ijf0" path="res://BaseDatos/Protagonistas/Romn.tres" id="4_vnw7q"]
-[ext_resource type="Resource" uid="uid://cb5ispp132x8w" path="res://BaseDatos/Protagonistas/Massi.tres" id="5_oxep1"]
-[ext_resource type="Resource" uid="uid://4ak7wfcwboi" path="res://BaseDatos/Protagonistas/Thais.tres" id="6_vnw7q"]
-[ext_resource type="Resource" uid="uid://3dvratlndnh3" path="res://BaseDatos/Enemigos/Test/Electro-Paco.tres" id="7_vnw7q"]
-[ext_resource type="Resource" uid="uid://ctu3j2q8qrid3" path="res://BaseDatos/Enemigos/Test/Enemigo.tres" id="8_c0ri4"]
 [ext_resource type="Resource" uid="uid://cd6s7mwi71lll" path="res://BaseDatos/Protagonistas/Secundarios/Ayudantes/Ideas.tres" id="8_jknig"]
 [ext_resource type="Script" uid="uid://cd0r8bw8gnavd" path="res://Escenas/Batalla/battle_ui.gd" id="9_oxep1"]
 [ext_resource type="Texture2D" uid="uid://c6a1lds7nc5jm" path="res://Graficos/Batalla/Estados Alterados/Atk Up.png" id="10_oc83v"]
@@ -35,10 +28,11 @@ bg_color = Color(0.41107687, 0.61296135, 0.8547648, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c0ri4"]
 bg_color = Color(0.11241884, 0.44128895, 0.29660133, 1)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pjwkw"]
+bg_color = Color(0.08627451, 0.08627451, 0.08627451, 0.92156863)
+
 [node name="BattleManager" type="Node" unique_id=916144311]
 script = ExtResource("1_r0ul7")
-party_jugador = Array[ExtResource("2_dpovl")]([ExtResource("3_6ldo0"), ExtResource("4_vnw7q"), ExtResource("5_oxep1"), ExtResource("6_vnw7q")])
-oleadas_enemigos = [[ExtResource("7_vnw7q")], [ExtResource("8_c0ri4")]]
 ayudante_actual = ExtResource("8_jknig")
 
 [node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064]
@@ -540,3 +534,27 @@ offset_bottom = 201.0
 [node name="LblNarrativa" type="Label" parent="CapaGUI/PanelAccion/VBox" unique_id=1247776667]
 layout_mode = 2
 horizontal_alignment = 1
+
+[node name="PanelVictoria" type="Panel" parent="CapaGUI" unique_id=1365226076]
+offset_left = 30.0
+offset_top = 24.0
+offset_right = 930.0
+offset_bottom = 1066.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_pjwkw")
+
+[node name="ContenedorExpHeroes" type="VBoxContainer" parent="CapaGUI/PanelVictoria" unique_id=1413485698]
+layout_mode = 0
+offset_top = 142.0
+offset_right = 900.0
+offset_bottom = 1042.0
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CapaGUI/PanelVictoria" unique_id=101907786]
+layout_mode = 0
+offset_right = 900.0
+offset_bottom = 76.0
+theme_override_font_sizes/normal_font_size = 45
+text = "¡Estadisticas y Experiencia Ganada!"
+horizontal_alignment = 1
+vertical_alignment = 1

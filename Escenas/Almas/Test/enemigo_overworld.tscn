@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bfr7rcjr2icpn"]
+
+[ext_resource type="Script" uid="uid://b6ugb3bvg8kqy" path="res://Scripts/WintersChannel/enemigo_placeholder_script.gd" id="1_3k2of"]
+[ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="2_na46u"]
+[ext_resource type="Resource" uid="uid://3dvratlndnh3" path="res://BaseDatos/Enemigos/Test/Electro-Paco.tres" id="5_pdy1a"]
+[ext_resource type="Texture2D" uid="uid://bwyroa7hyghg6" path="res://Graficos/Batalla/Enemigos/CAP01/Electo-Paco.png" id="6_mkks2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3s52a"]
+size = Vector2(167, 240)
+
+[node name="EnemigoOverworld" type="StaticBody2D" unique_id=720559432]
+script = ExtResource("1_3k2of")
+oleada_1 = Array[ExtResource("2_na46u")]([ExtResource("5_pdy1a")])
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=768680502]
+texture = ExtResource("6_mkks2")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1403331778]
+position = Vector2(11, 13)
+shape = SubResource("RectangleShape2D_3s52a")

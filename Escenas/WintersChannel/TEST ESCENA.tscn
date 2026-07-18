@@ -2,21 +2,30 @@
 
 [ext_resource type="PackedScene" uid="uid://bysqc3xmpwal0" path="res://Escenas/Almas/Test/player.tscn" id="1_f5dhs"]
 [ext_resource type="PackedScene" uid="uid://d1d3hk67dndjv" path="res://Escenas/Almas/Test/cofre.tscn" id="2_6ypk8"]
+[ext_resource type="PackedScene" uid="uid://dyguv7qb6we0e" path="res://Escenas/WintersChannel/menu_principal.tscn" id="3_relv3"]
+[ext_resource type="PackedScene" uid="uid://bfr7rcjr2icpn" path="res://Escenas/Almas/Test/enemigo_overworld.tscn" id="4_mxiyh"]
 
 [node name="Node2D" type="Node2D" unique_id=969277939]
+y_sort_enabled = true
 position = Vector2(1, 1)
 
 [node name="Jugador" parent="." unique_id=814936194 instance=ExtResource("1_f5dhs")]
-position = Vector2(116, 106)
+position = Vector2(175, 148)
 
 [node name="Cofre" parent="." unique_id=1699787337 instance=ExtResource("2_6ypk8")]
-position = Vector2(748, 272)
+position = Vector2(450, 301)
 
 [node name="Cofre2" parent="." unique_id=1347372941 instance=ExtResource("2_6ypk8")]
-position = Vector2(473, 44)
+position = Vector2(449, 158)
 
 [node name="Cofre3" parent="." unique_id=34023513 instance=ExtResource("2_6ypk8")]
 position = Vector2(446, 392)
 
 [node name="Cofre4" parent="." unique_id=1722903005 instance=ExtResource("2_6ypk8")]
 position = Vector2(148, 306)
+
+[node name="MenuPrincipal" parent="." unique_id=962273312 instance=ExtResource("3_relv3")]
+visible = false
+
+[node name="EnemigoOverworld" parent="." unique_id=720559432 instance=ExtResource("4_mxiyh")]
+position = Vector2(682, 117)

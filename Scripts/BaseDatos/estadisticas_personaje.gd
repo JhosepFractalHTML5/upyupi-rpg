@@ -12,6 +12,7 @@ class_name CharacterStats
 @export var retrato_base: Texture2D
 @export var icono_timeline: Texture2D
 @export var textura_panel: Texture2D
+@export var textura_pose_menu: Texture2D # <-- ¡NUEVO: Para la pose chistosa del Overworld!
 @export var color_interfaz: Color = Color.WHITE # <--- NUEVO: Color de sus siglas
 
 @export_group("Salud y Energía")
@@ -45,6 +46,7 @@ class_name CharacterStats
 @export_group("Progreso (Jugadores)")
 @export var exp_actual: int = 0
 @export var exp_necesaria_proximo_nivel: int = 100
+@export var puntos_estadisticas: int = 0
 
 @export_group("Items")
 @export var max_items: int = 8 # Empezamos en 8, luego lo puedes subir a 16
@@ -131,11 +133,13 @@ func subir_nivel():
 	exp_actual -= exp_necesaria_proximo_nivel
 	exp_necesaria_proximo_nivel = int(exp_necesaria_proximo_nivel * 1.5) 
 	
-	# Al subir de nivel, normalmente se curan al máximo
+	# ¡MAGIA! Otorgamos los 3 puntos para invertir
+	puntos_estadisticas += 3
+	
 	pv_actuales = pv_maximos
 	ph_actuales = ph_maximos
 	
-	print("¡NUEVO NIVEL! ", nombre, " ha alcanzado el nivel ", nivel)
+	print("¡NUEVO NIVEL! ", nombre, " alcanzó el nivel ", nivel, ". Puntos disponibles: ", puntos_estadisticas)
 
 # (Al final de estadisticas_personaje.gd)
 var cooldowns_actuales: Dictionary = {} # Guarda la cuenta regresiva de cada magia

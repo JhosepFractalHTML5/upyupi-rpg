@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://4sho352b2ho6" path="res://Graficos/Batalla/Protagonistas/Icons/Jhosep.png" id="3_36wyd"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="5_y3ewx"]
 [ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="6_ibe7l"]
+[ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="9_ibe7l"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_kimsq"]
 load_path = "res://.godot/imported/JhosepNORMAL.png-61ab9c8a571fb2ee0d246804787aff1b.ctex"
@@ -18,6 +19,7 @@ nombre = "Jhosep"
 clase = "Desempleado"
 nivel = 5
 nivel_maximo = 25
+textura_sprite = ExtResource("9_ibe7l")
 retrato_base = ExtResource("1_ia5ql")
 icono_timeline = ExtResource("3_36wyd")
 textura_panel = SubResource("CompressedTexture2D_kimsq")
@@ -28,7 +30,7 @@ ph_maximos = 55
 ph_actuales = 55
 ataque = 15
 defensa = 20
-agilidad = 40
+agilidad = 10
 ataque_atipico = 0
 tasa_objetivo = 0.9
 tasa_acierto = 0.9
@@ -38,6 +40,7 @@ bono_contraataque = 0.1
 farmacologia = 1.25
 recuperacion_pt = 1.1
 tasa_experiencia = 1.15
+exp_actual = 190
 exp_necesaria_proximo_nivel = 200
 inventario = Array[ExtResource("5_y3ewx")]([ExtResource("6_ibe7l")])
 drop_experiencia = 0

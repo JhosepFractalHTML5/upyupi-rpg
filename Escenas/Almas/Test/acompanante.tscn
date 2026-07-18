@@ -1,10 +1,7 @@
-[gd_scene format=3 uid="uid://bysqc3xmpwal0"]
+[gd_scene format=3 uid="uid://jrcs5mv0rlyx"]
 
-[ext_resource type="Script" uid="uid://b2pmrjkr8nkte" path="res://Scripts/WintersChannel/jugador.gd" id="1_onrkg"]
-[ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="3_46k31"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hqtel"]
-size = Vector2(34, 34)
+[ext_resource type="Script" uid="uid://cgp8n6fy7k4l2" path="res://Escenas/Almas/Test/acompanante.gd" id="1_syxn4"]
+[ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="2_bd36v"]
 
 [sub_resource type="Animation" id="Animation_80gyo"]
 length = 0.001
@@ -94,23 +91,15 @@ _data = {
 &"caminar_izq": SubResource("Animation_gllja")
 }
 
-[node name="Jugador" type="CharacterBody2D" unique_id=814936194]
+[node name="Acompanante" type="CharacterBody2D" unique_id=814936194]
 y_sort_enabled = true
-script = ExtResource("1_onrkg")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=52706915]
-position = Vector2(0, -17)
-shape = SubResource("RectangleShape2D_hqtel")
-
-[node name="RayCast2D" type="RayCast2D" parent="." unique_id=680968601]
-y_sort_enabled = true
-position = Vector2(0, -17)
-target_position = Vector2(0, 42)
+script = ExtResource("1_syxn4")
 
 [node name="SpriteLider" type="Sprite2D" parent="." unique_id=273145317]
+y_sort_enabled = true
 position = Vector2(0, -68)
 scale = Vector2(2.775, 2.775)
-texture = ExtResource("3_46k31")
+texture = ExtResource("2_bd36v")
 hframes = 4
 vframes = 4
 

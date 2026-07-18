@@ -1,7 +1,7 @@
 extends Node
 
-@export var party_jugador: Array[CharacterStats]
-@export var oleadas_enemigos: Array
+var party_jugador: Array[CharacterStats] = []
+var oleadas_enemigos: Array = []
 @export var ayudante_actual: Ayudante # Aquí arrastrarás tu recurso de ayudante (.tres)
 
 var enemigos_actuales: Array[CharacterStats] = []
@@ -10,6 +10,7 @@ var turno_actual: int = 0
 var indice_oleada: int = 0
 var timer_estados: Timer
 var indice_rotacion_estado: int = 0
+var exp_acumulada: int = 0
 
 @onready var ui: BattleUI = $CapaGUI
 
@@ -33,6 +34,9 @@ func _ready():
 	ui.btn_habilidades.pressed.connect(_on_btn_habilidades_pressed)
 	ui.btn_items.pressed.connect(_on_btn_items_pressed)
 	ui.btn_huir.pressed.connect(_on_btn_huir_pressed)
+# --- CONEXIÓN CON EL CEREBRO GLOBAL ---
+	party_jugador = GlobalGame.party_actual
+	oleadas_enemigos = GlobalGame.oleadas_combate_actual.duplicate(true)
 	iniciar_batalla()
 
 func _process(_delta):
@@ -457,6 +461,9 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 		await get_tree().create_timer(1.0).timeout 
 		
 		if enemigos_actuales.has(defensor):
+			# --- NUEVO: Recolectar la EXP del enemigo caído ---
+			if defensor.get("drop_experiencia"):
+				exp_acumulada += defensor.drop_experiencia
 			var sprite_muerto = sprites_enemigos[defensor]
 			var tween = get_tree().create_tween()
 			tween.tween_property(sprite_muerto, "modulate:a", 0.0, 0.5) 
@@ -485,7 +492,34 @@ func _procesar_fin_oleada():
 		if timer_estados: timer_estados.stop()
 		
 		ui.narrar("¡Has ganado la batalla!")
-		await get_tree().create_timer(2.0).timeout
+		await get_tree().create_timer(1.5).timeout
+		
+		# --- 1. MEMORIZAR EL PASADO ---
+		# Guardamos los niveles ANTES de dar la experiencia
+		var niveles_previos = {}
+		for heroe in party_jugador:
+			niveles_previos[heroe] = heroe.nivel
+			
+		# --- 2. APLICAR EL CRECIMIENTO ---
+		for heroe in party_jugador:
+			if heroe.pv_actuales > 0:
+				heroe.ganar_experiencia(exp_acumulada)
+				
+		# --- 3. MOSTRAR LA INTERFAZ CON LOS DATOS ---
+		ui.mostrar_pantalla_victoria(party_jugador, exp_acumulada, niveles_previos)
+		ui.narrar("¡El grupo obtiene experiencia!")
+		
+		await get_tree().create_timer(3.0).timeout
+		
+		# --- 4. SISTEMA DE INVERSIÓN (LA INTERCEPCIÓN) ---
+		# Revisamos uno a uno quién subió de nivel
+		for heroe in party_jugador:
+			if heroe.pv_actuales > 0 and heroe.puntos_estadisticas > 0:
+				ui.narrar("¡" + heroe.nombre + " tiene puntos para invertir!")
+				ui.abrir_menu_inversion(heroe)
+				
+				# El código se PAUSA aquí hasta que el jugador gaste todos sus puntos
+				await ui.inversion_completada 
 		
 		ui.narrar("Presiona 'Aceptar' para continuar...")
 		# Aquí, más adelante, pondremos el código para volver al Overworld (mapa)
