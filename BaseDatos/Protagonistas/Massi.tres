@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_upn5k"]
 [ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="2_hmkp8"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_hmkp8"]
+[ext_resource type="Texture2D" uid="uid://vwwboq6glkd4" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/MassiNORMAL.png" id="6_2wvir"]
 
 [resource]
 script = ExtResource("1_upn5k")
@@ -13,6 +14,7 @@ clase = "Técnico"
 nivel = 10
 nivel_maximo = 40
 retrato_base = ExtResource("1_210f3")
+textura_panel = ExtResource("6_2wvir")
 color_interfaz = Color(0.18039216, 0.8, 0.44313726, 1)
 ph_maximos = 100
 ph_actuales = 100
@@ -27,6 +29,7 @@ bono_contraataque = 0.25
 farmacologia = 1.05
 recuperacion_pt = 1.2
 tasa_experiencia = 0.9
+exp_actual = 80
 drop_experiencia = 0
 drop_whenes = 0
 habilidades_disponibles = Array[ExtResource("1_hfphl")]([ExtResource("2_hmkp8")])

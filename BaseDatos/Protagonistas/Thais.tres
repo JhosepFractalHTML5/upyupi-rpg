@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_u1ook"]
 [ext_resource type="Resource" uid="uid://ti5usuqslbq6" path="res://BaseDatos/Protagonistas/Habilidades/ThaisHAB/ComidaInstantanea.tres" id="2_6vocl"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_va4ce"]
+[ext_resource type="Texture2D" uid="uid://nte4fbojchsc" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/ThaisNORMAL.png" id="6_50s43"]
 
 [resource]
 script = ExtResource("1_u1ook")
@@ -13,6 +14,7 @@ clase = "Trabajadora"
 nivel = 15
 nivel_maximo = 35
 retrato_base = ExtResource("1_lj6a7")
+textura_panel = ExtResource("6_50s43")
 color_interfaz = Color(0.6392157, 0.4, 0.24313726, 1)
 pv_maximos = 80
 pv_actuales = 80
@@ -27,6 +29,7 @@ tasa_critico = 0.02
 bono_contraataque = 0.05
 recuperacion_pt = 1.3
 tasa_experiencia = 1.05
+exp_actual = 240
 exp_necesaria_proximo_nivel = 250
 drop_experiencia = 0
 drop_whenes = 0

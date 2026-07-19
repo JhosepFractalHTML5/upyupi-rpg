@@ -41,6 +41,8 @@ class_name BattleUI
 
 var posiciones_base_paneles: Dictionary = {}
 signal inversion_completada
+var ultimo_stat_enfocado: String = "" # Para recordar el botón que estábamos presionando
+var labels_estadisticas_heroes: Dictionary = {} # Para actualizar los números de la tarjeta en vivo
 
 var panel_inversion: Panel
 var heroe_inv_actual: CharacterStats
@@ -516,7 +518,8 @@ func _crear_icono_estado(contenedor: Control, textura: Texture2D):
 
 func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Dictionary):
 	panel_victoria.show()
-	recuadros_heroes.clear() # Limpiamos la memoria visual
+	recuadros_heroes.clear()
+	labels_estadisticas_heroes.clear() # Limpiamos los sensores viejos
 	
 	for hijo in contenedor_exp_heroes.get_children():
 		hijo.queue_free()
@@ -533,25 +536,26 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 			style.content_margin_left = 20; style.content_margin_right = 20
 			
 			recuadro.add_theme_stylebox_override("panel", style)
-			recuadro.custom_minimum_size = Vector2(700, 120) # Ancho y bajito
+			# ¡Agrandamos el recuadro! De 700 a 850 de ancho para que respire
+			recuadro.custom_minimum_size = Vector2(850, 140) 
 			
-			recuadros_heroes[heroe] = recuadro # ¡Guardamos la referencia visual!
+			recuadros_heroes[heroe] = recuadro 
+			labels_estadisticas_heroes[heroe] = {} # Preparamos el diccionario de este héroe
 			
-			# --- ESTRUCTURA HORIZONTAL ---
 			var hbox_principal = HBoxContainer.new()
 			hbox_principal.alignment = BoxContainer.ALIGNMENT_CENTER
-			hbox_principal.add_theme_constant_override("separation", 30)
+			hbox_principal.add_theme_constant_override("separation", 35) # Más separación
 			recuadro.add_child(hbox_principal)
 			
 			# 1. RETRATO
 			var retrato = TextureRect.new()
 			retrato.texture = heroe.textura_panel if heroe.get("textura_panel") else heroe.retrato_base
-			retrato.custom_minimum_size = Vector2(100, 100) # Un poco más pequeño
+			retrato.custom_minimum_size = Vector2(110, 110) 
 			retrato.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			retrato.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			hbox_principal.add_child(retrato)
 			
-			# 2. TEXTOS PRINCIPALES (Nombre, Nivel, EXP)
+			# 2. TEXTOS PRINCIPALES
 			var vbox_textos = VBoxContainer.new()
 			vbox_textos.alignment = BoxContainer.ALIGNMENT_CENTER
 			vbox_textos.custom_minimum_size = Vector2(200, 0)
@@ -560,7 +564,7 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 			var lbl_nombre = Label.new()
 			lbl_nombre.text = heroe.nombre
 			lbl_nombre.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lbl_nombre.add_theme_font_size_override("font_size", 22)
+			lbl_nombre.add_theme_font_size_override("font_size", 24)
 			vbox_textos.add_child(lbl_nombre)
 			
 			var nivel_viejo = niveles_previos[heroe]
@@ -569,12 +573,12 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 			var lbl_nivel = Label.new()
 			lbl_nivel.text = "Nivel: " + str(nivel_viejo)
 			lbl_nivel.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lbl_nivel.add_theme_font_size_override("font_size", 16)
+			lbl_nivel.add_theme_font_size_override("font_size", 18)
 			vbox_textos.add_child(lbl_nivel)
 			
 			var exp_real = int(exp_total * heroe.tasa_experiencia)
 			var lbl_exp = Label.new()
-			lbl_exp.text = "+0 EXP"
+			lbl_exp.text = "+" + str(exp_real) + " EXP" # Ponemos el final directamente para la animación
 			lbl_exp.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			lbl_exp.add_theme_font_size_override("font_size", 20)
 			lbl_exp.add_theme_color_override("font_color", Color("aaffaa"))
@@ -583,7 +587,7 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 			var lbl_levelup = Label.new()
 			lbl_levelup.text = "¡SUBIÓ DE NIVEL!"
 			lbl_levelup.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			lbl_levelup.add_theme_font_size_override("font_size", 14)
+			lbl_levelup.add_theme_font_size_override("font_size", 16)
 			lbl_levelup.add_theme_color_override("font_color", Color("ffff55")) 
 			lbl_levelup.hide() 
 			vbox_textos.add_child(lbl_levelup)
@@ -592,32 +596,38 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 			var sep = VSeparator.new()
 			hbox_principal.add_child(sep)
 			
-			# 3. ESTADÍSTICAS EN CUADRÍCULA ANCHA
+			# 3. ESTADÍSTICAS EN CUADRÍCULA
 			var grid_stats = GridContainer.new()
-			grid_stats.columns = 3 # 3 columnas para aprovechar lo ancho
+			grid_stats.columns = 3 
 			grid_stats.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 			grid_stats.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-			grid_stats.add_theme_constant_override("h_separation", 20)
-			grid_stats.add_theme_constant_override("v_separation", 5)
+			grid_stats.add_theme_constant_override("h_separation", 30) # Más espacio entre stats
+			grid_stats.add_theme_constant_override("v_separation", 8)
 			hbox_principal.add_child(grid_stats)
 			
-			var estadisticas_a_mostrar = {
-				"PV Max": heroe.pv_maximos, "PH Max": heroe.ph_maximos,
-				"Ataque": heroe.ataque, "Defensa": heroe.defensa,
-				"Agilid.": heroe.agilidad, "Suerte": heroe.suerte
-			}
+			var estadisticas_a_mostrar = [
+				{"nombre": "PV Max", "clave": "pv_maximos", "valor": heroe.pv_maximos},
+				{"nombre": "PH Max", "clave": "ph_maximos", "valor": heroe.ph_maximos},
+				{"nombre": "Ataque", "clave": "ataque", "valor": heroe.ataque},
+				{"nombre": "Defensa", "clave": "defensa", "valor": heroe.defensa},
+				{"nombre": "Agilid.", "clave": "agilidad", "valor": heroe.agilidad},
+				{"nombre": "Suerte", "clave": "suerte", "valor": heroe.suerte}
+			]
 			
-			for stat_name in estadisticas_a_mostrar.keys():
+			for stat in estadisticas_a_mostrar:
 				var hbox_stat = HBoxContainer.new()
 				var lbl_nombre_stat = Label.new()
-				lbl_nombre_stat.text = stat_name + ":"
-				lbl_nombre_stat.add_theme_font_size_override("font_size", 13)
+				lbl_nombre_stat.text = stat["nombre"] + ":"
+				lbl_nombre_stat.add_theme_font_size_override("font_size", 15)
 				lbl_nombre_stat.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7)) 
 				
 				var lbl_valor_stat = Label.new()
-				lbl_valor_stat.text = str(estadisticas_a_mostrar[stat_name])
-				lbl_valor_stat.add_theme_font_size_override("font_size", 13)
+				lbl_valor_stat.text = str(stat["valor"])
+				lbl_valor_stat.add_theme_font_size_override("font_size", 16)
 				lbl_valor_stat.add_theme_color_override("font_color", Color.WHITE)
+				
+				# ¡Guardamos la referencia a este número específico para actualizarlo luego!
+				labels_estadisticas_heroes[heroe][stat["clave"]] = lbl_valor_stat 
 				
 				hbox_stat.add_child(lbl_nombre_stat)
 				hbox_stat.add_child(lbl_valor_stat)
@@ -636,34 +646,30 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 					lbl_levelup.show()
 					lbl_nivel.text = "Nivel: " + str(nivel_viejo) + " -> " + str(nivel_nuevo)
 					var tween_lvl = get_tree().create_tween()
-					for i in range(4): # Parpadeo
+					for i in range(4): 
 						tween_lvl.tween_property(lbl_levelup, "modulate", Color(2.0, 2.0, 2.0) if i%2==0 else Color.WHITE, 0.15)
 				).set_delay(0.2)
 
 func abrir_menu_inversion(heroe: CharacterStats):
 	heroe_inv_actual = heroe
+	ultimo_stat_enfocado = "" # Limpiamos la memoria del cursor al cambiar de personaje
 	panel_inversion.show()
 	actualizar_menu_inversion()
 
-	# TRUCO DE MAGIA ESPACIAL: Esperamos un frame para asegurar que la UI se dibujó
 	await get_tree().process_frame 
 	
 	if recuadros_heroes.has(heroe):
 		var recuadro_heroe = recuadros_heroes[heroe]
 		
-		# Calculamos la posición: a la derecha del retrato (X), pero a su misma altura (Y)
-		var pos_x = recuadro_heroe.global_position.x + 220
-		
-		# Ajustamos Y para que el panel flote justo en el medio de su fila correspondiente
+		# Movemos el panel A LA DERECHA de la tarjeta, dejando 40 píxeles de margen
+		var pos_x = recuadro_heroe.global_position.x + recuadro_heroe.size.x + 40
 		var pos_y = recuadro_heroe.global_position.y - (panel_inversion.size.y / 2) + (recuadro_heroe.size.y / 2)
 		
 		panel_inversion.global_position = Vector2(pos_x, pos_y)
 
 func actualizar_menu_inversion():
-	# Limpiamos los botones anteriores
 	for hijo in panel_inversion.get_children(): hijo.queue_free()
 
-	# Si ya no le quedan puntos, cerramos el quirófano y avisamos al manager
 	if heroe_inv_actual.puntos_estadisticas <= 0:
 		panel_inversion.hide()
 		inversion_completada.emit()
@@ -689,7 +695,6 @@ func actualizar_menu_inversion():
 	grid.add_theme_constant_override("v_separation", 15)
 	vbox.add_child(grid)
 
-	# El diccionario de la cirugía matemática
 	var stats = [
 		{"nombre": "PV Máximos", "clave": "pv_maximos", "incremento": 5, "actual": heroe_inv_actual.pv_maximos},
 		{"nombre": "PH Máximos", "clave": "ph_maximos", "incremento": 5, "actual": heroe_inv_actual.ph_maximos},
@@ -700,32 +705,43 @@ func actualizar_menu_inversion():
 	]
 
 	var primer_boton = null
+	var boton_a_enfocar = null # Para nuestro cursor
 
 	for stat in stats:
 		var btn = Button.new()
-		# Mostramos visualmente el antes y el después (ej. 10 -> 11)
 		btn.text = stat["nombre"] + "\n" + str(stat["actual"]) + " -> " + str(stat["actual"] + stat["incremento"])
 		btn.custom_minimum_size = Vector2(180, 50)
-		
-		# Conectamos el botón a nuestra jeringa inyectora
 		btn.pressed.connect(func(): _invertir_punto(stat["clave"], stat["incremento"]))
 		grid.add_child(btn)
 		
 		if primer_boton == null: primer_boton = btn
+		# Si esta es la stat que acabamos de subir, marcamos el botón
+		if stat["clave"] == ultimo_stat_enfocado: boton_a_enfocar = btn
 
-	# Forzamos el focus en el primer botón para que puedas usar teclado/mando
-	if primer_boton: primer_boton.grab_focus()
+	# Mantenemos el focus donde estaba. ¡Spamea a gusto!
+	if boton_a_enfocar:
+		boton_a_enfocar.grab_focus()
+	elif primer_boton:
+		primer_boton.grab_focus()
 
 func _invertir_punto(clave_stat: String, cantidad: int):
-	# Inyectamos el valor en el cerebro del personaje
+	ultimo_stat_enfocado = clave_stat # Guardamos la memoria del cursor
+	
 	heroe_inv_actual.set(clave_stat, heroe_inv_actual.get(clave_stat) + cantidad)
 
-	# Truco de diseño: Si subimos su máximo de vida o magia, le curamos esa misma 
-	# cantidad para que su barra no parezca "vacía" de repente.
 	if clave_stat == "pv_maximos": heroe_inv_actual.pv_actuales += cantidad
 	elif clave_stat == "ph_maximos": heroe_inv_actual.ph_actuales += cantidad
 
 	heroe_inv_actual.puntos_estadisticas -= 1
 	
-	# Refrescamos la pantalla para que vea el nuevo número y sus puntos restantes
+	# --- ACTUALIZACIÓN DE LA TARJETA EN VIVO ---
+	if labels_estadisticas_heroes.has(heroe_inv_actual) and labels_estadisticas_heroes[heroe_inv_actual].has(clave_stat):
+		var lbl_stat_tarjeta = labels_estadisticas_heroes[heroe_inv_actual][clave_stat]
+		lbl_stat_tarjeta.text = str(heroe_inv_actual.get(clave_stat))
+		
+		# Un pequeño destello verde para que el jugador SIENTA la mejora
+		var tween = get_tree().create_tween()
+		tween.tween_property(lbl_stat_tarjeta, "modulate", Color("55ff55"), 0.1)
+		tween.tween_property(lbl_stat_tarjeta, "modulate", Color.WHITE, 0.4)
+
 	actualizar_menu_inversion()

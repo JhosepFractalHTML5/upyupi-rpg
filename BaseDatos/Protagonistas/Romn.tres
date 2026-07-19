@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://voiea5jv3r2m" path="res://BaseDatos/Protagonistas/Habilidades/RomnHAB/CorteMultiple.tres" id="2_2arwj"]
 [ext_resource type="Texture2D" uid="uid://c5riynxg6aua5" path="res://Graficos/Batalla/Protagonistas/Icons/Romn.png" id="3_2arwj"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="4_kspce"]
-[ext_resource type="Texture2D" uid="uid://d244k1a7hpso6" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/JhosepNORMAL.png" id="7_egcoj"]
+[ext_resource type="Texture2D" uid="uid://dgwtca3cw622l" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/RomnNORMAL.png" id="7_o8haq"]
 [ext_resource type="Texture2D" uid="uid://bcleyye1vca4r" path="res://Graficos/Batalla/Enemigos/Test/KITANSAF.png" id="8_o8haq"]
 [ext_resource type="Texture2D" uid="uid://b6b5e6skyi4cb" path="res://Graficos/WintersChannel/Protagonistas/RomnWhite.png" id="9_o8haq"]
 
@@ -19,7 +19,7 @@ nivel_maximo = 30
 textura_sprite = ExtResource("9_o8haq")
 retrato_base = ExtResource("1_huu7l")
 icono_timeline = ExtResource("3_2arwj")
-textura_panel = ExtResource("7_egcoj")
+textura_panel = ExtResource("7_o8haq")
 textura_pose_menu = ExtResource("8_o8haq")
 color_interfaz = Color(0, 0.8235294, 1, 1)
 pv_maximos = 65
@@ -36,6 +36,7 @@ bono_contraataque = 0.35
 farmacologia = 1.1
 recuperacion_pt = 1.4
 tasa_experiencia = 0.9
+exp_actual = 140
 exp_necesaria_proximo_nivel = 150
 drop_experiencia = 0
 drop_whenes = 0
