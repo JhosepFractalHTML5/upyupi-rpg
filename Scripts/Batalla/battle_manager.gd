@@ -11,6 +11,9 @@ var indice_oleada: int = 0
 var timer_estados: Timer
 var indice_rotacion_estado: int = 0
 var exp_acumulada: int = 0
+var whenes_acumulados: int = 0      # <-- NUEVO
+var items_dropeados: Array = []     # <-- NUEVO
+
 
 @onready var ui: BattleUI = $CapaGUI
 
@@ -21,6 +24,7 @@ var accion_pendiente: String = ""
 var habilidad_pendiente: Habilidad = null 
 var item_pendiente: ItemConsumible = null 
 var sprites_enemigos: Dictionary = {} 
+var esperando_cierre_batalla: bool = false # <-- NUEVO: Para saber cuándo presionar Aceptar
 
 func _ready():
 	randomize()
@@ -375,6 +379,20 @@ func _actualizar_texto_seleccion():
 	ui.narrar("Selecciona objetivo:\n> " + nombre_obj + " <")
 	
 func _unhandled_input(event):
+	# --- NUEVO: SALIR DE LA BATALLA ---
+	if esperando_cierre_batalla and event.is_action_pressed("ui_accept"):
+		esperando_cierre_batalla = false
+		ui.narrar("Volviendo al mapa...")
+		
+		# --- LA MAGIA DEL REGRESO ---
+		if GlobalGame.mapa_anterior_ruta != "":
+			GlobalGame.volver_de_batalla = true # Le avisamos al mapa que venimos de la sangre
+			get_tree().change_scene_to_file(GlobalGame.mapa_anterior_ruta)
+		else:
+			# Solo por si testeas la batalla directamente (F6) sin pasar por el mapa
+			ui.narrar("Error: No hay un mapa guardado en la memoria.")
+		return
+		
 	if accion_pendiente == "HABILIDAD_MENU" and event.is_action_pressed("ui_cancel"):
 		accion_pendiente = ""
 		bloquear_grid_habilidades()
@@ -469,6 +487,15 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 			tween.tween_property(sprite_muerto, "modulate:a", 0.0, 0.5) 
 			enemigos_actuales.erase(defensor)
 			
+			# --- NUEVO: RECOLECTAR WHENES E ÍTEMS ---
+			if defensor.get("drop_whenes"):
+				whenes_acumulados += defensor.drop_whenes
+				
+			if defensor.get("item_dropeable") and defensor.item_dropeable != null:
+				# Calculamos la probabilidad
+				if randf() * 100.0 <= defensor.chance_drop:
+					items_dropeados.append(defensor.item_dropeable)
+			
 			if enemigos_actuales.is_empty():
 				_procesar_fin_oleada()
 				return false 
@@ -506,10 +533,17 @@ func _procesar_fin_oleada():
 				heroe.ganar_experiencia(exp_acumulada)
 				
 		# --- 3. MOSTRAR LA INTERFAZ CON LOS DATOS ---
-		ui.mostrar_pantalla_victoria(party_jugador, exp_acumulada, niveles_previos)
-		ui.narrar("¡El grupo obtiene experiencia!")
+		# ACTUALIZADO: Ahora mandamos también los Whenes y los Items
+		ui.mostrar_pantalla_victoria(party_jugador, exp_acumulada, niveles_previos, whenes_acumulados, items_dropeados)
+		ui.narrar("¡El grupo obtiene experiencia y botín!")
 		
-		await get_tree().create_timer(3.0).timeout
+		# --- GUARDAR EL BOTÍN EN EL INVENTARIO GLOBAL ---
+		GlobalGame.agregar_whenes(whenes_acumulados)
+		for item in items_dropeados:
+			GlobalGame.inventario_equipamiento.append(item) # Guardamos los items en la mochila global
+			
+		whenes_acumulados = 0
+		items_dropeados.clear()
 		
 		# --- 4. SISTEMA DE INVERSIÓN (LA INTERCEPCIÓN) ---
 		# Revisamos uno a uno quién subió de nivel
@@ -522,7 +556,7 @@ func _procesar_fin_oleada():
 				await ui.inversion_completada 
 		
 		ui.narrar("Presiona 'Aceptar' para continuar...")
-		# Aquí, más adelante, pondremos el código para volver al Overworld (mapa)
+		esperando_cierre_batalla = true # <-- ¡MAGIA! Encendemos el sensor para salir
 
 func pasar_turno():
 	turno_actual += 1

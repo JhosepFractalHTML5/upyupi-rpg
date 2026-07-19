@@ -31,16 +31,21 @@ bg_color = Color(0.11241884, 0.44128895, 0.29660133, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pjwkw"]
 bg_color = Color(0.08627451, 0.08627451, 0.08627451, 0.92156863)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lnql5"]
+bg_color = Color(0.08627451, 0.08627451, 0.08627451, 0.92156863)
+
 [node name="BattleManager" type="Node" unique_id=916144311]
 script = ExtResource("1_r0ul7")
 ayudante_actual = ExtResource("8_jknig")
 
-[node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064]
+[node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064 node_paths=PackedStringArray("contenedor_botin")]
 script = ExtResource("9_oxep1")
+contenedor_botin = NodePath("PanelVictoria/FondoBotin/ContenedorBotin")
 icono_bolsillo_vacio = ExtResource("4_cw1wa")
 icono_ph = ExtResource("4_cw1wa")
 icono_pt = ExtResource("4_cw1wa")
 icono_pv = ExtResource("4_cw1wa")
+icono_whenes = ExtResource("4_cw1wa")
 icon_atk_up = ExtResource("10_oc83v")
 icon_atk_down = ExtResource("11_jknig")
 icon_def_up = ExtResource("12_c0ri4")
@@ -536,25 +541,37 @@ layout_mode = 2
 horizontal_alignment = 1
 
 [node name="PanelVictoria" type="Panel" parent="CapaGUI" unique_id=1365226076]
-offset_left = 30.0
-offset_top = 24.0
-offset_right = 930.0
-offset_bottom = 1066.0
+offset_left = 430.0
+offset_top = 217.0
+offset_right = 1358.0
+offset_bottom = 993.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_pjwkw")
 
 [node name="ContenedorExpHeroes" type="VBoxContainer" parent="CapaGUI/PanelVictoria" unique_id=1413485698]
 layout_mode = 0
-offset_top = 142.0
-offset_right = 900.0
-offset_bottom = 1042.0
+offset_right = 928.0
+offset_bottom = 776.0
 theme_override_constants/separation = 20
 alignment = 1
 
 [node name="RichTextLabel" type="RichTextLabel" parent="CapaGUI/PanelVictoria" unique_id=101907786]
 layout_mode = 0
-offset_right = 900.0
-offset_bottom = 76.0
-theme_override_font_sizes/normal_font_size = 45
+offset_right = 928.0
+offset_bottom = 62.0
+theme_override_font_sizes/normal_font_size = 44
 text = "¡Estadisticas y Experiencia Ganada!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="FondoBotin" type="Panel" parent="CapaGUI/PanelVictoria" unique_id=1561725639]
+layout_mode = 0
+offset_left = 930.0
+offset_right = 1489.0
+offset_bottom = 776.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_lnql5")
+
+[node name="ContenedorBotin" type="VBoxContainer" parent="CapaGUI/PanelVictoria/FondoBotin" unique_id=1569260283]
+layout_mode = 0
+offset_right = 559.0
+offset_bottom = 776.0
+theme_override_constants/separation = 20

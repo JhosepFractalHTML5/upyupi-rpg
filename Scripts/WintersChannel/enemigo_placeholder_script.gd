@@ -19,5 +19,20 @@ func iniciar_encuentro():
 	
 	var ruta_mapa_actual = get_tree().current_scene.scene_file_path
 	
+	# ==========================================
+	# --- NUEVO: LA FOTOGRAFÍA DEL OVERWORLD ---
+	# ==========================================
+	# 1. Buscamos al jugador por su grupo para robarle las coordenadas
+	var jugador = get_tree().get_first_node_in_group("Jugador")
+	if jugador:
+		GlobalGame.posicion_jugador_mapa = jugador.global_position
+	else:
+		GlobalGame.posicion_jugador_mapa = self.global_position # Respaldo si no lo encuentra
+		
+	# 2. Guardamos la ruta del mapa en el cerebro (por si tu función no lo hace adentro)
+	GlobalGame.mapa_anterior_ruta = ruta_mapa_actual
+	
+	# ==========================================
+	
 	# Le pasamos el paquete completo de oleadas al cerebro global
 	GlobalGame.entrar_a_batalla(todas_las_oleadas, ruta_mapa_actual)

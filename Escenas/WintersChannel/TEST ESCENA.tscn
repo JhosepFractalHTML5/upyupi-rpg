@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cfi33v8gkip1h"]
 
-[ext_resource type="PackedScene" uid="uid://bysqc3xmpwal0" path="res://Escenas/Almas/Test/player.tscn" id="1_f5dhs"]
+[ext_resource type="PackedScene" uid="uid://bysqc3xmpwal0" path="res://Escenas/Almas/Test/jugador.tscn" id="1_f5dhs"]
 [ext_resource type="PackedScene" uid="uid://d1d3hk67dndjv" path="res://Escenas/Almas/Test/cofre.tscn" id="2_6ypk8"]
 [ext_resource type="PackedScene" uid="uid://dyguv7qb6we0e" path="res://Escenas/WintersChannel/menu_principal.tscn" id="3_relv3"]
 [ext_resource type="PackedScene" uid="uid://bfr7rcjr2icpn" path="res://Escenas/Almas/Test/enemigo_overworld.tscn" id="4_mxiyh"]
@@ -10,7 +10,7 @@ y_sort_enabled = true
 position = Vector2(1, 1)
 
 [node name="Jugador" parent="." unique_id=814936194 instance=ExtResource("1_f5dhs")]
-position = Vector2(175, 148)
+position = Vector2(781, 308)
 
 [node name="Cofre" parent="." unique_id=1699787337 instance=ExtResource("2_6ypk8")]
 position = Vector2(450, 301)
@@ -28,4 +28,4 @@ position = Vector2(148, 306)
 visible = false
 
 [node name="EnemigoOverworld" parent="." unique_id=720559432 instance=ExtResource("4_mxiyh")]
-position = Vector2(682, 117)
+position = Vector2(693, 415)

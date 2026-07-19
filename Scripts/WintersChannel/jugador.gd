@@ -21,6 +21,12 @@ func _ready():
 	get_parent().y_sort_enabled = true
 	y_sort_enabled = true 
 	
+	# --- NUEVO: LA MAGIA DEL REGRESO AL OVERWORLD ---
+	if GlobalGame.volver_de_batalla:
+		global_position = GlobalGame.posicion_jugador_mapa
+		GlobalGame.volver_de_batalla = false # Apagamos el sensor para que no se bucee
+		print("[SISTEMA] Jugador teletransportado a su posición previa: ", global_position)
+	
 	if GlobalGame.party_actual.size() > 0:
 		var lider = GlobalGame.party_actual[0]
 		if lider.textura_sprite != null:

@@ -11,6 +11,11 @@ var inventario_equipamiento: Array = []
 var inventario_clave: Array = []
 var inventario_cartas: Array = []
 
+# --- MEMORIA DEL OVERWORLD ---
+var mapa_anterior_ruta: String = ""
+var posicion_jugador_mapa: Vector2 = Vector2.ZERO
+var volver_de_batalla: bool = false # Sensor para saber si acabamos de pelear
+
 # --- ECONOMÍA ---
 var whenes_actuales: int = 0
 

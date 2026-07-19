@@ -94,7 +94,7 @@ _data = {
 &"caminar_izq": SubResource("Animation_gllja")
 }
 
-[node name="Jugador" type="CharacterBody2D" unique_id=814936194]
+[node name="Jugador" type="CharacterBody2D" unique_id=814936194 groups=["Jugador"]]
 y_sort_enabled = true
 script = ExtResource("1_onrkg")
 

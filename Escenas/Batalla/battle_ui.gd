@@ -19,12 +19,14 @@ class_name BattleUI
 @onready var grid_items = $PanelLog/GridItems
 @onready var panel_victoria = $PanelVictoria
 @onready var contenedor_exp_heroes = $PanelVictoria/ContenedorExpHeroes
+@export var contenedor_botin: VBoxContainer
 
 @export_category("Iconos de Interfaz")
 @export var icono_bolsillo_vacio: Texture2D
 @export var icono_ph: Texture2D
 @export var icono_pt: Texture2D
 @export var icono_pv: Texture2D
+@export var icono_whenes: Texture2D
 
 @export_category("Iconos de Estados Alterados")
 @export var icon_atk_up: Texture2D
@@ -47,6 +49,7 @@ var labels_estadisticas_heroes: Dictionary = {} # Para actualizar los números d
 var panel_inversion: Panel
 var heroe_inv_actual: CharacterStats
 var recuadros_heroes: Dictionary = {} # Para recordar dónde está cada héroe
+
 
 func _ready():
 	panel_victoria.hide()
@@ -516,7 +519,7 @@ func _crear_icono_estado(contenedor: Control, textura: Texture2D):
 	contenedor.add_child(rect)
 
 
-func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Dictionary):
+func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Dictionary, whenes_total: int = 0, items_ganados: Array = []):
 	panel_victoria.show()
 	recuadros_heroes.clear()
 	labels_estadisticas_heroes.clear() # Limpiamos los sensores viejos
@@ -635,11 +638,16 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 			
 			contenedor_exp_heroes.add_child(recuadro)
 			
-			# ANIMACIÓN
-			var tween = get_tree().create_tween()
-			tween.tween_method(
-				func(val): lbl_exp.text = "+" + str(int(val)) + " EXP", 0.0, float(exp_real), 1.5 
-			).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+# ANIMACIÓN
+			var tween = get_tree().create_tween().bind_node(lbl_exp)
+			
+			# 1. Preparamos la medicina en una variable limpia para no confundir la indentación
+			var actualizar_texto = func(val):
+				if is_instance_valid(lbl_exp):
+					lbl_exp.text = "+" + str(int(val)) + " EXP"
+					
+			# 2. Inyectamos la variable directamente al Tween en una sola línea
+			tween.tween_method(actualizar_texto, 0.0, float(exp_real), 1.5).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
 			
 			if nivel_nuevo > nivel_viejo:
 				tween.tween_callback(func():
@@ -649,6 +657,87 @@ func mostrar_pantalla_victoria(party: Array, exp_total: int, niveles_previos: Di
 					for i in range(4): 
 						tween_lvl.tween_property(lbl_levelup, "modulate", Color(2.0, 2.0, 2.0) if i%2==0 else Color.WHITE, 0.15)
 				).set_delay(0.2)
+				
+	# --- 4. PANEL DE BOTÍN (EN EL NUEVO CONTENEDOR) ---
+	# Limpiamos el contenedor por si hay botín de batallas pasadas
+	if contenedor_botin:
+		for hijo in contenedor_botin.get_children():
+			hijo.queue_free()
+
+		var lbl_titulo_botin = Label.new()
+		lbl_titulo_botin.text = "¡Botín Obtenido!"
+		lbl_titulo_botin.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl_titulo_botin.add_theme_font_size_override("font_size", 44)
+		lbl_titulo_botin.add_theme_color_override("font_color", Color("ffffff"))
+		contenedor_botin.add_child(lbl_titulo_botin)
+
+		var grid_botin = GridContainer.new()
+		grid_botin.columns = 3 
+		grid_botin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		grid_botin.add_theme_constant_override("h_separation", 15)
+		grid_botin.add_theme_constant_override("v_separation", 15)
+		contenedor_botin.add_child(grid_botin)
+
+		# --- ESTILO COMPARTIDO PARA LOS SLOTS (Recuadritos pequeños) ---
+		var style_slot = StyleBoxFlat.new()
+		style_slot.bg_color = Color(0.2, 0.2, 0.25, 0.9)
+		style_slot.border_color = Color(0.5, 0.5, 0.5, 1.0)
+		style_slot.border_width_left = 2; style_slot.border_width_right = 2
+		style_slot.border_width_top = 2; style_slot.border_width_bottom = 2
+		style_slot.content_margin_top = 10; style_slot.content_margin_bottom = 10
+		style_slot.content_margin_left = 10; style_slot.content_margin_right = 10
+
+		# --- SLOT 1: LOS WHENES (Dinero) ---
+		var slot_whenes = PanelContainer.new()
+		slot_whenes.add_theme_stylebox_override("panel", style_slot)
+		slot_whenes.custom_minimum_size = Vector2(90, 90)
+		var vbox_w = VBoxContainer.new()
+		vbox_w.alignment = BoxContainer.ALIGNMENT_CENTER
+		
+		# Inyectamos tu icono de moneda real
+		if icono_whenes:
+			var tex_w = TextureRect.new()
+			tex_w.texture = icono_whenes
+			tex_w.custom_minimum_size = Vector2(32, 32)
+			tex_w.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			tex_w.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			vbox_w.add_child(tex_w)
+		
+		var lbl_w_cant = Label.new()
+		lbl_w_cant.text = str(whenes_total) + " W"
+		lbl_w_cant.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		lbl_w_cant.add_theme_color_override("font_color", Color("ffffaa"))
+		vbox_w.add_child(lbl_w_cant)
+		
+		slot_whenes.add_child(vbox_w)
+		grid_botin.add_child(slot_whenes)
+
+		# --- SLOTS RESTANTES: LOS OBJETOS ---
+		for item in items_ganados:
+			var slot_item = PanelContainer.new()
+			slot_item.add_theme_stylebox_override("panel", style_slot)
+			slot_item.custom_minimum_size = Vector2(90, 90)
+			
+			var vbox_i = VBoxContainer.new()
+			vbox_i.alignment = BoxContainer.ALIGNMENT_CENTER
+			
+			# Usamos directamente tu variable 'icono' de ItemConsumible
+			if item.get("icono") and item.icono != null: 
+				var tex_i = TextureRect.new()
+				tex_i.texture = item.icono
+				tex_i.custom_minimum_size = Vector2(32, 32)
+				tex_i.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				tex_i.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				vbox_i.add_child(tex_i)
+				
+			var lbl_i_nom = Label.new()
+			lbl_i_nom.text = item.nombre.left(8) + "." if item.get("nombre") and item.nombre.length() > 8 else (item.nombre if item.get("nombre") else "Item")
+			lbl_i_nom.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			lbl_i_nom.add_theme_font_size_override("font_size", 12)
+			vbox_i.add_child(lbl_i_nom)
+			
+			slot_item.add_child(vbox_i)
+			grid_botin.add_child(slot_item)
 
 func abrir_menu_inversion(heroe: CharacterStats):
 	heroe_inv_actual = heroe
