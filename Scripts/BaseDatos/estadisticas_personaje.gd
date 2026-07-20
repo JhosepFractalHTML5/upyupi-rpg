@@ -63,10 +63,10 @@ class_name CharacterStats
 
 @export_group("Puntos Temperamento (PT)")
 @export var pt_maximos: int = 100
-var pt_actuales: int = 0 # Empezamos el combate con 0 PT
+@export var pt_actuales: int = 0 # Empezamos el combate con 0 PT
 
 @export_group("Estados de Batalla")
-var chance_contraataque: float = 0.0 # Guardará ese 1.5% acumulativo
+var acumulador_contraataque: float = 0.0 # Guardará la rabia acumulativa por golpes
 var turnos_mejora_ataque: int = 0
 var turnos_mejora_defensa: int = 0
 var turnos_mejora_agilidad: int = 0
@@ -87,29 +87,6 @@ var turnos_agilidad_baja: int = 0
 
 @export_group("Habilidades Especiales")
 @export var habilidad_contraataque: Habilidad # <--- Aquí arrastraremos la habilidad "Alerta"
-
-# --- LÓGICA DE COMBATE Y SUPERVIVENCIA ---
-
-func recibir_dano(cantidad: int, bm: Node = null):
-	pv_actuales -= cantidad
-	if pv_actuales < 0:
-		pv_actuales = 0
-	print(nombre, " recibe ", cantidad, " de daño. PV restantes: ", pv_actuales)
-	
-	if pv_actuales == 0:
-		print(nombre, " ha sido derrotado.")
-		
-	# --- TEMBLOR UNIVERSAL PARA CUALQUIER TIPO DE DAÑO ---
-	if bm != null and bm.party_jugador.has(self):
-		var porcentaje_dano = float(cantidad) / float(pv_maximos)
-		bm.ui.aplicar_temblor(porcentaje_dano)
-
-func curar_pv(cantidad: int):
-	pv_actuales += cantidad
-	# Evitamos curar más allá del máximo
-	if pv_actuales > pv_maximos:
-		pv_actuales = pv_maximos
-	print(nombre, " se cura ", cantidad, " PV. PV actuales: ", pv_actuales)
 
 func gastar_ph(cantidad: int) -> bool:
 	if ph_actuales >= cantidad:
@@ -141,7 +118,6 @@ func subir_nivel():
 	
 	print("¡NUEVO NIVEL! ", nombre, " alcanzó el nivel ", nivel, ". Puntos disponibles: ", puntos_estadisticas)
 
-# (Al final de estadisticas_personaje.gd)
 var cooldowns_actuales: Dictionary = {} # Guarda la cuenta regresiva de cada magia
 
 # --- IA ENEMIGA MEGA-ACTUALIZADA ---
@@ -237,34 +213,43 @@ func _elegir_heroe_inteligente(heroes: Array, es_random: bool, bm: Node) -> Char
 			victima = h
 	return victima
 
+# =========================================================
+# --- SISTEMA DE COMBATE (DAÑO, SUERTE Y EFECTOS) ---
+# =========================================================
+
 func recibir_ataque(atacante: CharacterStats, manager: Node):
-	var acierto = atacante.tasa_acierto
-	var evasion = tasa_evasion if turnos_distraido == 0 else 0.0
+	# 1. Evasión combinada con Suerte
+	var evasion_real = tasa_evasion + (get_suerte_real() * 0.005)
+	if turnos_distraido > 0: evasion_real = 0.0 # No esquivas si estás en las nubes
 	
-	if randf() > (acierto - evasion):
+	if randf() < evasion_real:
 		manager.ui.narrar("¡" + nombre + " esquivó el ataque!")
 		manager.ui.agregar_al_log("[ESQUIVE] " + nombre + " esquivó el golpe de " + atacante.nombre)
+		manager.mostrar_numero_flotante(self, 0, "evasion")
 		await manager.get_tree().create_timer(1.2).timeout
 		manager.verificar_estado_batalla(self, true)
 		return
 		
+	# 2. Chance de Crítico
+	var critico_real = atacante.tasa_critico + (atacante.get_suerte_real() * 0.01)
+	var es_critico = randf() < critico_real
+		
+	# 3. Cálculo de daño brutal
 	var atk_real = atacante.get_ataque_real()
 	var def_real = get_defensa_real()
 	var dano = int((atk_real * 1.5) - (def_real * 0.5))
-	if dano < 1: dano = 1 
-		
-	var es_critico = false
-	if randf() < atacante.tasa_critico:
-		es_critico = true
-		dano = int(dano * 1.5) 
-		
-	if esta_defendiendo: dano = int(dano / 2.0) 
+	
+	# 4. Multiplicadores
+	if es_critico: dano = int(dano * 1.5) 
+	if esta_defendiendo: dano = int(dano * 0.5) 
 	if turnos_distraido > 0: dano = int(dano * 1.25) 
-		
+	
+	dano = max(1, dano) # El daño nunca puede ser negativo
 	pv_actuales = max(pv_actuales - dano, 0)
 	var desperto_por_dolor = registrar_dano_ronda(dano)
 	var texto_log = "[DAÑO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano) + " PV)"
 	
+	# 5. Narrativa y Efectos
 	if es_critico:
 		manager.ui.narrar("¡GOLPE CRÍTICO! " + nombre + " recibe " + str(dano) + " de daño.")
 		texto_log = "[CRÍTICO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano) + " PV)"
@@ -285,6 +270,7 @@ func recibir_ataque(atacante: CharacterStats, manager: Node):
 		manager.ui.narrar("¡El tremendo golpe despierta a " + nombre + " de su distracción!")
 		await manager.get_tree().create_timer(1.2).timeout
 		
+	# 6. Reacción a la sangre
 	var hizo_contraataque = false
 	if pv_actuales > 0 and self.has_method("evaluar_contraataque"):
 		hizo_contraataque = await evaluar_contraataque(atacante, manager)
@@ -292,38 +278,64 @@ func recibir_ataque(atacante: CharacterStats, manager: Node):
 	if not hizo_contraataque:
 		manager.verificar_estado_batalla(self, true)
 
-func recibir_ataque_atipico(atacante: Resource, bm: Node):
-	var acierto = atacante.tasa_acierto
-	var evasion = tasa_evasion if turnos_distraido == 0 else 0.0
+func recibir_ataque_atipico(atacante: CharacterStats, bm: Node):
+	var evasion_real = tasa_evasion + (get_suerte_real() * 0.005)
+	if turnos_distraido > 0: evasion_real = 0.0
 	
-	if randf() > (acierto - evasion):
-		bm.ui.narrar("¡" + nombre + " evadió el ataque atípico!")
+	if randf() < evasion_real:
+		bm.ui.narrar("¡" + nombre + " evadió el efecto atípico!")
+		bm.ui.agregar_al_log("[ESQUIVE] " + nombre + " evadió la alteración de " + atacante.nombre)
+		bm.mostrar_numero_flotante(self, 0, "evasion")
 		await bm.get_tree().create_timer(1.2).timeout
 		bm.verificar_estado_batalla(self, true)
 		return
 
-	var defensa_real = int(defensa_atipica * 1.5) if turnos_mejora_defensa > 0 else defensa_atipica
-	var dano_calculado = (atacante.ataque_atipico * 4) - (defensa_real * 2)
-	var dano_final = int(max(1, dano_calculado) * 0.55) if esta_defendiendo else max(1, dano_calculado)
+	var critico_real = atacante.tasa_critico + (atacante.get_suerte_real() * 0.01)
+	var es_critico = randf() < critico_real
+
+	var atk_real = atacante.get_ataque_atipico_real()
+	var def_real = get_defensa_atipica_real()
+	var dano = int((atk_real * 2.5) - (def_real * 1.5))
 	
-	pv_actuales = max(pv_actuales - dano_final, 0)
-	dano_recibido_esta_ronda += dano_final 
-	bm.ui.agregar_al_log("[DAÑO ATÍPICO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano_final) + " PV)")
+	if es_critico: dano = int(dano * 1.5)
+	if esta_defendiendo: dano = int(dano * 0.55)
+	if turnos_distraido > 0: dano = int(dano * 1.5)
 	
-	bm.mostrar_numero_flotante(self, dano_final, "atipico")
+	dano = max(1, dano)
+	pv_actuales = max(pv_actuales - dano, 0)
+	var desperto_por_dolor = registrar_dano_ronda(dano)
 	
-	if bm.party_jugador.has(self): bm.ui.aplicar_temblor(float(dano_final) / float(pv_maximos))
+	var texto_log = "[ATÍPICO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano) + " PV)"
+	if es_critico:
+		bm.ui.narrar("¡Mente rota! " + nombre + " recibe " + str(dano) + " de daño atípico.")
+		texto_log = "[CRÍTICO ATÍPICO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano) + " PV)"
+	else:
+		bm.ui.narrar("¡" + nombre + " sufre " + str(dano) + " de daño atípico!")
+		
+	bm.ui.agregar_al_log(texto_log)
+	bm.mostrar_numero_flotante(self, dano, "atipico")
+	
+	if bm.party_jugador.has(self): bm.ui.aplicar_temblor(float(dano) / float(pv_maximos))
 	else: bm.animar_parpadeo_enemigo(self)
 	
+	await bm.get_tree().create_timer(1.0).timeout
+	
+	if desperto_por_dolor:
+		bm.ui.actualizar_interfaz_party(bm.party_jugador) 
+		bm.ui.agregar_al_log("[ESTADO] " + nombre + " -/> Distraído (Choque Mental)")
+		bm.ui.narrar("¡El choque mental despierta a " + nombre + " de su distracción!")
+		await bm.get_tree().create_timer(1.2).timeout
+	
 	var hizo_contraataque = await evaluar_contraataque(atacante, bm)
-	if not hizo_contraataque: bm.verificar_estado_batalla(self, true)
+	if not hizo_contraataque: 
+		bm.verificar_estado_batalla(self, true)
 
 # --- SISTEMA DE CONTRAATAQUES MODIFICADO ---
-func evaluar_contraataque(atacante: Resource, bm: Node) -> bool:
+func evaluar_contraataque(atacante: CharacterStats, bm: Node) -> bool:
 	if bm.party_jugador.has(self) and pv_actuales > 0 and turnos_distraido == 0:
-		chance_contraataque += bono_contraataque 
-		if randf() < chance_contraataque:
-			chance_contraataque = 0.0 
+		acumulador_contraataque += bono_contraataque 
+		if randf() < acumulador_contraataque:
+			acumulador_contraataque = 0.0 
 			if habilidad_contraataque != null:
 				await habilidad_contraataque.ejecutar(self, atacante, bm)
 			else:
@@ -339,10 +351,12 @@ func evaluar_contraataque(atacante: Resource, bm: Node) -> bool:
 
 # --- 1. STATS BÁSICOS (-2 a +2) ---
 var niveles_stat: Dictionary = {
-	"ataque": 0, "defensa": 0, "agilidad": 0, "suerte": 0
+	"ataque": 0, "defensa": 0, "agilidad": 0, "suerte": 0,
+	"ataque_atipico": 0, "defensa_atipica": 0 # <-- AGREGADOS para evitar crasheos
 }
 var turnos_stat: Dictionary = {
-	"ataque": 0, "defensa": 0, "agilidad": 0, "suerte": 0
+	"ataque": 0, "defensa": 0, "agilidad": 0, "suerte": 0,
+	"ataque_atipico": 0, "defensa_atipica": 0
 }
 
 # --- 2. ESTADOS ESPECIALES ---
@@ -357,10 +371,12 @@ func modificar_stat(stat: String, niveles_a_sumar: int, turnos: int):
 		niveles_stat[stat] = clamp(niveles_stat[stat] + niveles_a_sumar, -2, 2)
 		turnos_stat[stat] = turnos 
 
-func get_ataque_real() -> int: return int(ataque * (1.0 + (niveles_stat["ataque"] * 0.25)))
-func get_defensa_real() -> int: return int(defensa * (1.0 + (niveles_stat["defensa"] * 0.25)))
-func get_agilidad_real() -> int: return int(agilidad * (1.0 + (niveles_stat["agilidad"] * 0.25)))
-func get_suerte_real() -> int: return int(suerte * (1.0 + (niveles_stat["suerte"] * 0.25)))
+func get_ataque_real() -> int: return int(ataque * (1.0 + (niveles_stat.get("ataque", 0) * 0.25)))
+func get_defensa_real() -> int: return int(defensa * (1.0 + (niveles_stat.get("defensa", 0) * 0.25)))
+func get_agilidad_real() -> int: return int(agilidad * (1.0 + (niveles_stat.get("agilidad", 0) * 0.25)))
+func get_suerte_real() -> int: return int(suerte * (1.0 + (niveles_stat.get("suerte", 0) * 0.25)))
+func get_ataque_atipico_real() -> int: return int(ataque_atipico * (1.0 + (niveles_stat.get("ataque_atipico", 0) * 0.25)))
+func get_defensa_atipica_real() -> int: return int(defensa_atipica * (1.0 + (niveles_stat.get("defensa_atipica", 0) * 0.25)))
 
 # --- MODIFICADORES DE ESTADOS ESPECIALES ---
 func aplicar_provocacion(turnos: int): turnos_provocacion = turnos
@@ -397,7 +413,6 @@ func procesar_turnos_estados() -> Array:
 	return expirados
 
 # --- GESTIÓN DE DESPERTAR POR DAÑO ---
-# Reemplaza todo el bloque gigante de código que tenías en el BattleManager
 func registrar_dano_ronda(dano: int) -> bool:
 	dano_recibido_esta_ronda += dano
 	# Si está distraído y el daño acumulado supera el 25% de su vida, despierta

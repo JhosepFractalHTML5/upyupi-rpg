@@ -112,7 +112,7 @@ text = "PV"
 layout_mode = 0
 offset_left = 484.0
 offset_top = 277.0
-offset_right = 924.0
+offset_right = 782.0
 offset_bottom = 317.0
 theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
 theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
@@ -126,6 +126,25 @@ offset_right = 864.0
 offset_bottom = 327.0
 theme_override_font_sizes/font_size = 45
 text = "PH"
+
+[node name="BarraPT" type="ProgressBar" parent="ContenedorPersonajes/Panel" unique_id=1779806183]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 277.0
+offset_right = 924.0
+offset_bottom = 317.0
+theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
+theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
+show_percentage = false
+
+[node name="LblPT" type="Label" parent="ContenedorPersonajes/Panel" unique_id=1923275776]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 264.0
+offset_right = 924.0
+offset_bottom = 327.0
+theme_override_font_sizes/font_size = 45
+text = "PT"
 
 [node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel" unique_id=1431560016]
 layout_mode = 0
@@ -155,13 +174,13 @@ offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
 
-[node name="Panel2" type="Panel" parent="ContenedorPersonajes" unique_id=848439686]
+[node name="Panel2" type="Panel" parent="ContenedorPersonajes" unique_id=1102085275]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="FondoPanel" type="TextureRect" parent="ContenedorPersonajes/Panel2" unique_id=95442236]
+[node name="FondoPanel" type="TextureRect" parent="ContenedorPersonajes/Panel2" unique_id=1875301797]
 layout_mode = 0
 offset_left = 74.58472
 offset_top = 63.0
@@ -170,7 +189,7 @@ offset_bottom = 399.0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SpritePose" type="TextureRect" parent="ContenedorPersonajes/Panel2" unique_id=666849536]
+[node name="SpritePose" type="TextureRect" parent="ContenedorPersonajes/Panel2" unique_id=1712331512]
 layout_mode = 0
 offset_left = 285.0
 offset_top = 189.0
@@ -179,7 +198,7 @@ offset_bottom = 399.0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LblNombre" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1103332735]
+[node name="LblNombre" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1854860807]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 4.0
@@ -188,7 +207,7 @@ offset_bottom = 67.0
 theme_override_font_sizes/font_size = 45
 text = "Personaje"
 
-[node name="LblClase" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=558024324]
+[node name="LblClase" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1588867870]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 69.0
@@ -197,7 +216,7 @@ offset_bottom = 132.0
 theme_override_font_sizes/font_size = 45
 text = "Clase"
 
-[node name="LblNivel" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1318891232]
+[node name="LblNivel" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=41133244]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 134.0
@@ -206,7 +225,7 @@ offset_bottom = 197.0
 theme_override_font_sizes/font_size = 45
 text = "Nivel"
 
-[node name="BarraPV" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=127009194]
+[node name="BarraPV" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=770716559]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 212.0
@@ -216,7 +235,7 @@ theme_override_styles/background = SubResource("StyleBoxFlat_ho6bx")
 theme_override_styles/fill = SubResource("StyleBoxFlat_5si4e")
 show_percentage = false
 
-[node name="LblPV" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=763089871]
+[node name="LblPV" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1335369663]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 199.0
@@ -225,17 +244,17 @@ offset_bottom = 262.0
 theme_override_font_sizes/font_size = 45
 text = "PV"
 
-[node name="BarraPH" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=485561792]
+[node name="BarraPH" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=1495078486]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 277.0
-offset_right = 924.0
+offset_right = 782.0
 offset_bottom = 317.0
 theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
 theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
 show_percentage = false
 
-[node name="LblPH" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=945591840]
+[node name="LblPH" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=2107966588]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 264.0
@@ -244,7 +263,26 @@ offset_bottom = 327.0
 theme_override_font_sizes/font_size = 45
 text = "PH"
 
-[node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=589008120]
+[node name="BarraPT" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=779421865]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 277.0
+offset_right = 924.0
+offset_bottom = 317.0
+theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
+theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
+show_percentage = false
+
+[node name="LblPT" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1707961930]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 264.0
+offset_right = 924.0
+offset_bottom = 327.0
+theme_override_font_sizes/font_size = 45
+text = "PT"
+
+[node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel2" unique_id=140862531]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 342.0
@@ -254,7 +292,7 @@ theme_override_styles/background = SubResource("StyleBoxFlat_2nx6k")
 theme_override_styles/fill = SubResource("StyleBoxFlat_60w4a")
 show_percentage = false
 
-[node name="LblExp" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1011096948]
+[node name="LblExp" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=81946747]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 329.0
@@ -263,7 +301,7 @@ offset_bottom = 392.0
 theme_override_font_sizes/font_size = 45
 text = "Exp"
 
-[node name="LblInv" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=951092546]
+[node name="LblInv" type="Label" parent="ContenedorPersonajes/Panel2" unique_id=1684028647]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 394.0
@@ -272,13 +310,13 @@ offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
 
-[node name="Panel3" type="Panel" parent="ContenedorPersonajes" unique_id=223533175]
+[node name="Panel3" type="Panel" parent="ContenedorPersonajes" unique_id=1266111737]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="FondoPanel" type="TextureRect" parent="ContenedorPersonajes/Panel3" unique_id=993093300]
+[node name="FondoPanel" type="TextureRect" parent="ContenedorPersonajes/Panel3" unique_id=1533658952]
 layout_mode = 0
 offset_left = 74.58472
 offset_top = 63.0
@@ -287,7 +325,7 @@ offset_bottom = 399.0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SpritePose" type="TextureRect" parent="ContenedorPersonajes/Panel3" unique_id=177350905]
+[node name="SpritePose" type="TextureRect" parent="ContenedorPersonajes/Panel3" unique_id=990568764]
 layout_mode = 0
 offset_left = 285.0
 offset_top = 189.0
@@ -296,7 +334,7 @@ offset_bottom = 399.0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LblNombre" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=446215720]
+[node name="LblNombre" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=852861236]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 4.0
@@ -305,7 +343,7 @@ offset_bottom = 67.0
 theme_override_font_sizes/font_size = 45
 text = "Personaje"
 
-[node name="LblClase" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=802829691]
+[node name="LblClase" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1316447074]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 69.0
@@ -314,7 +352,7 @@ offset_bottom = 132.0
 theme_override_font_sizes/font_size = 45
 text = "Clase"
 
-[node name="LblNivel" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=287971424]
+[node name="LblNivel" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1651121011]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 134.0
@@ -323,7 +361,7 @@ offset_bottom = 197.0
 theme_override_font_sizes/font_size = 45
 text = "Nivel"
 
-[node name="BarraPV" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=1406684891]
+[node name="BarraPV" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=1315320291]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 212.0
@@ -333,7 +371,7 @@ theme_override_styles/background = SubResource("StyleBoxFlat_ho6bx")
 theme_override_styles/fill = SubResource("StyleBoxFlat_5si4e")
 show_percentage = false
 
-[node name="LblPV" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1899358650]
+[node name="LblPV" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=240669023]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 199.0
@@ -342,17 +380,17 @@ offset_bottom = 262.0
 theme_override_font_sizes/font_size = 45
 text = "PV"
 
-[node name="BarraPH" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=85103632]
+[node name="BarraPH" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=445907439]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 277.0
-offset_right = 924.0
+offset_right = 782.0
 offset_bottom = 317.0
 theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
 theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
 show_percentage = false
 
-[node name="LblPH" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=917951454]
+[node name="LblPH" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1894174333]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 264.0
@@ -361,7 +399,26 @@ offset_bottom = 327.0
 theme_override_font_sizes/font_size = 45
 text = "PH"
 
-[node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=209178380]
+[node name="BarraPT" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=698415546]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 277.0
+offset_right = 924.0
+offset_bottom = 317.0
+theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
+theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
+show_percentage = false
+
+[node name="LblPT" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1725106035]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 264.0
+offset_right = 924.0
+offset_bottom = 327.0
+theme_override_font_sizes/font_size = 45
+text = "PT"
+
+[node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel3" unique_id=252033009]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 342.0
@@ -371,7 +428,7 @@ theme_override_styles/background = SubResource("StyleBoxFlat_2nx6k")
 theme_override_styles/fill = SubResource("StyleBoxFlat_60w4a")
 show_percentage = false
 
-[node name="LblExp" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=359842849]
+[node name="LblExp" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=626732662]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 329.0
@@ -380,7 +437,7 @@ offset_bottom = 392.0
 theme_override_font_sizes/font_size = 45
 text = "Exp"
 
-[node name="LblInv" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1536464391]
+[node name="LblInv" type="Label" parent="ContenedorPersonajes/Panel3" unique_id=1877820839]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 394.0
@@ -389,13 +446,13 @@ offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
 
-[node name="Panel4" type="Panel" parent="ContenedorPersonajes" unique_id=1115886131]
+[node name="Panel4" type="Panel" parent="ContenedorPersonajes" unique_id=388065742]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="FondoPanel" type="TextureRect" parent="ContenedorPersonajes/Panel4" unique_id=810898951]
+[node name="FondoPanel" type="TextureRect" parent="ContenedorPersonajes/Panel4" unique_id=148024776]
 layout_mode = 0
 offset_left = 74.58472
 offset_top = 63.0
@@ -404,7 +461,7 @@ offset_bottom = 399.0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="SpritePose" type="TextureRect" parent="ContenedorPersonajes/Panel4" unique_id=456847886]
+[node name="SpritePose" type="TextureRect" parent="ContenedorPersonajes/Panel4" unique_id=645355993]
 layout_mode = 0
 offset_left = 285.0
 offset_top = 189.0
@@ -413,7 +470,7 @@ offset_bottom = 399.0
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LblNombre" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=884447032]
+[node name="LblNombre" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=979664569]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 4.0
@@ -422,7 +479,7 @@ offset_bottom = 67.0
 theme_override_font_sizes/font_size = 45
 text = "Personaje"
 
-[node name="LblClase" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1446835045]
+[node name="LblClase" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=621388236]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 69.0
@@ -431,7 +488,7 @@ offset_bottom = 132.0
 theme_override_font_sizes/font_size = 45
 text = "Clase"
 
-[node name="LblNivel" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=436670853]
+[node name="LblNivel" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1670741345]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 134.0
@@ -440,7 +497,7 @@ offset_bottom = 197.0
 theme_override_font_sizes/font_size = 45
 text = "Nivel"
 
-[node name="BarraPV" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=1777422950]
+[node name="BarraPV" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=311467535]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 212.0
@@ -450,7 +507,7 @@ theme_override_styles/background = SubResource("StyleBoxFlat_ho6bx")
 theme_override_styles/fill = SubResource("StyleBoxFlat_5si4e")
 show_percentage = false
 
-[node name="LblPV" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=2147479717]
+[node name="LblPV" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=970370210]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 199.0
@@ -459,17 +516,17 @@ offset_bottom = 262.0
 theme_override_font_sizes/font_size = 45
 text = "PV"
 
-[node name="BarraPH" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=201669877]
+[node name="BarraPH" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=1545791916]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 277.0
-offset_right = 924.0
+offset_right = 782.0
 offset_bottom = 317.0
 theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
 theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
 show_percentage = false
 
-[node name="LblPH" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1611235615]
+[node name="LblPH" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1457819572]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 264.0
@@ -478,7 +535,26 @@ offset_bottom = 327.0
 theme_override_font_sizes/font_size = 45
 text = "PH"
 
-[node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=443611683]
+[node name="BarraPT" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=1415119967]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 277.0
+offset_right = 924.0
+offset_bottom = 317.0
+theme_override_styles/background = SubResource("StyleBoxFlat_mvqil")
+theme_override_styles/fill = SubResource("StyleBoxFlat_gifd4")
+show_percentage = false
+
+[node name="LblPT" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1086085729]
+layout_mode = 0
+offset_left = 784.0
+offset_top = 264.0
+offset_right = 924.0
+offset_bottom = 327.0
+theme_override_font_sizes/font_size = 45
+text = "PT"
+
+[node name="BarraExp" type="ProgressBar" parent="ContenedorPersonajes/Panel4" unique_id=894766822]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 342.0
@@ -488,7 +564,7 @@ theme_override_styles/background = SubResource("StyleBoxFlat_2nx6k")
 theme_override_styles/fill = SubResource("StyleBoxFlat_60w4a")
 show_percentage = false
 
-[node name="LblExp" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1352158543]
+[node name="LblExp" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=217437302]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 329.0
@@ -497,7 +573,7 @@ offset_bottom = 392.0
 theme_override_font_sizes/font_size = 45
 text = "Exp"
 
-[node name="LblInv" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1911100920]
+[node name="LblInv" type="Label" parent="ContenedorPersonajes/Panel4" unique_id=1917168856]
 layout_mode = 0
 offset_left = 484.0
 offset_top = 394.0

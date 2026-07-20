@@ -39,7 +39,7 @@ func _ready():
 		acomp.global_position = self.global_position 
 		get_parent().call_deferred("add_child", acomp)
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	var direccion = Vector2(
 		Input.get_axis("ui_left", "ui_right"),
 		Input.get_axis("ui_up", "ui_down")
@@ -50,11 +50,14 @@ func _physics_process(_delta):
 		_actualizar_animacion(direccion)
 		
 		# --- MIGAJAS INTELIGENTES ---
-		# ¡Solo dejamos migajas si nos movemos! Así el seguidor no nos pisa.
 		historial.push_front({"pos": global_position, "anim": anim_actual})
-		
 		if historial.size() > max_historial:
 			historial.pop_back()
+			
+		# --- NUEVO: DRENAJE DE PT (La adrenalina baja al caminar) ---
+		# Multiplicamos la velocidad por delta para saber exactamente cuántos metros caminó
+		GlobalGame.registrar_movimiento(velocity.length() * delta)
+		
 	else:
 		velocity = Vector2.ZERO
 		anim_player.stop()

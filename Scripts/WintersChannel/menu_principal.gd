@@ -46,8 +46,13 @@ func actualizar_menu():
 			panel.get_node("LblNombre").text = heroe.nombre
 			panel.get_node("LblClase").text = heroe.clase
 			panel.get_node("LblNivel").text = "Nv. " + str(heroe.nivel)
-			panel.get_node("LblPV").text = "PV: " + str(heroe.pv_actuales) + " / " + str(heroe.pv_maximos)
-			panel.get_node("LblPH").text = "PH: " + str(heroe.ph_actuales) + " / " + str(heroe.ph_maximos)
+			
+			# ¡Limpiados para ahorrar espacio! Solo mostramos la vida/magia actual
+			panel.get_node("LblPV").text = "PV: " + str(heroe.pv_actuales)
+			panel.get_node("LblPH").text = "PH: " + str(heroe.ph_actuales)
+			
+			# NUEVO: Etiqueta de Tensión
+			panel.get_node("LblPT").text = "PT: " + str(heroe.pt_actuales)
 			
 			var exp_faltante = heroe.exp_necesaria_proximo_nivel - heroe.exp_actual
 			panel.get_node("LblExp").text = "EXP: " + str(heroe.exp_actual) + " (Faltan: " + str(exp_faltante) + ")"
@@ -67,6 +72,12 @@ func actualizar_menu():
 			if barra_ph:
 				barra_ph.max_value = heroe.ph_maximos
 				barra_ph.value = heroe.ph_actuales
+				
+			# NUEVO: Barra de Tensión
+			var barra_pt = panel.get_node_or_null("BarraPT")
+			if barra_pt:
+				barra_pt.max_value = heroe.pt_maximos
+				barra_pt.value = heroe.pt_actuales
 				
 			var barra_exp = panel.get_node_or_null("BarraExp")
 			if barra_exp:

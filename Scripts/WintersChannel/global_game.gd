@@ -56,3 +56,18 @@ func entrar_a_batalla(oleadas_del_encuentro: Array, ruta_escena_actual: String):
 	
 	# ¡CUIDADO! Recuerda usar tu ruta real hacia el gestor de batalla
 	get_tree().change_scene_to_file("res://Escenas/Batalla/battle_manager.tscn")
+
+# --- DEGRADACIÓN DE TENSIÓN (PT) EN OVERWORLD ---
+var distancia_caminada: float = 0.0
+@export var distancia_para_perder_pt: float = 250.0 # Ajusta esto para que drenen más lento o rápido
+
+func registrar_movimiento(distancia_recorrida: float):
+	distancia_caminada += distancia_recorrida
+	if distancia_caminada >= distancia_para_perder_pt:
+		distancia_caminada = 0.0 # Reiniciamos el contador de pasos
+		_drenar_pt_party()
+
+func _drenar_pt_party():
+	for heroe in party_actual:
+		if heroe.pt_actuales > 0:
+			heroe.pt_actuales -= 1
