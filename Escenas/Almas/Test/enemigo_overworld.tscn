@@ -10,7 +10,7 @@ size = Vector2(167, 240)
 
 [node name="EnemigoOverworld" type="StaticBody2D" unique_id=720559432]
 script = ExtResource("1_3k2of")
-oleada_1 = Array[ExtResource("2_na46u")]([ExtResource("5_pdy1a")])
+oleada_1 = Array[ExtResource("2_na46u")]([ExtResource("5_pdy1a"), ExtResource("5_pdy1a")])
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=768680502]
 texture = ExtResource("6_mkks2")

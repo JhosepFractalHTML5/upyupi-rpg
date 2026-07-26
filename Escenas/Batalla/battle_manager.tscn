@@ -541,10 +541,11 @@ layout_mode = 2
 horizontal_alignment = 1
 
 [node name="PanelVictoria" type="Panel" parent="CapaGUI" unique_id=1365226076]
+visible = false
 offset_left = 430.0
-offset_top = 217.0
+offset_top = 293.0
 offset_right = 1358.0
-offset_bottom = 993.0
+offset_bottom = 1069.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_pjwkw")
 
 [node name="ContenedorExpHeroes" type="VBoxContainer" parent="CapaGUI/PanelVictoria" unique_id=1413485698]

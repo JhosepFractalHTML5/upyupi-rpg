@@ -23,7 +23,7 @@ var seleccionando_item: bool = false
 var indice_objetivo_actual: int = 0
 var accion_pendiente: String = ""
 var habilidad_pendiente: Habilidad = null
-var item_pendiente: ItemConsumible = null
+var item_pendiente: Item = null
 var sprites_enemigos: Dictionary = {}
 var esperando_cierre_batalla: bool = false
 
@@ -259,7 +259,7 @@ func bloquear_grid_items():
 	for btn in ui.grid_items.get_children():
 		btn.disabled = true
 
-func _seleccionar_item(item: ItemConsumible):
+func _seleccionar_item(item: Item):
 	bloquear_grid_items()
 	accion_pendiente = "ITEM"
 	item_pendiente = item

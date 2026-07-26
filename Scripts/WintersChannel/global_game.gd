@@ -29,11 +29,7 @@ func _ready():
 	if romn:
 		party_actual.append(romn)
 	var massi = preload("res://BaseDatos/Protagonistas/Massi.tres") 
-	if massi:
-		party_actual.append(massi)
-	var thais = preload("res://BaseDatos/Protagonistas/Thais.tres") 
-	if thais:
-		party_actual.append(thais)
+
 
 # --- FUNCIONES DE AYUDA GLOBAL ---
 func curar_party_completa():

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Item" format=3 uid="uid://bn6ewhblhrdq1"]
+
+[ext_resource type="Texture2D" uid="uid://b1jikalkyrnqg" path="res://Graficos/Batalla/Estados Alterados/Suerte Down.png" id="1_0ogfv"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="2_m7cop"]
+
+[resource]
+script = ExtResource("2_m7cop")
+nombre = "EXC"
+descripcion = "NONONO"
+icono = ExtResource("1_0ogfv")
+subcategoria = "Ofensivo"
+objetivo = "enemigo"
+tipo_efecto = "DANO_FIJO"
+poder = 225
+metadata/_custom_type_script = "uid://bygmjwrduthq1"

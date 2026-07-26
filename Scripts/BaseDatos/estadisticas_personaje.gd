@@ -50,12 +50,12 @@ class_name CharacterStats
 
 @export_group("Items")
 @export var max_items: int = 8 # Empezamos en 8, luego lo puedes subir a 16
-@export var inventario: Array[ItemConsumible] = []
+@export var inventario: Array[Item] = []
 
 @export_group("Recompensas (Enemigos)")
 @export var drop_experiencia: int = 25
 @export var drop_whenes: int = 10 # Cantidad de Whenes que suelta al morir
-@export var item_dropeable: ItemConsumible # El recurso del objeto que puede soltar
+@export var item_dropeable: Item # El recurso del objeto que puede soltar
 @export_range(0.0, 100.0) var chance_drop: float = 20.0 # 20% de probabilidad por defecto
 
 @export_group("Inteligencia Artificial")
