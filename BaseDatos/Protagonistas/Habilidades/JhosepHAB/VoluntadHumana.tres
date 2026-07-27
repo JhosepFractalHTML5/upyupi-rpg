@@ -1,0 +1,14 @@
+[gd_resource type="Resource" format=3 uid="uid://dtw2uup0xdeb5"]
+
+[ext_resource type="Script" uid="uid://bnyy4xrbhayva" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/VoluntadHumana.gd" id="1_8fibe"]
+
+[resource]
+script = ExtResource("1_8fibe")
+nombre = "Voluntad Humana"
+costo_ph = 5
+costo_pt = 5
+dano_base = 0
+objetivo = "usuario"
+categoria_ia = "tecnica"
+cooldown = 6
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

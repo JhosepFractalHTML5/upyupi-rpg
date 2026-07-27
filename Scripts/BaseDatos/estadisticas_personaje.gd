@@ -71,6 +71,8 @@ var turnos_mejora_ataque: int = 0
 var turnos_mejora_defensa: int = 0
 var turnos_mejora_agilidad: int = 0
 var turnos_agilidad_baja: int = 0
+var turnos_voluntad_humana: int = 0
+var revivido_por_voluntad: bool = false
 
 @export_group("Sistema de Habilidades")
 # Aquí arrastrarás las habilidades que ese personaje PUEDE aprender (máximo 6)
@@ -246,6 +248,12 @@ func recibir_ataque(atacante: CharacterStats, manager: Node):
 	
 	dano = max(1, dano) # El daño nunca puede ser negativo
 	pv_actuales = max(pv_actuales - dano, 0)
+	if pv_actuales <= 0:
+			if turnos_voluntad_humana > 0:
+				pv_actuales = 1 # Se aferra a la vida con 1 PV
+				revivido_por_voluntad = true
+				if manager:
+					manager.ui.agregar_al_log("[INMORTAL] " + nombre + " resistió un golpe letal.")
 	var desperto_por_dolor = registrar_dano_ronda(dano)
 	var texto_log = "[DAÑO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano) + " PV)"
 	
@@ -303,6 +311,12 @@ func recibir_ataque_atipico(atacante: CharacterStats, bm: Node):
 	
 	dano = max(1, dano)
 	pv_actuales = max(pv_actuales - dano, 0)
+	if pv_actuales <= 0:
+			if turnos_voluntad_humana > 0:
+				pv_actuales = 1 # Se aferra a la vida con 1 PV
+				revivido_por_voluntad = true
+				if bm:
+					bm.ui.agregar_al_log("[INMORTAL] " + nombre + " resistió un golpe letal.")
 	var desperto_por_dolor = registrar_dano_ronda(dano)
 	
 	var texto_log = "[ATÍPICO] " + atacante.nombre + " -> " + nombre + " (-" + str(dano) + " PV)"
@@ -410,6 +424,21 @@ func procesar_turnos_estados() -> Array:
 	if esta_defendiendo:
 		esta_defendiendo = false
 		
+	if turnos_voluntad_humana > 0:
+		turnos_voluntad_humana -= 1
+		if turnos_voluntad_humana <= 0:
+			expirados.append("VOLUNTAD_HUMANA")
+			
+			# Consecuencias de la habilidad:
+			if revivido_por_voluntad:
+				# Si murió y fue forzado a revivir, pierde la mitad de sus PV actuales
+				pv_actuales = max(1, int(pv_actuales / 2.0))
+			
+			# En ambos casos, su cuerpo se curte y gana 1 nivel de Defensa (ej. por 3 turnos)
+			if niveles_stat.has("defensa"):
+				niveles_stat["defensa"] = clamp(niveles_stat["defensa"] + 1, -2, 2)
+				turnos_stat["defensa"] = 3
+		
 	return expirados
 
 # --- GESTIÓN DE DESPERTAR POR DAÑO ---
@@ -436,3 +465,7 @@ func recibir_item_batalla(nuevo_item: Item) -> Item:
 		return item_perdido # <--- Lo devolvemos para narrarlo
 		
 	return null # <--- Si no se cayó nada, devolvemos null
+
+func aplicar_voluntad_humana(turnos: int):
+	turnos_voluntad_humana = turnos
+	revivido_por_voluntad = false # Se resetea al iniciar el estado

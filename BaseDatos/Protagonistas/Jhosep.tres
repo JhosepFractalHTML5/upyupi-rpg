@@ -6,6 +6,7 @@
 [ext_resource type="Resource" uid="uid://bbvy3paasyn3w" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Alerta.tres" id="1_mwe8a"]
 [ext_resource type="Resource" uid="uid://c7608y116kd6m" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EscudoHumano.tres" id="2_kj5rj"]
 [ext_resource type="Texture2D" uid="uid://4sho352b2ho6" path="res://Graficos/Batalla/Protagonistas/Icons/Jhosep.png" id="3_36wyd"]
+[ext_resource type="Resource" uid="uid://dtw2uup0xdeb5" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/VoluntadHumana.tres" id="4_2p4ai"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="5_y3ewx"]
 [ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="6_ibe7l"]
 [ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/EXCFD.tres" id="7_kimsq"]
@@ -43,11 +44,12 @@ recuperacion_pt = 1.1
 tasa_experiencia = 1.15
 exp_actual = 160
 exp_necesaria_proximo_nivel = 200
-inventario = Array[ExtResource("5_y3ewx")]([ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("7_kimsq")])
+inventario = Array[ExtResource("5_y3ewx")]([ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("6_ibe7l"), ExtResource("7_kimsq"), ExtResource("6_ibe7l"), ExtResource("7_kimsq")])
 drop_experiencia = 0
 drop_whenes = 0
 max_habilidades_activas = 3
-habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("2_kj5rj")])
+habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("2_kj5rj"), ExtResource("4_2p4ai")])
 item_clave_hab_1 = true
+item_clave_hab_2 = true
 habilidad_contraataque = ExtResource("1_mwe8a")
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

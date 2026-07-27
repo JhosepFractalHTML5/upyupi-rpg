@@ -62,7 +62,8 @@ func _process(_delta):
 
 	if es_apuntado_aliado:
 		for enemigo in sprites_enemigos.keys():
-			sprites_enemigos[enemigo].modulate.a = 1.0
+			if is_instance_valid(enemigo) and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
+				sprites_enemigos[enemigo].modulate.a = 1.0
 		var paneles = ui.contenedor_party.get_children()
 		for i in range(paneles.size()):
 			if i < party_jugador.size():
@@ -75,13 +76,27 @@ func _process(_delta):
 				indice_objetivo_actual = 0
 			var objetivo_actual = enemigos_actuales[indice_objetivo_actual]
 			for enemigo in sprites_enemigos.keys():
-				if enemigo.pv_actuales > 0:
+				if is_instance_valid(enemigo) and enemigo.pv_actuales > 0 and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
 					sprites_enemigos[enemigo].modulate.a = 0.4 + abs(sin(Time.get_ticks_msec() * 0.005) * 0.6) if enemigo == objetivo_actual else 1.0
+
+# ===== BLOQUEO DE BOTONES (PREVENCIÓN DE SPAM) =====
+func _bloquear_botones_accion():
+	ui.btn_atacar.disabled = true
+	ui.btn_defender.disabled = true
+	ui.btn_habilidades.disabled = true
+	ui.btn_items.disabled = true
+	ui.btn_huir.disabled = true
+
+func _desbloquear_botones_accion():
+	ui.btn_atacar.disabled = false
+	ui.btn_defender.disabled = false
+	ui.btn_habilidades.disabled = false
+	ui.btn_items.disabled = false
+	ui.btn_huir.disabled = false
 
 # ===== PREPARACIÓN DE BATALLA =====
 func iniciar_batalla():
 	for heroe in party_jugador:
-		# BORRAR: heroe.pt_actuales = randi_range(0, heroe.pt_maximos) <--- ¡CORTA ESTO!
 		heroe.cooldowns_actuales.clear()
 		heroe.turnos_provocacion = 0
 		heroe.turnos_distraido = 0
@@ -90,10 +105,6 @@ func iniciar_batalla():
 		for stat in heroe.niveles_stat.keys():
 			heroe.niveles_stat[stat] = 0
 			heroe.turnos_stat[stat] = 0
-
-	ui.agregar_al_log("[SISTEMA] Combate Iniciado.")
-	ui.actualizar_interfaz_party(party_jugador)
-	cargar_oleada(0)
 
 	ui.agregar_al_log("[SISTEMA] Combate Iniciado.")
 	ui.actualizar_interfaz_party(party_jugador)
@@ -151,7 +162,7 @@ func iniciar_ronda():
 		if heroe.pv_actuales > 0:
 			combatientes.append(heroe)
 	for enemigo in enemigos_actuales:
-		if enemigo.pv_actuales > 0:
+		if is_instance_valid(enemigo) and enemigo.pv_actuales > 0:
 			combatientes.append(enemigo)
 
 	combatientes.sort_custom(_ordenar_por_agilidad)
@@ -165,12 +176,20 @@ func _ordenar_por_agilidad(a: CharacterStats, b: CharacterStats) -> bool:
 
 func iniciar_turno():
 	var atacante = combatientes[turno_actual]
+	
+	if not is_instance_valid(atacante):
+		pasar_turno()
+		return
 
-	# Procesar estados automáticamente
+	# 1. Procesar estados automáticamente
 	var estados_expirados = atacante.procesar_turnos_estados()
+	
+	# 2. Identificar qué estados expiraron en este turno
 	var perdio_provocacion = "PROVOCACION" in estados_expirados
 	var perdio_distraccion = "DISTRACCION" in estados_expirados
+	var perdio_voluntad = "VOLUNTAD_HUMANA" in estados_expirados
 
+	# 3. Reducir enfriamiento de habilidades
 	if party_jugador.has(atacante):
 		for hab in atacante.cooldowns_actuales.keys():
 			if atacante.cooldowns_actuales[hab] > 0:
@@ -178,6 +197,7 @@ func iniciar_turno():
 
 	ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 
+	# 4. Actualizar visuales de la interfaz
 	if party_jugador.has(atacante):
 		ui.animar_turno_activo(atacante, party_jugador)
 		ui.actualizar_inventario_visual(atacante, self)
@@ -187,10 +207,10 @@ func iniciar_turno():
 		ui.grid_items.hide()
 		ui.grid_habilidades.hide()
 
-	# Narrativas de estados expirados
-	if perdio_provocacion:
+	# 5. Narrativas de estados expirados (¡Limpias y sin duplicar!)
+	if perdio_provocacion and not perdio_voluntad: 
 		ui.narrar(atacante.nombre + " ya no quiere ser el centro de los golpes.")
-		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Escudo Humano")
+		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Provocación") 
 		await get_tree().create_timer(1.5).timeout
 
 	if perdio_distraccion:
@@ -198,6 +218,17 @@ func iniciar_turno():
 		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Distraído")
 		await get_tree().create_timer(1.5).timeout
 
+	if perdio_voluntad:
+		if atacante.revivido_por_voluntad:
+			ui.narrar("El trance de " + atacante.nombre + " termina... ¡El dolor drenó su vitalidad!")
+		else:
+			ui.narrar("La voluntad de " + atacante.nombre + " se asienta, endureciendo su piel.")
+		
+		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad Humana (DEF+)")
+		ui.actualizar_interfaz_party(party_jugador) 
+		await get_tree().create_timer(2.0).timeout
+
+	# 6. Acción del turno (Enemigo o Jugador)
 	if enemigos_actuales.has(atacante):
 		ui.set_menu_activo(false)
 		ui.narrar("Turno de " + atacante.nombre + ".")
@@ -205,23 +236,28 @@ func iniciar_turno():
 	else:
 		ui.retrato_activo.texture = atacante.retrato_base
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		_desbloquear_botones_accion() # Aseguramos que el jugador pueda interactuar
 		ui.set_menu_activo(true)
 
 # ===== ACCIONES DEL JUGADOR =====
 func _on_btn_atacar_pressed():
+	if ui.btn_atacar.disabled: return # Prevenir múltiples clicks ansiosos
+	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	accion_pendiente = "ATACAR"
 	iniciar_seleccion_objetivo()
 
 func _on_btn_defender_pressed():
+	if ui.btn_defender.disabled: return
+	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
+	
 	var atacante = combatientes[turno_actual]
 	atacante.activar_defensa()
 
 	var recuperacion = int((atacante.ph_maximos * 0.05) + 5)
 	atacante.ph_actuales = min(atacante.ph_actuales + recuperacion, atacante.ph_maximos)
 
-	# Aplicar multiplicador de Recuperación de PT
 	var pt_ganados = int(15 * atacante.recuperacion_pt)
 	atacante.pt_actuales = min(atacante.pt_actuales + pt_ganados, atacante.pt_maximos)
 
@@ -232,12 +268,20 @@ func _on_btn_defender_pressed():
 	pasar_turno()
 
 func _on_btn_huir_pressed():
+	if ui.btn_huir.disabled: return
+	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	ui.narrar("¡Intentas escapar de la batalla!")
+	# Damos tiempo a leer y pasamos turno en caso de que huir falle, evitando que el juego se congele
+	await get_tree().create_timer(1.5).timeout
+	pasar_turno()
 
 # ===== SISTEMA DE ITEMS =====
 func _on_btn_items_pressed():
+	if ui.btn_items.disabled: return
+	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
+	
 	var atacante = combatientes[turno_actual]
 	var primer_boton = null
 
@@ -256,6 +300,7 @@ func _on_btn_items_pressed():
 		ui.narrar("¡El inventario de " + atacante.nombre + " está vacío!")
 		await get_tree().create_timer(1.2).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 
 func bloquear_grid_items():
@@ -276,9 +321,7 @@ func _ejecutar_item(atacante: CharacterStats, defensor: CharacterStats):
 	ui.narrar("¡" + atacante.nombre + " usó " + item_pendiente.nombre + " en " + defensor.nombre + "!")
 	await get_tree().create_timer(1.0).timeout
 
-	# Farmacología: eficiencia en curaciones
 	var bono_farmacologia = defensor.farmacologia
-
 	if item_pendiente.tipo_efecto == "CURAR_PV":
 		var sanacion = int(item_pendiente.poder * bono_farmacologia)
 		defensor.pv_actuales = min(defensor.pv_actuales + sanacion, defensor.pv_maximos)
@@ -294,11 +337,14 @@ func _ejecutar_item(atacante: CharacterStats, defensor: CharacterStats):
 	atacante.inventario.erase(item_pendiente)
 	item_pendiente = null
 	ui.actualizar_inventario_visual(atacante, self)
-	verificar_estado_batalla(defensor, true)
+	await verificar_estado_batalla(defensor, true)
 
 # ===== SISTEMA DE HABILIDADES =====
 func _on_btn_habilidades_pressed():
+	if ui.btn_habilidades.disabled: return
+	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
+	
 	var atacante = combatientes[turno_actual]
 	var primer_boton = null
 
@@ -317,6 +363,7 @@ func _on_btn_habilidades_pressed():
 		ui.narrar("No hay habilidades desbloqueadas.")
 		await get_tree().create_timer(1.0).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 
 func bloquear_grid_habilidades():
@@ -331,6 +378,7 @@ func _seleccionar_habilidad(hab: Habilidad):
 		ui.narrar("¡Habilidad en recarga!")
 		await get_tree().create_timer(1.2).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 		bloquear_grid_habilidades()
 		return
@@ -339,6 +387,7 @@ func _seleccionar_habilidad(hab: Habilidad):
 		ui.narrar("¡" + atacante.nombre + " está muy distraído para concentrarse!")
 		await get_tree().create_timer(1.5).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 		bloquear_grid_habilidades()
 		return
@@ -357,6 +406,7 @@ func _seleccionar_habilidad(hab: Habilidad):
 		ui.narrar("¡Recursos insuficientes!")
 		await get_tree().create_timer(1.0).timeout
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 		bloquear_grid_habilidades()
 
@@ -368,6 +418,9 @@ func _ejecutar_habilidad_preparada(atacante: CharacterStats, defensor: Character
 	ui.actualizar_interfaz_party(party_jugador)
 	await habilidad_pendiente.ejecutar(atacante, defensor, self)
 	ui.actualizar_interfaz_party(party_jugador)
+	
+	if defensor and is_instance_valid(defensor):
+		await verificar_estado_batalla(defensor, true)
 
 # ===== SELECCIÓN DE OBJETIVOS =====
 func iniciar_seleccion_objetivo():
@@ -388,17 +441,15 @@ func _actualizar_texto_seleccion():
 			nombre_obj = party_jugador[indice_objetivo_actual].nombre
 	else:
 		if indice_objetivo_actual < enemigos_actuales.size():
-			nombre_obj = enemigos_actuales[indice_objetivo_actual].nombre
+			if is_instance_valid(enemigos_actuales[indice_objetivo_actual]):
+				nombre_obj = enemigos_actuales[indice_objetivo_actual].nombre
 
 	ui.narrar("Selecciona objetivo:\n> " + nombre_obj + " <")
 
 func _unhandled_input(event):
-	# Salir de la batalla
 	if esperando_cierre_batalla and event.is_action_pressed("ui_accept"):
 		esperando_cierre_batalla = false
 		ui.narrar("Volviendo al mapa...")
-
-		# Regreso al mapa anterior
 		if GlobalGame.mapa_anterior_ruta != "":
 			GlobalGame.volver_de_batalla = true
 			get_tree().change_scene_to_file(GlobalGame.mapa_anterior_ruta)
@@ -410,6 +461,7 @@ func _unhandled_input(event):
 		accion_pendiente = ""
 		bloquear_grid_habilidades()
 		ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 		get_viewport().set_input_as_handled()
 		return
@@ -418,6 +470,7 @@ func _unhandled_input(event):
 		accion_pendiente = ""
 		bloquear_grid_items()
 		ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
+		_desbloquear_botones_accion()
 		ui.set_menu_activo(true)
 		get_viewport().set_input_as_handled()
 		return
@@ -446,11 +499,13 @@ func _unhandled_input(event):
 func cancelar_seleccion():
 	seleccionando_objetivo = false
 	for enemigo in sprites_enemigos.keys():
-		if enemigo.pv_actuales > 0:
-			sprites_enemigos[enemigo].modulate.a = 1.0
+		if is_instance_valid(enemigo) and enemigo.pv_actuales > 0:
+			if sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
+				sprites_enemigos[enemigo].modulate.a = 1.0
 	for p in ui.contenedor_party.get_children():
 		p.modulate.a = 1.0
 	ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
+	_desbloquear_botones_accion() # Habilitamos el menú de nuevo
 	ui.set_menu_activo(true)
 
 func confirmar_seleccion():
@@ -474,8 +529,9 @@ func confirmar_seleccion():
 		defensor = enemigos_actuales[indice_objetivo_actual]
 
 	for enemigo in sprites_enemigos.keys():
-		if enemigo.pv_actuales > 0:
-			sprites_enemigos[enemigo].modulate.a = 1.0
+		if is_instance_valid(enemigo) and enemigo.pv_actuales > 0:
+			if sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
+				sprites_enemigos[enemigo].modulate.a = 1.0
 	for p in ui.contenedor_party.get_children():
 		p.modulate.a = 1.0
 
@@ -491,6 +547,8 @@ func confirmar_seleccion():
 
 # ===== VERIFICACIÓN DE ESTADO DE BATALLA =====
 func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
+	if not is_instance_valid(defensor): return false
+	
 	ui.actualizar_interfaz_party(party_jugador)
 	ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 
@@ -503,11 +561,14 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 			if defensor.get("drop_experiencia"):
 				exp_acumulada += defensor.drop_experiencia
 			var sprite_muerto = sprites_enemigos[defensor]
-			var tween = get_tree().create_tween()
-			tween.tween_property(sprite_muerto, "modulate:a", 0.0, 0.5)
+			
+			if is_instance_valid(sprite_muerto):
+				var tween = get_tree().create_tween()
+				tween.tween_property(sprite_muerto, "modulate:a", 0.0, 0.5)
+				await tween.finished # <--- SOLUCIÓN: ¡Esperar la animación de muerte!
+
 			enemigos_actuales.erase(defensor)
 
-			# Recolectar whenes e items
 			if defensor.get("drop_whenes"):
 				whenes_acumulados += defensor.drop_whenes
 
@@ -516,7 +577,7 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 					items_dropeados.append(defensor.item_dropeable)
 
 			if enemigos_actuales.is_empty():
-				_procesar_fin_oleada()
+				await _procesar_fin_oleada() # <--- SOLUCIÓN: ¡Faltaba await aquí!
 				return false
 		elif party_jugador.has(defensor):
 			var heroes_vivos = party_jugador.filter(func(h): return h.pv_actuales > 0)
@@ -535,95 +596,75 @@ func _procesar_fin_oleada():
 		await get_tree().create_timer(1.0).timeout
 		cargar_oleada(indice_oleada)
 	else:
-		# Final de combate
 		if timer_estados:
 			timer_estados.stop()
 
 		ui.narrar("¡Has ganado la batalla!")
 		await get_tree().create_timer(1.5).timeout
 
-		# Guardar niveles previos
 		var niveles_previos = {}
 		for heroe in party_jugador:
 			niveles_previos[heroe] = heroe.nivel
 
-		# Aplicar experiencia
 		for heroe in party_jugador:
 			if heroe.pv_actuales > 0:
 				heroe.ganar_experiencia(exp_acumulada)
 
-		# Mostrar pantalla de victoria con botín
 		ui.mostrar_pantalla_victoria(party_jugador, exp_acumulada, niveles_previos, whenes_acumulados, items_dropeados)
 		ui.narrar("¡El grupo obtiene experiencia y botín!")
 
-# --- SEPARAR EL BOTÍN ---
 		GlobalGame.agregar_whenes(whenes_acumulados)
 		items_a_distribuir.clear()
 		
 		for item in items_dropeados:
 			if item.categoria == "Consumible":
-				# Los consumibles van a la lista de espera para dárselos a alguien
 				items_a_distribuir.append(item)
 			else:
-				# Los coleccionables, cartas y claves van a la mochila global infinita
 				GlobalGame.inventario_equipamiento.append(item) 
 
 		whenes_acumulados = 0
 		items_dropeados.clear()
 
-		# --- SISTEMA DE INVERSIÓN (LA INTERCEPCIÓN 1) ---
 		for heroe in party_jugador:
 			if heroe.pv_actuales > 0 and heroe.puntos_estadisticas > 0:
 				ui.narrar("¡" + heroe.nombre + " tiene puntos para invertir!")
 				ui.abrir_menu_inversion(heroe)
 				await ui.inversion_completada
 
-		# --- SISTEMA DE REPARTO DE ITEMS (LA INTERCEPCIÓN 2) ---
 		if items_a_distribuir.size() > 0:
 			iniciar_distribucion_items()
 		else:
-			# Si no hay consumibles que repartir, terminamos la batalla
 			ui.narrar("Presiona 'Aceptar' para continuar...")
 			esperando_cierre_batalla = true
 
-# ===== FASE DE REPARTO DE OBJETOS (LA PILA HOMESTUCK) =====
+# ===== FASE DE REPARTO DE OBJETOS =====
 func iniciar_distribucion_items():
-	print("[SISTEMA] Iniciando fase de distribución de objetos...")
 	_mostrar_siguiente_item()
 
 func _mostrar_siguiente_item():
-	# Si todavía quedan objetos en la bandeja de entrada...
 	if items_a_distribuir.size() > 0:
-		# .pop_front() saca el primero de la lista y lo elimina de la bandeja
 		item_en_reparto = items_a_distribuir.pop_front() 
 		ui.abrir_menu_reparto(item_en_reparto, party_jugador)
 	else:
-		# Si la bandeja está vacía, ¡terminamos la batalla por fin!
 		item_en_reparto = null
 		ui.narrar("¡Se han recogido todos los objetos!\nPresiona 'Aceptar' para continuar...")
 		esperando_cierre_batalla = true
 
 func _on_heroe_elegido_para_item(heroe: CharacterStats):
 	if item_en_reparto != null:
-		# 1. ¡Inyectamos el objeto y atrapamos lo que se caiga!
 		var item_caido = heroe.recibir_item_batalla(item_en_reparto)
 		
-		# 2. Narrativa visual dinámica (El drama)
 		if item_caido == null:
-			# Si había espacio, todo normal
 			ui.narrar("¡" + heroe.nombre + " guardó " + item_en_reparto.nombre + " en sus bolsillos!")
 		else:
-			# Si la pila rebosó, ¡que empiece el caos!
 			ui.narrar("¡Bolsillos llenos! " + heroe.nombre + " empuja " + item_en_reparto.nombre + " en su inventario...\n¡Pero " + item_caido.nombre + " cae al vacío y se pierde!")
 			ui.agregar_al_log("[PÉRDIDA] " + item_caido.nombre + " empujado al abismo por " + item_en_reparto.nombre + ".")
 		
-		# 3. Pequeña pausa para saborear el momento (La alargamos un poco si hay mucho que leer)
 		if item_caido == null:
 			await get_tree().create_timer(1.2).timeout
 		else:
 			await get_tree().create_timer(2.2).timeout
 		
-		# 4. Llamamos al bucle otra vez
 		_mostrar_siguiente_item()
 
 func pasar_turno():
@@ -631,7 +672,7 @@ func pasar_turno():
 	if turno_actual >= combatientes.size():
 		_procesar_fin_de_ronda()
 	else:
-		if combatientes[turno_actual].pv_actuales <= 0:
+		if is_instance_valid(combatientes[turno_actual]) and combatientes[turno_actual].pv_actuales <= 0:
 			pasar_turno()
 			return
 		await get_tree().create_timer(0.8).timeout
@@ -641,7 +682,7 @@ func _procesar_fin_de_ronda():
 	var alguien_desperto = false
 
 	for c in combatientes:
-		if c.pv_actuales > 0 and c.turnos_distraido > 0:
+		if is_instance_valid(c) and c.pv_actuales > 0 and c.turnos_distraido > 0:
 			if c.dano_recibido_esta_ronda >= (c.pv_maximos * 0.25):
 				c.turnos_distraido = 0
 				ui.actualizar_interfaz_party(party_jugador)
@@ -649,9 +690,9 @@ func _procesar_fin_de_ronda():
 				ui.narrar("¡El dolor hace que " + c.nombre + " vuelva a concentrarse!")
 				alguien_desperto = true
 				await get_tree().create_timer(1.5).timeout
-		c.reiniciar_dano_ronda()
+		if is_instance_valid(c):
+			c.reiniciar_dano_ronda()
 
-	# Lógica del ayudante
 	if not alguien_desperto:
 		if ayudante_actual != null:
 			await ayudante_actual.ejecutar_asistencia(self)
@@ -670,13 +711,15 @@ func mostrar_numero_flotante(objetivo: CharacterStats, cantidad: int, tipo: Stri
 		color = Color.GREEN
 
 	var nodo_objetivo = null
-	if party_jugador.has(objetivo):
+	# SOLUCIÓN: Validamos que los objetos sigan vivos en memoria
+	if party_jugador.has(objetivo) and is_instance_valid(objetivo):
 		var index = party_jugador.find(objetivo)
-		nodo_objetivo = ui.contenedor_party.get_child(index)
-	elif sprites_enemigos.has(objetivo):
+		if index >= 0 and index < ui.contenedor_party.get_child_count():
+			nodo_objetivo = ui.contenedor_party.get_child(index)
+	elif sprites_enemigos.has(objetivo) and is_instance_valid(objetivo):
 		nodo_objetivo = sprites_enemigos[objetivo]
 
-	if not nodo_objetivo:
+	if not nodo_objetivo or not is_instance_valid(nodo_objetivo):
 		return
 
 	var lbl = Label.new()
@@ -697,7 +740,7 @@ func mostrar_numero_flotante(objetivo: CharacterStats, cantidad: int, tipo: Stri
 	tween.tween_callback(lbl.queue_free)
 
 func animar_parpadeo_enemigo(enemigo: CharacterStats):
-	if sprites_enemigos.has(enemigo):
+	if is_instance_valid(enemigo) and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
 		var sprite = sprites_enemigos[enemigo]
 		var tween = get_tree().create_tween()
 		tween.tween_property(sprite, "modulate:a", 0.0, 0.1)
@@ -709,12 +752,15 @@ func animar_parpadeo_enemigo(enemigo: CharacterStats):
 func _rotar_estados_enemigos():
 	indice_rotacion_estado += 1
 	for enemigo in enemigos_actuales:
-		if not sprites_enemigos.has(enemigo):
-			continue
+		# SOLUCIÓN: Doble verificación para evitar fantasmas
+		if not is_instance_valid(enemigo): continue
+		if not sprites_enemigos.has(enemigo): continue
+		
 		var rect = sprites_enemigos[enemigo]
+		if not is_instance_valid(rect): continue
+
 		var nodo_icono = rect.get_node_or_null("IconoEstado")
-		if not nodo_icono:
-			continue
+		if not is_instance_valid(nodo_icono): continue
 
 		var activos = []
 		if enemigo.niveles_stat["ataque"] > 0 and ui.icon_atk_up:
@@ -751,13 +797,15 @@ func _rotar_estados_enemigos():
 func obtener_objetivo_por_aggro(objetivos_posibles: Array) -> CharacterStats:
 	var total_aggro = 0.0
 	for obj in objetivos_posibles:
-		total_aggro += obj.tasa_objetivo
+		if is_instance_valid(obj):
+			total_aggro += obj.tasa_objetivo
 
 	var rand_val = randf() * total_aggro
 	var acumulado = 0.0
 
 	for obj in objetivos_posibles:
-		acumulado += obj.tasa_objetivo
-		if rand_val <= acumulado:
-			return obj
+		if is_instance_valid(obj):
+			acumulado += obj.tasa_objetivo
+			if rand_val <= acumulado:
+				return obj
 	return objetivos_posibles[0]
