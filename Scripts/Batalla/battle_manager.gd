@@ -14,6 +14,8 @@ var indice_rotacion_estado: int = 0
 var exp_acumulada: int = 0
 var whenes_acumulados: int = 0
 var items_dropeados: Array = []
+var items_a_distribuir: Array[Item] = [] # <--- NUEVO: Para la fase de reparto
+var item_en_reparto: Item = null # <--- NUEVO: El objeto que estás sosteniendo
 
 @onready var ui: BattleUI = $CapaGUI
 
@@ -41,7 +43,8 @@ func _ready():
 	ui.btn_habilidades.pressed.connect(_on_btn_habilidades_pressed)
 	ui.btn_items.pressed.connect(_on_btn_items_pressed)
 	ui.btn_huir.pressed.connect(_on_btn_huir_pressed)
-
+	
+	ui.heroe_elegido_para_item.connect(_on_heroe_elegido_para_item)
 	party_jugador = GlobalGame.party_actual
 	oleadas_enemigos = GlobalGame.oleadas_combate_actual.duplicate(true)
 	iniciar_batalla()
@@ -553,23 +556,75 @@ func _procesar_fin_oleada():
 		ui.mostrar_pantalla_victoria(party_jugador, exp_acumulada, niveles_previos, whenes_acumulados, items_dropeados)
 		ui.narrar("¡El grupo obtiene experiencia y botín!")
 
-		# Guardar botín en inventario global
+# --- SEPARAR EL BOTÍN ---
 		GlobalGame.agregar_whenes(whenes_acumulados)
+		items_a_distribuir.clear()
+		
 		for item in items_dropeados:
-			GlobalGame.inventario_equipamiento.append(item)
+			if item.categoria == "Consumible":
+				# Los consumibles van a la lista de espera para dárselos a alguien
+				items_a_distribuir.append(item)
+			else:
+				# Los coleccionables, cartas y claves van a la mochila global infinita
+				GlobalGame.inventario_equipamiento.append(item) 
 
 		whenes_acumulados = 0
 		items_dropeados.clear()
 
-		# Sistema de inversión de puntos
+		# --- SISTEMA DE INVERSIÓN (LA INTERCEPCIÓN 1) ---
 		for heroe in party_jugador:
 			if heroe.pv_actuales > 0 and heroe.puntos_estadisticas > 0:
 				ui.narrar("¡" + heroe.nombre + " tiene puntos para invertir!")
 				ui.abrir_menu_inversion(heroe)
 				await ui.inversion_completada
 
-		ui.narrar("Presiona 'Aceptar' para continuar...")
+		# --- SISTEMA DE REPARTO DE ITEMS (LA INTERCEPCIÓN 2) ---
+		if items_a_distribuir.size() > 0:
+			iniciar_distribucion_items()
+		else:
+			# Si no hay consumibles que repartir, terminamos la batalla
+			ui.narrar("Presiona 'Aceptar' para continuar...")
+			esperando_cierre_batalla = true
+
+# ===== FASE DE REPARTO DE OBJETOS (LA PILA HOMESTUCK) =====
+func iniciar_distribucion_items():
+	print("[SISTEMA] Iniciando fase de distribución de objetos...")
+	_mostrar_siguiente_item()
+
+func _mostrar_siguiente_item():
+	# Si todavía quedan objetos en la bandeja de entrada...
+	if items_a_distribuir.size() > 0:
+		# .pop_front() saca el primero de la lista y lo elimina de la bandeja
+		item_en_reparto = items_a_distribuir.pop_front() 
+		ui.abrir_menu_reparto(item_en_reparto, party_jugador)
+	else:
+		# Si la bandeja está vacía, ¡terminamos la batalla por fin!
+		item_en_reparto = null
+		ui.narrar("¡Se han recogido todos los objetos!\nPresiona 'Aceptar' para continuar...")
 		esperando_cierre_batalla = true
+
+func _on_heroe_elegido_para_item(heroe: CharacterStats):
+	if item_en_reparto != null:
+		# 1. ¡Inyectamos el objeto y atrapamos lo que se caiga!
+		var item_caido = heroe.recibir_item_batalla(item_en_reparto)
+		
+		# 2. Narrativa visual dinámica (El drama)
+		if item_caido == null:
+			# Si había espacio, todo normal
+			ui.narrar("¡" + heroe.nombre + " guardó " + item_en_reparto.nombre + " en sus bolsillos!")
+		else:
+			# Si la pila rebosó, ¡que empiece el caos!
+			ui.narrar("¡Bolsillos llenos! " + heroe.nombre + " empuja " + item_en_reparto.nombre + " en su inventario...\n¡Pero " + item_caido.nombre + " cae al vacío y se pierde!")
+			ui.agregar_al_log("[PÉRDIDA] " + item_caido.nombre + " empujado al abismo por " + item_en_reparto.nombre + ".")
+		
+		# 3. Pequeña pausa para saborear el momento (La alargamos un poco si hay mucho que leer)
+		if item_caido == null:
+			await get_tree().create_timer(1.2).timeout
+		else:
+			await get_tree().create_timer(2.2).timeout
+		
+		# 4. Llamamos al bucle otra vez
+		_mostrar_siguiente_item()
 
 func pasar_turno():
 	turno_actual += 1

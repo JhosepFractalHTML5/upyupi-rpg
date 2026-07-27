@@ -423,3 +423,16 @@ func registrar_dano_ronda(dano: int) -> bool:
 
 func reiniciar_dano_ronda():
 	dano_recibido_esta_ronda = 0
+
+# --- SISTEMA DE INVENTARIO (ESTILO HOMESTUCK / PILA) ---
+func recibir_item_batalla(nuevo_item: Item) -> Item:
+	# 1. Insertamos el nuevo objeto en el primer espacio (índice 0)
+	inventario.push_front(nuevo_item)
+	
+	# 2. Si sobrepasamos el límite de bolsillos...
+	if inventario.size() > max_items:
+		# .pop_back() saca el último elemento y lo guardamos
+		var item_perdido = inventario.pop_back()
+		return item_perdido # <--- Lo devolvemos para narrarlo
+		
+	return null # <--- Si no se cayó nada, devolvemos null

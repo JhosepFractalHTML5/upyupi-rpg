@@ -47,6 +47,9 @@ class_name BattleUI
 # ===== VARIABLES GLOBALES =====
 var posiciones_base_paneles: Dictionary = {}
 signal inversion_completada
+signal heroe_elegido_para_item(heroe: CharacterStats)
+var panel_reparto: Panel
+var vbox_reparto: VBoxContainer
 var ultimo_stat_enfocado: String = ""
 var labels_estadisticas_heroes: Dictionary = {}
 
@@ -81,6 +84,27 @@ func _ready():
 	style_inv.border_width_bottom = 4
 	panel_inversion.add_theme_stylebox_override("panel", style_inv)
 	add_child(panel_inversion)
+	
+	# --- MENÚ DE REPARTO DE ITEMS (Generado por código) ---
+	panel_reparto = Panel.new()
+	panel_reparto.hide()
+	panel_reparto.custom_minimum_size = Vector2(500, 220)
+	
+	# Lo anclamos justo en el centro de la pantalla
+	panel_reparto.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	
+	# Clonamos el estilo del panel de inversión, pero le ponemos bordes verdes
+	var style_rep = style_inv.duplicate() 
+	style_rep.border_color = Color(0.2, 0.8, 0.4, 1.0) 
+	panel_reparto.add_theme_stylebox_override("panel", style_rep)
+	panel_reparto.z_index = 105
+	add_child(panel_reparto)
+
+	vbox_reparto = VBoxContainer.new()
+	vbox_reparto.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vbox_reparto.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox_reparto.add_theme_constant_override("separation", 20)
+	panel_reparto.add_child(vbox_reparto)
 
 func _guardar_posiciones_paneles():
 	for panel in contenedor_party.get_children():
@@ -870,3 +894,61 @@ func _invertir_punto(clave_stat: String, cantidad: int):
 		tween.tween_property(lbl_stat_tarjeta, "modulate", Color.WHITE, 0.4)
 
 	actualizar_menu_inversion()
+	
+	# ===== SISTEMA DE REPARTO DE OBJETOS =====
+func abrir_menu_reparto(item: Item, party: Array):
+	panel_reparto.show()
+	
+	for hijo in vbox_reparto.get_children():
+		hijo.queue_free()
+
+	# 1. Título con el nombre del ítem
+	var lbl_titulo = Label.new()
+	lbl_titulo.text = "¿En qué bolsillo guardas:\n" + item.nombre + "?"
+	lbl_titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl_titulo.add_theme_font_size_override("font_size", 22)
+	lbl_titulo.add_theme_color_override("font_color", Color("aaffaa"))
+	vbox_reparto.add_child(lbl_titulo)
+
+	# 2. Ícono del objeto para que se vea bonito
+	if item.icono != null:
+		var tex = TextureRect.new()
+		tex.texture = item.icono
+		tex.custom_minimum_size = Vector2(48, 48)
+		tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		vbox_reparto.add_child(tex)
+
+	# 3. Contenedor horizontal para los botones de los personajes
+	var hbox_botones = HBoxContainer.new()
+	hbox_botones.alignment = BoxContainer.ALIGNMENT_CENTER
+	hbox_botones.add_theme_constant_override("separation", 15)
+	vbox_reparto.add_child(hbox_botones)
+
+	var primer_boton = null
+
+	# 4. Creamos los botones solo para los que respiran
+	for heroe in party:
+		if heroe.pv_actuales > 0:
+			var btn = Button.new()
+			btn.text = heroe.nombre
+			btn.custom_minimum_size = Vector2(100, 45)
+			
+			# ¡VITAL PARA TECLADOS! Ignoramos el mouse, obligamos el foco
+			btn.focus_mode = Control.FOCUS_ALL
+			btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			
+			btn.pressed.connect(func():
+				panel_reparto.hide()
+				heroe_elegido_para_item.emit(heroe)
+			)
+			
+			hbox_botones.add_child(btn)
+
+			if primer_boton == null:
+				primer_boton = btn
+
+	# 5. Forzamos el foco en el primer botón con un micro-retraso
+	# (call_deferred espera a que el motor termine de dibujar el panel antes de hacer focus)
+	if primer_boton != null:
+		primer_boton.call_deferred("grab_focus")

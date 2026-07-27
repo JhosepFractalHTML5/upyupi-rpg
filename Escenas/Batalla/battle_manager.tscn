@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://1a67l4uqp3jc" path="res://Scripts/Batalla/battle_manager.gd" id="1_r0ul7"]
 [ext_resource type="Texture2D" uid="uid://bos8wl7kkwds1" path="res://icon.svg" id="4_cw1wa"]
 [ext_resource type="Resource" uid="uid://cd6s7mwi71lll" path="res://BaseDatos/Protagonistas/Secundarios/Ayudantes/Ideas.tres" id="8_jknig"]
-[ext_resource type="Script" uid="uid://cd0r8bw8gnavd" path="res://Escenas/Batalla/battle_ui.gd" id="9_oxep1"]
+[ext_resource type="Script" uid="uid://cd0r8bw8gnavd" path="res://Scripts/Batalla/battle_ui.gd" id="9_oxep1"]
 [ext_resource type="Texture2D" uid="uid://c6a1lds7nc5jm" path="res://Graficos/Batalla/Estados Alterados/Atk Up.png" id="10_oc83v"]
 [ext_resource type="Texture2D" uid="uid://b2ovsqelof0ph" path="res://Graficos/Batalla/Estados Alterados/Atk Down.png" id="11_jknig"]
 [ext_resource type="Texture2D" uid="uid://dhaoiju5vbqme" path="res://Graficos/Batalla/Estados Alterados/Def Up.png" id="12_c0ri4"]
