@@ -217,20 +217,25 @@ func iniciar_turno():
 		# Usamos get() por seguridad en caso de que sea una IA
 		if atacante.get("revivido_por_voluntad"):
 			ui.narrar("El trance de " + atacante.nombre + " termina... ¡El dolor drenó su vitalidad!")
-			atacante.pv_actuales = 0 # ¡Ahora sí, el desgaste lo mata físicamente!
-			atacante.revivido_por_voluntad = false # Limpiamos la bandera
+			atacante.pv_actuales = 0
+			if "revivido_por_voluntad" in atacante:
+				atacante.revivido_por_voluntad = false
 			ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad (Muerte)")
 			ui.actualizar_interfaz_party(party_jugador) 
 			await get_tree().create_timer(2.0).timeout
 			
 			# Llamamos a verificar_estado_batalla SIN pasar turno automático, 
 			# para que procese el "Game Over" si Jhosep era el último vivo.
-			var sigue_vivo = await verificar_estado_batalla(atacante, false)
+			var batalla_continua = await verificar_estado_batalla(atacante, false)
 			
-			# Si el combate no se ha acabado por su muerte, pasamos su turno perdido
-			if not sigue_vivo:
+			# --- SOLUCIÓN APLICADA ---
+			if batalla_continua:
+				# Si la batalla sigue, pasamos el turno del personaje muerto.
 				pasar_turno() 
-				return
+			
+			# ¡SIEMPRE hacemos return! Porque si está muerto, o la batalla acabó,
+			# de ninguna forma debe continuar leyendo el código hacia abajo.
+			return 
 		else:
 			ui.narrar("La voluntad de " + atacante.nombre + " se asienta, endureciendo su piel.")
 			ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad Humana (DEF+)")
@@ -567,27 +572,28 @@ func confirmar_seleccion():
 # ===== VERIFICACIÓN DE ESTADO DE BATALLA =====
 func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 	if not is_instance_valid(defensor): return false
-	
+
 	ui.actualizar_interfaz_party(party_jugador)
 	ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 
 	if defensor.pv_actuales <= 0:
 		# ¡INYECCIÓN MÉDICA! Interceptamos la muerte si tiene Voluntad Humana activa
-		# Usamos get() por si un enemigo que no tiene esta variable es el defensor
-		var turnos_vol = defensor.get("turnos_voluntad_humana", 0)
-		if turnos_vol == 0: 
-			turnos_vol = defensor.get("turnos_voluntad", 0) # Chequeo flexible del nombre
-			
-		if turnos_vol > 0:
+		# Solución definitiva: obtenemos valores primero, luego verificamos
+		var turnos_vol_humana = defensor.get("turnos_voluntad_humana")
+		var has_voluntad_humana = turnos_vol_humana != null and turnos_vol_humana > 0
+		
+
+		if has_voluntad_humana:
 			defensor.pv_actuales = 1
-			defensor.revivido_por_voluntad = true
+			if "revivido_por_voluntad" in defensor:
+				defensor.revivido_por_voluntad = true
 			ui.narrar("¡" + defensor.nombre + " se niega a caer por pura voluntad!")
 			ui.agregar_al_log("[ESTADO] " + defensor.nombre + " burló a la muerte.")
 			ui.actualizar_interfaz_party(party_jugador)
-			
+
 			if pasar_el_turno:
 				pasar_turno()
-			return true # Cortamos la función aquí para que no muera. ¡Sobrevive!
+			return true
 
 		# Si no tiene voluntad o ya se agotó, muere normalmente
 		ui.narrar("¡" + defensor.nombre + " ha caído!")
@@ -598,11 +604,11 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 			if defensor.get("drop_experiencia"):
 				exp_acumulada += defensor.drop_experiencia
 			var sprite_muerto = sprites_enemigos[defensor]
-			
+
 			if is_instance_valid(sprite_muerto):
 				var tween = get_tree().create_tween()
 				tween.tween_property(sprite_muerto, "modulate:a", 0.0, 0.5)
-				await tween.finished 
+				await tween.finished
 
 			enemigos_actuales.erase(defensor)
 
@@ -614,7 +620,7 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 					items_dropeados.append(defensor.item_dropeable)
 
 			if enemigos_actuales.is_empty():
-				await _procesar_fin_oleada() 
+				await _procesar_fin_oleada()
 				return false
 		elif party_jugador.has(defensor):
 			var heroes_vivos = party_jugador.filter(func(h): return h.pv_actuales > 0)

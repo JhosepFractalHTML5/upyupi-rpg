@@ -66,13 +66,13 @@ class_name CharacterStats
 @export var pt_actuales: int = 0 # Empezamos el combate con 0 PT
 
 @export_group("Estados de Batalla")
-var acumulador_contraataque: float = 0.0 # Guardará la rabia acumulativa por golpes
-var turnos_mejora_ataque: int = 0
-var turnos_mejora_defensa: int = 0
-var turnos_mejora_agilidad: int = 0
-var turnos_agilidad_baja: int = 0
-var turnos_voluntad_humana: int = 0
-var revivido_por_voluntad: bool = false
+@export var acumulador_contraataque: float = 0.0 # Guardará la rabia acumulativa por golpes
+@export var turnos_mejora_ataque: int = 0
+@export var turnos_mejora_defensa: int = 0
+@export var turnos_mejora_agilidad: int = 0
+@export var turnos_agilidad_baja: int = 0
+@export var turnos_voluntad_humana: int = 0
+@export var revivido_por_voluntad: bool = false
 
 @export_group("Sistema de Habilidades")
 # Aquí arrastrarás las habilidades que ese personaje PUEDE aprender (máximo 6)
@@ -249,8 +249,8 @@ func recibir_ataque(atacante: CharacterStats, manager: Node):
 	dano = max(1, dano) # El daño nunca puede ser negativo
 	pv_actuales = max(pv_actuales - dano, 0)
 	if pv_actuales <= 0:
-			if turnos_voluntad_humana > 0:
-				pv_actuales = 1 # Se aferra a la vida con 1 PV
+			if turnos_voluntad_humana != null and turnos_voluntad_humana > 0:
+				pv_actuales = 1
 				revivido_por_voluntad = true
 				if manager:
 					manager.ui.agregar_al_log("[INMORTAL] " + nombre + " resistió un golpe letal.")
@@ -424,13 +424,13 @@ func procesar_turnos_estados() -> Array:
 	if esta_defendiendo:
 		esta_defendiendo = false
 		
-	if turnos_voluntad_humana > 0:
+	if turnos_voluntad_humana != null and turnos_voluntad_humana > 0:
 		turnos_voluntad_humana -= 1
 		if turnos_voluntad_humana <= 0:
 			expirados.append("VOLUNTAD_HUMANA")
 			
 			# Consecuencias de la habilidad:
-			if revivido_por_voluntad:
+			if revivido_por_voluntad != null and revivido_por_voluntad:
 				# Si murió y fue forzado a revivir, pierde la mitad de sus PV actuales
 				pv_actuales = max(1, int(pv_actuales / 2.0))
 			
@@ -468,4 +468,5 @@ func recibir_item_batalla(nuevo_item: Item) -> Item:
 
 func aplicar_voluntad_humana(turnos: int):
 	turnos_voluntad_humana = turnos
-	revivido_por_voluntad = false # Se resetea al iniciar el estado
+	if "revivido_por_voluntad" in self:
+		revivido_por_voluntad = false
