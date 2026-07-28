@@ -218,6 +218,7 @@ func iniciar_turno():
 		if atacante.get("revivido_por_voluntad"):
 			ui.narrar("El trance de " + atacante.nombre + " termina... ¡El dolor drenó su vitalidad!")
 			atacante.pv_actuales = 0
+			atacante.limpiar_estados()
 			if "revivido_por_voluntad" in atacante:
 				atacante.revivido_por_voluntad = false
 			ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad (Muerte)")
@@ -323,9 +324,11 @@ func _on_btn_items_pressed():
 func bloquear_grid_items():
 	for btn in ui.grid_items.get_children():
 		btn.disabled = true
+		btn.focus_mode = Control.FOCUS_NONE
 
 func _seleccionar_item(item: Item):
 	bloquear_grid_items()
+	get_viewport().gui_release_focus()
 	accion_pendiente = "ITEM"
 	item_pendiente = item
 
@@ -387,6 +390,7 @@ func _on_btn_habilidades_pressed():
 func bloquear_grid_habilidades():
 	for btn in ui.grid_habilidades.get_children():
 		btn.disabled = true
+		btn.focus_mode = Control.FOCUS_NONE
 
 func _seleccionar_habilidad(hab: Habilidad):
 	var atacante = combatientes[turno_actual]
@@ -412,6 +416,7 @@ func _seleccionar_habilidad(hab: Habilidad):
 
 	if atacante.ph_actuales >= hab.costo_ph and atacante.pt_actuales >= hab.costo_pt:
 		bloquear_grid_habilidades()
+		get_viewport().gui_release_focus()
 		habilidad_pendiente = hab
 		accion_pendiente = "HABILIDAD"
 
@@ -437,9 +442,6 @@ func _ejecutar_habilidad_preparada(atacante: CharacterStats, defensor: Character
 	ui.actualizar_interfaz_party(party_jugador)
 	await habilidad_pendiente.ejecutar(atacante, defensor, self)
 	ui.actualizar_interfaz_party(party_jugador)
-	
-	if defensor and is_instance_valid(defensor):
-		await verificar_estado_batalla(defensor, true)
 
 # ===== SELECCIÓN DE OBJETIVOS =====
 func iniciar_seleccion_objetivo():
@@ -596,6 +598,7 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 			return true
 
 		# Si no tiene voluntad o ya se agotó, muere normalmente
+		defensor.limpiar_estados()
 		ui.narrar("¡" + defensor.nombre + " ha caído!")
 		ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 		await get_tree().create_timer(1.0).timeout

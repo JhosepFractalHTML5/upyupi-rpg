@@ -470,3 +470,19 @@ func aplicar_voluntad_humana(turnos: int):
 	turnos_voluntad_humana = turnos
 	if "revivido_por_voluntad" in self:
 		revivido_por_voluntad = false
+
+# --- LIMPIEZA TOTAL DE ESTADOS AL CAER EN BATTALA ---
+func limpiar_estados():
+	# Reiniciamos todos los buffs/debuffs a 0
+	for stat in niveles_stat.keys():
+		niveles_stat[stat] = 0
+		turnos_stat[stat] = 0
+	
+	# Reiniciamos estados alterados y posturas
+	turnos_provocacion = 0
+	turnos_distraido = 0
+	esta_defendiendo = false
+	turnos_voluntad_humana = 0
+	revivido_por_voluntad = false
+	acumulador_contraataque = 0.0
+	dano_recibido_esta_ronda = 0

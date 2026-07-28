@@ -4,7 +4,9 @@
 [ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_q8bvq"]
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_u1ook"]
 [ext_resource type="Resource" uid="uid://ti5usuqslbq6" path="res://BaseDatos/Protagonistas/Habilidades/ThaisHAB/ComidaInstantanea.tres" id="2_6vocl"]
+[ext_resource type="Resource" uid="uid://c7608y116kd6m" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EscudoHumano.tres" id="3_j71ks"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_va4ce"]
+[ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="4_ycump"]
 [ext_resource type="Texture2D" uid="uid://nte4fbojchsc" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/ThaisNORMAL.png" id="6_50s43"]
 
 [resource]
@@ -33,6 +35,9 @@ exp_actual = 220
 exp_necesaria_proximo_nivel = 250
 drop_experiencia = 0
 drop_whenes = 0
-habilidades_disponibles = Array[ExtResource("1_q8bvq")]([ExtResource("2_6vocl")])
+max_habilidades_activas = 3
+habilidades_disponibles = Array[ExtResource("1_q8bvq")]([ExtResource("2_6vocl"), ExtResource("3_j71ks"), ExtResource("4_ycump")])
 item_clave_hab_1 = true
+item_clave_hab_2 = true
+item_clave_hab_3 = true
 metadata/_custom_type_script = "uid://dg4pgruc1fxgv"

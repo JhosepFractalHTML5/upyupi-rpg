@@ -13,7 +13,9 @@ config_version=5
 config/name="UPRYUPI-RPG"
 run/main_scene="uid://cfi33v8gkip1h"
 config/features=PackedStringArray("4.8", "GL Compatibility")
+boot_splash/image="uid://caavu51hbd6qy"
 config/icon="res://icon.svg"
+boot_splash/minimum_display_time=10
 
 [autoload]
 
@@ -23,7 +25,6 @@ GlobalGame="*uid://d387ecrwos74a"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/size/mode=4
 window/size/initial_position_type=0
 window/size/initial_position=Vector2i(300, 300)
 window/size/resizable=false
