@@ -14,8 +14,8 @@ var indice_rotacion_estado: int = 0
 var exp_acumulada: int = 0
 var whenes_acumulados: int = 0
 var items_dropeados: Array = []
-var items_a_distribuir: Array[Item] = [] # <--- NUEVO: Para la fase de reparto
-var item_en_reparto: Item = null # <--- NUEVO: El objeto que estás sosteniendo
+var items_a_distribuir: Array[Item] = [] 
+var item_en_reparto: Item = null 
 
 @onready var ui: BattleUI = $CapaGUI
 
@@ -28,6 +28,7 @@ var habilidad_pendiente: Habilidad = null
 var item_pendiente: Item = null
 var sprites_enemigos: Dictionary = {}
 var esperando_cierre_batalla: bool = false
+var bloquear_todo_input: bool = false # <--- SOLUCIÓN DE MISTRAL: El gran sello
 
 # ===== INICIALIZACIÓN =====
 func _ready():
@@ -79,7 +80,7 @@ func _process(_delta):
 				if is_instance_valid(enemigo) and enemigo.pv_actuales > 0 and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
 					sprites_enemigos[enemigo].modulate.a = 0.4 + abs(sin(Time.get_ticks_msec() * 0.005) * 0.6) if enemigo == objetivo_actual else 1.0
 
-# ===== BLOQUEO DE BOTONES (PREVENCIÓN DE SPAM) =====
+# ===== BLOQUEO DE BOTONES =====
 func _bloquear_botones_accion():
 	ui.btn_atacar.disabled = true
 	ui.btn_defender.disabled = true
@@ -181,15 +182,11 @@ func iniciar_turno():
 		pasar_turno()
 		return
 
-	# 1. Procesar estados automáticamente
 	var estados_expirados = atacante.procesar_turnos_estados()
-	
-	# 2. Identificar qué estados expiraron en este turno
 	var perdio_provocacion = "PROVOCACION" in estados_expirados
 	var perdio_distraccion = "DISTRACCION" in estados_expirados
 	var perdio_voluntad = "VOLUNTAD_HUMANA" in estados_expirados
 
-	# 3. Reducir enfriamiento de habilidades
 	if party_jugador.has(atacante):
 		for hab in atacante.cooldowns_actuales.keys():
 			if atacante.cooldowns_actuales[hab] > 0:
@@ -197,7 +194,6 @@ func iniciar_turno():
 
 	ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 
-	# 4. Actualizar visuales de la interfaz
 	if party_jugador.has(atacante):
 		ui.animar_turno_activo(atacante, party_jugador)
 		ui.actualizar_inventario_visual(atacante, self)
@@ -207,7 +203,6 @@ func iniciar_turno():
 		ui.grid_items.hide()
 		ui.grid_habilidades.hide()
 
-	# 5. Narrativas de estados expirados (¡Limpias y sin duplicar!)
 	if perdio_provocacion and not perdio_voluntad: 
 		ui.narrar(atacante.nombre + " ya no quiere ser el centro de los golpes.")
 		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Provocación") 
@@ -219,36 +214,53 @@ func iniciar_turno():
 		await get_tree().create_timer(1.5).timeout
 
 	if perdio_voluntad:
-		if atacante.revivido_por_voluntad:
+		# Usamos get() por seguridad en caso de que sea una IA
+		if atacante.get("revivido_por_voluntad"):
 			ui.narrar("El trance de " + atacante.nombre + " termina... ¡El dolor drenó su vitalidad!")
+			atacante.pv_actuales = 0 # ¡Ahora sí, el desgaste lo mata físicamente!
+			atacante.revivido_por_voluntad = false # Limpiamos la bandera
+			ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad (Muerte)")
+			ui.actualizar_interfaz_party(party_jugador) 
+			await get_tree().create_timer(2.0).timeout
+			
+			# Llamamos a verificar_estado_batalla SIN pasar turno automático, 
+			# para que procese el "Game Over" si Jhosep era el último vivo.
+			var sigue_vivo = await verificar_estado_batalla(atacante, false)
+			
+			# Si el combate no se ha acabado por su muerte, pasamos su turno perdido
+			if not sigue_vivo:
+				pasar_turno() 
+				return
 		else:
 			ui.narrar("La voluntad de " + atacante.nombre + " se asienta, endureciendo su piel.")
-		
-		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad Humana (DEF+)")
-		ui.actualizar_interfaz_party(party_jugador) 
-		await get_tree().create_timer(2.0).timeout
+			ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Voluntad Humana (DEF+)")
+			ui.actualizar_interfaz_party(party_jugador) 
+			await get_tree().create_timer(2.0).timeout
 
 	# 6. Acción del turno (Enemigo o Jugador)
 	if enemigos_actuales.has(atacante):
+		bloquear_todo_input = true # ¡Sellan todo input en turno enemigo!
 		ui.set_menu_activo(false)
 		ui.narrar("Turno de " + atacante.nombre + ".")
 		await atacante.ejecutar_ia(self, party_jugador)
 	else:
+		bloquear_todo_input = false # Desbloqueamos para el jugador
 		ui.retrato_activo.texture = atacante.retrato_base
 		ui.narrar("¿Qué hará " + atacante.nombre + "?")
-		_desbloquear_botones_accion() # Aseguramos que el jugador pueda interactuar
+		_desbloquear_botones_accion() 
 		ui.set_menu_activo(true)
 
 # ===== ACCIONES DEL JUGADOR =====
 func _on_btn_atacar_pressed():
-	if ui.btn_atacar.disabled: return # Prevenir múltiples clicks ansiosos
+	if ui.btn_atacar.disabled or bloquear_todo_input: return 
 	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	accion_pendiente = "ATACAR"
 	iniciar_seleccion_objetivo()
 
 func _on_btn_defender_pressed():
-	if ui.btn_defender.disabled: return
+	if ui.btn_defender.disabled or bloquear_todo_input: return
+	bloquear_todo_input = true # Entramos a animación
 	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	
@@ -268,17 +280,17 @@ func _on_btn_defender_pressed():
 	pasar_turno()
 
 func _on_btn_huir_pressed():
-	if ui.btn_huir.disabled: return
+	if ui.btn_huir.disabled or bloquear_todo_input: return
+	bloquear_todo_input = true # Entramos a animación
 	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	ui.narrar("¡Intentas escapar de la batalla!")
-	# Damos tiempo a leer y pasamos turno en caso de que huir falle, evitando que el juego se congele
 	await get_tree().create_timer(1.5).timeout
 	pasar_turno()
 
 # ===== SISTEMA DE ITEMS =====
 func _on_btn_items_pressed():
-	if ui.btn_items.disabled: return
+	if ui.btn_items.disabled or bloquear_todo_input: return
 	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	
@@ -313,6 +325,7 @@ func _seleccionar_item(item: Item):
 	item_pendiente = item
 
 	if item.objetivo == "usuario":
+		bloquear_todo_input = true
 		_ejecutar_item(combatientes[turno_actual], combatientes[turno_actual])
 	else:
 		iniciar_seleccion_objetivo()
@@ -341,7 +354,7 @@ func _ejecutar_item(atacante: CharacterStats, defensor: CharacterStats):
 
 # ===== SISTEMA DE HABILIDADES =====
 func _on_btn_habilidades_pressed():
-	if ui.btn_habilidades.disabled: return
+	if ui.btn_habilidades.disabled or bloquear_todo_input: return
 	_bloquear_botones_accion()
 	ui.set_menu_activo(false)
 	
@@ -399,6 +412,7 @@ func _seleccionar_habilidad(hab: Habilidad):
 
 		var objs_automaticos = ["usuario", "aleatorio_enemigos", "aleatorio_aliados", "todos_enemigos", "todos_aliados"]
 		if hab.objetivo in objs_automaticos:
+			bloquear_todo_input = true
 			_ejecutar_habilidad_preparada(atacante, null)
 		else:
 			iniciar_seleccion_objetivo()
@@ -447,6 +461,10 @@ func _actualizar_texto_seleccion():
 	ui.narrar("Selecciona objetivo:\n> " + nombre_obj + " <")
 
 func _unhandled_input(event):
+	# SOLUCIÓN DE MISTRAL: La cortina de hierro contra inputs
+	if bloquear_todo_input:
+		return
+
 	if esperando_cierre_batalla and event.is_action_pressed("ui_accept"):
 		esperando_cierre_batalla = false
 		ui.narrar("Volviendo al mapa...")
@@ -505,10 +523,11 @@ func cancelar_seleccion():
 	for p in ui.contenedor_party.get_children():
 		p.modulate.a = 1.0
 	ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
-	_desbloquear_botones_accion() # Habilitamos el menú de nuevo
+	_desbloquear_botones_accion() 
 	ui.set_menu_activo(true)
 
 func confirmar_seleccion():
+	bloquear_todo_input = true # ¡Aquí se sella el trato, empieza la animación!
 	seleccionando_objetivo = false
 	var atacante = combatientes[turno_actual]
 	var defensor: CharacterStats = null
@@ -553,6 +572,24 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 	ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 
 	if defensor.pv_actuales <= 0:
+		# ¡INYECCIÓN MÉDICA! Interceptamos la muerte si tiene Voluntad Humana activa
+		# Usamos get() por si un enemigo que no tiene esta variable es el defensor
+		var turnos_vol = defensor.get("turnos_voluntad_humana", 0)
+		if turnos_vol == 0: 
+			turnos_vol = defensor.get("turnos_voluntad", 0) # Chequeo flexible del nombre
+			
+		if turnos_vol > 0:
+			defensor.pv_actuales = 1
+			defensor.revivido_por_voluntad = true
+			ui.narrar("¡" + defensor.nombre + " se niega a caer por pura voluntad!")
+			ui.agregar_al_log("[ESTADO] " + defensor.nombre + " burló a la muerte.")
+			ui.actualizar_interfaz_party(party_jugador)
+			
+			if pasar_el_turno:
+				pasar_turno()
+			return true # Cortamos la función aquí para que no muera. ¡Sobrevive!
+
+		# Si no tiene voluntad o ya se agotó, muere normalmente
 		ui.narrar("¡" + defensor.nombre + " ha caído!")
 		ui.actualizar_linea_turnos(combatientes, turno_actual, party_jugador)
 		await get_tree().create_timer(1.0).timeout
@@ -565,7 +602,7 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 			if is_instance_valid(sprite_muerto):
 				var tween = get_tree().create_tween()
 				tween.tween_property(sprite_muerto, "modulate:a", 0.0, 0.5)
-				await tween.finished # <--- SOLUCIÓN: ¡Esperar la animación de muerte!
+				await tween.finished 
 
 			enemigos_actuales.erase(defensor)
 
@@ -577,7 +614,7 @@ func verificar_estado_batalla(defensor, pasar_el_turno: bool = true) -> bool:
 					items_dropeados.append(defensor.item_dropeable)
 
 			if enemigos_actuales.is_empty():
-				await _procesar_fin_oleada() # <--- SOLUCIÓN: ¡Faltaba await aquí!
+				await _procesar_fin_oleada() 
 				return false
 		elif party_jugador.has(defensor):
 			var heroes_vivos = party_jugador.filter(func(h): return h.pv_actuales > 0)
@@ -635,6 +672,7 @@ func _procesar_fin_oleada():
 			iniciar_distribucion_items()
 		else:
 			ui.narrar("Presiona 'Aceptar' para continuar...")
+			bloquear_todo_input = false # Aseguramos de desbloquear para que pueda salir
 			esperando_cierre_batalla = true
 
 # ===== FASE DE REPARTO DE OBJETOS =====
@@ -648,6 +686,7 @@ func _mostrar_siguiente_item():
 	else:
 		item_en_reparto = null
 		ui.narrar("¡Se han recogido todos los objetos!\nPresiona 'Aceptar' para continuar...")
+		bloquear_todo_input = false # Aseguramos de desbloquear para que pueda salir
 		esperando_cierre_batalla = true
 
 func _on_heroe_elegido_para_item(heroe: CharacterStats):
@@ -675,7 +714,8 @@ func pasar_turno():
 		if is_instance_valid(combatientes[turno_actual]) and combatientes[turno_actual].pv_actuales <= 0:
 			pasar_turno()
 			return
-		await get_tree().create_timer(0.8).timeout
+		await get_tree().create_timer(1.2).timeout # Modificación de Mistral (Aumentado a 1.2)
+		bloquear_todo_input = false # SOLUCIÓN: Desbloqueamos TODO para el nuevo turno
 		iniciar_turno()
 
 func _procesar_fin_de_ronda():
@@ -711,7 +751,6 @@ func mostrar_numero_flotante(objetivo: CharacterStats, cantidad: int, tipo: Stri
 		color = Color.GREEN
 
 	var nodo_objetivo = null
-	# SOLUCIÓN: Validamos que los objetos sigan vivos en memoria
 	if party_jugador.has(objetivo) and is_instance_valid(objetivo):
 		var index = party_jugador.find(objetivo)
 		if index >= 0 and index < ui.contenedor_party.get_child_count():
@@ -752,7 +791,6 @@ func animar_parpadeo_enemigo(enemigo: CharacterStats):
 func _rotar_estados_enemigos():
 	indice_rotacion_estado += 1
 	for enemigo in enemigos_actuales:
-		# SOLUCIÓN: Doble verificación para evitar fantasmas
 		if not is_instance_valid(enemigo): continue
 		if not sprites_enemigos.has(enemigo): continue
 		
