@@ -842,14 +842,15 @@ func _rotar_estados_enemigos():
 
 # ===== SELECCIÓN DE OBJETIVO POR AGGRO =====
 func obtener_objetivo_por_aggro(objetivos_posibles: Array) -> CharacterStats:
+	var provocadores = objetivos_posibles.filter(func(obj): return is_instance_valid(obj) and obj.turnos_provocacion > 0)
+	if provocadores.size() > 0:
+		return provocadores.pick_random()
 	var total_aggro = 0.0
 	for obj in objetivos_posibles:
 		if is_instance_valid(obj):
 			total_aggro += obj.tasa_objetivo
-
 	var rand_val = randf() * total_aggro
 	var acumulado = 0.0
-
 	for obj in objetivos_posibles:
 		if is_instance_valid(obj):
 			acumulado += obj.tasa_objetivo

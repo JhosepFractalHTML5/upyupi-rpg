@@ -178,13 +178,20 @@ func ejecutar_ia(bm: Node, party_jugador: Array):
 	if objetivo_elegido == null:
 		if accion_elegida is Habilidad:
 			if accion_elegida.objetivo == "aliado":
-				objetivo_elegido = bm.obtener_objetivo_por_aggro(aliados_vivos)
+				# SOLUCIÓN: Si la IA cura o bufeará, que lo haga al aliado con MENOS vida.
+				var aliado_mas_debil = aliados_vivos[0]
+				for a in aliados_vivos:
+					if (a.pv_actuales / float(a.pv_maximos)) < (aliado_mas_debil.pv_actuales / float(aliado_mas_debil.pv_maximos)):
+						aliado_mas_debil = a
+				objetivo_elegido = aliado_mas_debil
 			elif accion_elegida.objetivo == "usuario":
 				objetivo_elegido = self
 			else:
-				objetivo_elegido = _elegir_heroe_inteligente(heroes_vivos, actuar_random, bm)
+				# Si es ofensiva, ataca a los héroes (verificando la Provocación)
+				objetivo_elegido = bm.obtener_objetivo_por_aggro(heroes_vivos)
 		else:
-			objetivo_elegido = _elegir_heroe_inteligente(heroes_vivos, actuar_random, bm)
+			# Si es ataque normal o atípico
+			objetivo_elegido = bm.obtener_objetivo_por_aggro(heroes_vivos)
 
 	if accion_elegida is Habilidad:
 		ph_actuales -= accion_elegida.costo_ph

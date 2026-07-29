@@ -5,8 +5,7 @@
 [resource]
 script = ExtResource("1_8fibe")
 nombre = "Voluntad Humana"
-costo_ph = 5
-costo_pt = 5
+costo_ph = 10
 dano_base = 0
 objetivo = "usuario"
 categoria_ia = "tecnica"
