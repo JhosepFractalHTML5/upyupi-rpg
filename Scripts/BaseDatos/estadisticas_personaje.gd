@@ -210,26 +210,17 @@ func ejecutar_ia(bm: Node, party_jugador: Array):
 		if accion_elegida == "atipico": await objetivo_elegido.recibir_ataque_atipico(self, bm)
 		else: await objetivo_elegido.recibir_ataque(self, bm)
 
-# --- FUNCION DE APOYO DE LA IA ---
-func _elegir_heroe_inteligente(heroes: Array, es_random: bool, bm: Node) -> CharacterStats:
-	var provocadores = heroes.filter(func(h): return h.turnos_provocacion > 0)
-	if provocadores.size() > 0: return provocadores.pick_random()
-	if es_random: return bm.obtener_objetivo_por_aggro(heroes)
-	
-	var victima = heroes[0]
-	for h in heroes:
-		if h.pv_actuales < victima.pv_actuales:
-			victima = h
-	return victima
-
 # =========================================================
 # --- SISTEMA DE COMBATE (DAÑO, SUERTE Y EFECTOS) ---
 # =========================================================
 
-func recibir_ataque(atacante: CharacterStats, manager: Node):
+func recibir_ataque(atacante: CharacterStats, manager: Node, formula_especial: String = ""):
 	# 1. Evasión combinada con Suerte
 	var evasion_real = tasa_evasion + (get_suerte_real() * 0.005)
 	if turnos_distraido > 0: evasion_real = 0.0 # No esquivas si estás en las nubes
+	
+	if formula_especial == "magia_barata":
+		evasion_real = 0.0 # randf() < 0.0 siempre será falso, por lo que nunca falla
 	
 	if randf() < evasion_real:
 		manager.ui.narrar("¡" + nombre + " esquivó el ataque!")
@@ -242,11 +233,32 @@ func recibir_ataque(atacante: CharacterStats, manager: Node):
 	# 2. Chance de Crítico
 	var critico_real = atacante.tasa_critico + (atacante.get_suerte_real() * 0.01)
 	var es_critico = randf() < critico_real
+	
+	if formula_especial in ["magia_barata", "magia_atipica"]:
+		es_critico = true
 		
-	# 3. Cálculo de daño brutal
-	var atk_real = atacante.get_ataque_real()
-	var def_real = get_defensa_real()
-	var dano = int((atk_real * 1.5) - (def_real * 0.5))
+	# 3. CÁLCULO DE DAÑO BRUTAL
+	var dano = 0
+	
+	if formula_especial == "en_mi_defensa":
+		# Usa la Defensa del atacante x6 en lugar del Ataque
+		var def_atacante = atacante.get_defensa_real()
+		var def_rival = get_defensa_real()
+		dano = int((def_atacante * 6.0) - (def_rival * 0.5))
+	elif formula_especial == "magia_barata":
+		# ¡El daño base son sus PH actuales, ignorando completamente la defensa rival!
+		dano = atacante.ph_actuales
+	elif formula_especial == "magia_atipica":
+		# [(Ataque Atípico * 2) + (Defensa Atípica / 2)] - (Defensa Atípica Rival / 2)
+		var atk_atipico = atacante.get_ataque_atipico_real()
+		var def_atipica = atacante.get_defensa_atipica_real()
+		var def_atipica_rival = get_defensa_atipica_real()
+		dano = int((atk_atipico * 2.0) + (def_atipica * 0.5) - (def_atipica_rival * 0.5))
+	else:
+		# Fórmula clásica
+		var atk_real = atacante.get_ataque_real()
+		var def_real = get_defensa_real()
+		dano = int((atk_real * 1.5) - (def_real * 0.5))
 	
 	# 4. Multiplicadores
 	if es_critico: dano = int(dano * 1.5) 

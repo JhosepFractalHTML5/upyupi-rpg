@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MagiaAtipica" format=3 uid="uid://cg8hucqpj7r3i"]
+
+[ext_resource type="Texture2D" uid="uid://bcleyye1vca4r" path="res://Graficos/Batalla/Enemigos/Test/KITANSAF.png" id="1_6axoq"]
+[ext_resource type="Texture2D" uid="uid://b1jikalkyrnqg" path="res://Graficos/Batalla/Estados Alterados/Suerte Down.png" id="2_f0240"]
+[ext_resource type="Script" uid="uid://rkmttofs00nu" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/MagiaAtipica.gd" id="3_6axoq"]
+
+[resource]
+script = ExtResource("3_6axoq")
+icono = ExtResource("2_f0240")
+fondo_panel = ExtResource("1_6axoq")
+nombre = "Magia Atipica"
+costo_ph = 10
+dano_base = 0
+descripcion = "SSSSS"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

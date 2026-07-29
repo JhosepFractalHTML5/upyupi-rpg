@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MagiaBarata" format=3 uid="uid://flvlxlhhj4em"]
+
+[ext_resource type="Script" uid="uid://bi0usbo8n3owf" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/MagiaBarata.gd" id="1_lvxwd"]
+
+[resource]
+script = ExtResource("1_lvxwd")
+nombre = "Magia Barata"
+costo_ph = 10
+dano_base = 0
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

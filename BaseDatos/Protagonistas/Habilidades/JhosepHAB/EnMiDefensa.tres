@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnMiDefensa" format=3 uid="uid://dglw443w3y4j7"]
+
+[ext_resource type="Script" uid="uid://cyqc44u8bvohv" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/EnMiDefensa.gd" id="1_olv51"]
+
+[resource]
+script = ExtResource("1_olv51")
+nombre = "En Mi Defensa"
+costo_ph = 6
+descripcion = "SDASDASD"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"
