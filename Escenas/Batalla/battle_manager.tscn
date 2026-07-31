@@ -57,6 +57,7 @@ icon_suerte_down = ExtResource("17_cykjq")
 icon_provocacion = ExtResource("18_orxq1")
 icon_distraido = ExtResource("19_0vkes")
 icon_defensa = ExtResource("20_3onrk")
+icon_enamorado = ExtResource("4_cw1wa")
 
 [node name="ContenedorEnemigos" type="HBoxContainer" parent="CapaGUI" unique_id=421390042]
 offset_left = 838.0

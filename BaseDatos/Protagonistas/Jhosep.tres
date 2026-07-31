@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="5_y3ewx"]
 [ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="6_ibe7l"]
 [ext_resource type="Resource" uid="uid://dglw443w3y4j7" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EnMiDefensa.tres" id="6_oaoae"]
+[ext_resource type="Resource" uid="uid://3nxkkywguwda" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Jhosie.tres" id="6_syn0i"]
 [ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/EXCFD.tres" id="7_kimsq"]
 [ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="9_ibe7l"]
 
@@ -51,7 +52,7 @@ drop_experiencia = 0
 drop_whenes = 0
 pt_actuales = 95
 max_habilidades_activas = 4
-habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("3_2p4ai"), ExtResource("4_2rhed"), ExtResource("6_oaoae"), null])
+habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("3_2p4ai"), ExtResource("4_2rhed"), ExtResource("6_oaoae"), ExtResource("6_syn0i")])
 item_clave_hab_1 = true
 item_clave_hab_2 = true
 item_clave_hab_3 = true

@@ -186,6 +186,7 @@ func iniciar_turno():
 	var perdio_provocacion = "PROVOCACION" in estados_expirados
 	var perdio_distraccion = "DISTRACCION" in estados_expirados
 	var perdio_voluntad = "VOLUNTAD_HUMANA" in estados_expirados
+	var perdio_enamoramiento = "ENAMORADO" in estados_expirados
 
 	if party_jugador.has(atacante):
 		for hab in atacante.cooldowns_actuales.keys():
@@ -211,6 +212,11 @@ func iniciar_turno():
 	if perdio_distraccion:
 		ui.narrar(atacante.nombre + " vuelve a concentrarse.")
 		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Distraído")
+		await get_tree().create_timer(1.5).timeout
+		
+	if perdio_enamoramiento:
+		ui.narrar(atacante.nombre + " parpadea, confundido... ¡Se acabó el encanto!")
+		ui.agregar_al_log("[ESTADO] " + atacante.nombre + " -/> Enamorado")
 		await get_tree().create_timer(1.5).timeout
 
 	if perdio_voluntad:
@@ -831,6 +837,8 @@ func _rotar_estados_enemigos():
 			activos.append(ui.icon_provocacion)
 		if enemigo.turnos_distraido > 0 and ui.icon_distraido:
 			activos.append(ui.icon_distraido)
+		if enemigo.turnos_enamorado > 0 and ui.icon_enamorado:
+			activos.append(ui.icon_enamorado)
 		if enemigo.esta_defendiendo and ui.icon_defensa:
 			activos.append(ui.icon_defensa)
 

@@ -134,6 +134,20 @@ func ejecutar_ia(bm: Node, party_jugador: Array):
 		bm.pasar_turno()
 		return
 		
+	if turnos_enamorado > 0:
+		bm.ui.narrar("¡" + nombre + " está perdidamente enamorado y lucha por Jhosep!")
+		await bm.get_tree().create_timer(1.2).timeout
+		var temp_aliados = aliados_vivos.duplicate()
+		aliados_vivos = heroes_vivos 
+		var ex_compañeros = temp_aliados.filter(func(e): return e != self)
+		if ex_compañeros.size() > 0:
+			heroes_vivos = ex_compañeros
+		else:
+			# Si está solo y enamorado, no sabe qué hacer (pierde el turno)
+			bm.ui.narrar("¡" + nombre + " no tiene a quién atacar para defender a su amor!")
+			bm.pasar_turno()
+			return
+	
 	var chance_random = 25 
 	if nivel_ia == "easy": chance_random = 55
 	elif nivel_ia == "hard": chance_random = 5
@@ -395,6 +409,7 @@ var turnos_stat: Dictionary = {
 # --- 2. ESTADOS ESPECIALES ---
 var turnos_provocacion: int = 0
 var turnos_distraido: int = 0
+var turnos_enamorado: int = 0
 var esta_defendiendo: bool = false
 var dano_recibido_esta_ronda: int = 0
 
@@ -403,6 +418,14 @@ func modificar_stat(stat: String, niveles_a_sumar: int, turnos: int):
 	if niveles_stat.has(stat):
 		niveles_stat[stat] = clamp(niveles_stat[stat] + niveles_a_sumar, -2, 2)
 		turnos_stat[stat] = turnos 
+		
+# ¡NUEVA FUNCIÓN! Baja todos los stats de golpe (Ideal para la habilidad Jhosie)
+func deprimir_todas_estadisticas(niveles_a_bajar: int, turnos: int):
+	var stats_a_bajar = ["ataque", "defensa", "agilidad", "suerte", "ataque_atipico", "defensa_atipica"]
+	for stat in stats_a_bajar:
+		if niveles_stat.has(stat):
+			niveles_stat[stat] = clamp(niveles_stat[stat] - niveles_a_bajar, -2, 2)
+			turnos_stat[stat] = turnos
 
 func get_ataque_real() -> int: return int(ataque * (1.0 + (niveles_stat.get("ataque", 0) * 0.25)))
 func get_defensa_real() -> int: return int(defensa * (1.0 + (niveles_stat.get("defensa", 0) * 0.25)))
@@ -414,6 +437,7 @@ func get_defensa_atipica_real() -> int: return int(defensa_atipica * (1.0 + (niv
 # --- MODIFICADORES DE ESTADOS ESPECIALES ---
 func aplicar_provocacion(turnos: int): turnos_provocacion = turnos
 func aplicar_distraccion(turnos: int): turnos_distraido = turnos
+func aplicar_enamoramiento(turnos: int): turnos_enamorado = turnos
 func activar_defensa(): esta_defendiendo = true
 
 # --- PROCESAR EL PASO DEL TIEMPO ---
@@ -438,6 +462,11 @@ func procesar_turnos_estados() -> Array:
 	if turnos_distraido > 0:
 		turnos_distraido -= 1
 		if turnos_distraido == 0: expirados.append("DISTRACCION")
+			
+	# Restar turnos a Enamoramiento (¡NUEVO!)
+	if turnos_enamorado > 0:
+		turnos_enamorado -= 1
+		if turnos_enamorado == 0: expirados.append("ENAMORADO")
 			
 	# La defensa solo dura hasta que el personaje vuelve a actuar
 	if esta_defendiendo:
@@ -500,6 +529,7 @@ func limpiar_estados():
 	# Reiniciamos estados alterados y posturas
 	turnos_provocacion = 0
 	turnos_distraido = 0
+	turnos_enamorado = 0
 	esta_defendiendo = false
 	turnos_voluntad_humana = 0
 	revivido_por_voluntad = false

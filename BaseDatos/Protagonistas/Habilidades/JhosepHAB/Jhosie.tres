@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="Jhosie" format=3 uid="uid://3nxkkywguwda"]
+
+[ext_resource type="Script" uid="uid://6a32hvabhh1n" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/Jhosie.gd" id="1_2ngaq"]
+
+[resource]
+script = ExtResource("1_2ngaq")
+nombre = "Jhosie"
+costo_ph = 10
+categoria_ia = "tecnica"
+descripcion = "SDSD"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

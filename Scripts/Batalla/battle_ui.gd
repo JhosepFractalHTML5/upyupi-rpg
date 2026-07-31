@@ -43,6 +43,7 @@ class_name BattleUI
 @export var icon_provocacion: Texture2D
 @export var icon_distraido: Texture2D
 @export var icon_defensa: Texture2D
+@export var icon_enamorado: Texture2D
 
 # ===== VARIABLES GLOBALES =====
 var posiciones_base_paneles: Dictionary = {}
@@ -562,6 +563,8 @@ func _dibujar_estados_heroe(panel_heroe: Panel, heroe: CharacterStats):
 		_crear_icono_estado(contenedor_estados, icon_provocacion)
 	if heroe.turnos_distraido > 0 and icon_distraido:
 		_crear_icono_estado(contenedor_estados, icon_distraido)
+	if heroe.turnos_enamorado > 0 and icon_enamorado:
+		_crear_icono_estado(contenedor_estados, icon_enamorado)
 	if heroe.esta_defendiendo and icon_defensa:
 		_crear_icono_estado(contenedor_estados, icon_defensa)
 
