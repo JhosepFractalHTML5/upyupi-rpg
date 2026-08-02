@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="HabilidadYaces" format=3 uid="uid://by4b3l3yap5ja"]
+
+[ext_resource type="Script" uid="uid://c3d82pnd5pnau" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/JhosepHABprogram/Yaces.gd" id="1_2x7cq"]
+
+[resource]
+script = ExtResource("1_2x7cq")
+nombre = "Yaces"
+costo_ph = 10
+objetivo = "todos_enemigos"
+categoria_ia = "tecnica"
+metadata/_custom_type_script = "uid://cuwb8trhd4tiq"

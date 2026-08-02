@@ -4,13 +4,10 @@
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_iu42v"]
 [ext_resource type="Script" uid="uid://cuwb8trhd4tiq" path="res://Scripts/Batalla/habilidad.gd" id="1_kj5rj"]
 [ext_resource type="Resource" uid="uid://bbvy3paasyn3w" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Alerta.tres" id="1_mwe8a"]
-[ext_resource type="Resource" uid="uid://flvlxlhhj4em" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/MagiaBarata.tres" id="3_2p4ai"]
 [ext_resource type="Texture2D" uid="uid://4sho352b2ho6" path="res://Graficos/Batalla/Protagonistas/Icons/Jhosep.png" id="3_36wyd"]
-[ext_resource type="Resource" uid="uid://cg8hucqpj7r3i" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/MagiaAtipica.tres" id="4_2rhed"]
+[ext_resource type="Resource" uid="uid://by4b3l3yap5ja" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Yaces.tres" id="3_kimsq"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="5_y3ewx"]
 [ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="6_ibe7l"]
-[ext_resource type="Resource" uid="uid://dglw443w3y4j7" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EnMiDefensa.tres" id="6_oaoae"]
-[ext_resource type="Resource" uid="uid://3nxkkywguwda" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Jhosie.tres" id="6_syn0i"]
 [ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/EXCFD.tres" id="7_kimsq"]
 [ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="9_ibe7l"]
 
@@ -52,7 +49,7 @@ drop_experiencia = 0
 drop_whenes = 0
 pt_actuales = 95
 max_habilidades_activas = 4
-habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("3_2p4ai"), ExtResource("4_2rhed"), ExtResource("6_oaoae"), ExtResource("6_syn0i")])
+habilidades_disponibles = Array[ExtResource("1_kj5rj")]([ExtResource("3_kimsq")])
 item_clave_hab_1 = true
 item_clave_hab_2 = true
 item_clave_hab_3 = true
