@@ -7,6 +7,8 @@ func _ready():
 	hide()
 
 func _input(event):
+	if GestorDialogos.dialogo_activo:
+		return # <-- Esto aborta la función, evitando que se mueva o abra menús.
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		if visible:

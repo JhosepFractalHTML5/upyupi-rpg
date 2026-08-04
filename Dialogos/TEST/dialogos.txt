@@ -1,0 +1,4 @@
+id_conversacion,nombre,retrato,texto,efecto
+prueba_1,Jhosep,null,"¡Hey! [wave]Este texto tiembla[/wave].",
+prueba_1,null,null,"Nadie está hablando, parece.",
+prueba_1,Jhosep,null,"[color=red]¡Peligro![/color] ¡Funciona!",temblor

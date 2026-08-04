@@ -15,8 +15,6 @@ oleada_1 = Array[ExtResource("2_na46u")]([ExtResource("5_pdy1a"), ExtResource("5
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=768680502]
 texture = ExtResource("6_mkks2")
 
-[node name="AreaInteraccion" type="Area2D" parent="." unique_id=339464170]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AreaInteraccion" unique_id=1403331778]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1403331778]
 position = Vector2(11, 13)
 shape = SubResource("RectangleShape2D_3s52a")

@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://dk41cufb7ibpf"]
+
+[ext_resource type="Script" uid="uid://bkj0e2af8fmhg" path="res://Scripts/WintersChannel/DialogoUI.gd" id="1_13ip0"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f6j6d"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 3
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+
+[node name="DialogoUI" type="CanvasLayer" unique_id=1615344140]
+script = ExtResource("1_13ip0")
+
+[node name="ContenedorCuadro" type="Control" parent="." unique_id=1988866021]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="FondoNegro" type="Panel" parent="ContenedorCuadro" unique_id=670022280]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 415.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_f6j6d")
+
+[node name="LblNombre" type="Label" parent="ContenedorCuadro/FondoNegro" unique_id=1509177073]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 4.0
+offset_right = 303.0
+offset_bottom = 34.0
+theme_override_font_sizes/font_size = 20
+
+[node name="HBox" type="HBoxContainer" parent="ContenedorCuadro/FondoNegro" unique_id=1663729798]
+layout_mode = 0
+offset_left = 3.0
+offset_top = 34.0
+offset_right = 1916.0
+offset_bottom = 411.0
+
+[node name="Retrato" type="TextureRect" parent="ContenedorCuadro/FondoNegro/HBox" unique_id=842897010]
+custom_minimum_size = Vector2(300, 300)
+custom_maximum_size = Vector2(300, 300)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+offset_transform_enabled = true
+expand_mode = 1
+
+[node name="TextoDialogo" type="RichTextLabel" parent="ContenedorCuadro/FondoNegro/HBox" unique_id=554436543]
+custom_minimum_size = Vector2(1609, 377)
+custom_maximum_size = Vector2(1609, 377)
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 20
+theme_override_font_sizes/bold_font_size = 20
+theme_override_font_sizes/bold_italics_font_size = 20
+theme_override_font_sizes/italics_font_size = 20
+theme_override_font_sizes/mono_font_size = 20
+bbcode_enabled = true
+visible_characters = 0
