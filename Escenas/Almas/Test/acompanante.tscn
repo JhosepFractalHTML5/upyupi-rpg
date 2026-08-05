@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://jrcs5mv0rlyx"]
 
 [ext_resource type="Script" uid="uid://cgp8n6fy7k4l2" path="res://Scripts/WintersChannel/acompanante.gd" id="1_syxn4"]
-[ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="2_bd36v"]
+[ext_resource type="Texture2D" uid="uid://b6b5e6skyi4cb" path="res://Graficos/WintersChannel/Protagonistas/RomnWhite.png" id="2_syxn4"]
 
 [sub_resource type="Animation" id="Animation_80gyo"]
 length = 0.001
@@ -47,7 +47,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
-"values": [12, 13, 14, 15]
+"values": [13, 12, 15, 14]
 }
 
 [sub_resource type="Animation" id="Animation_mfaf6"]
@@ -99,7 +99,7 @@ script = ExtResource("1_syxn4")
 y_sort_enabled = true
 position = Vector2(0, -68)
 scale = Vector2(2.775, 2.775)
-texture = ExtResource("2_bd36v")
+texture = ExtResource("2_syxn4")
 hframes = 4
 vframes = 4
 

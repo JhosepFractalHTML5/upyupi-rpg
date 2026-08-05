@@ -15,8 +15,8 @@ script = ExtResource("1_13ip0")
 [node name="ContenedorCuadro" type="Control" parent="." unique_id=1988866021]
 layout_mode = 3
 anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 1920.0
+offset_bottom = 415.0
 
 [node name="FondoNegro" type="Panel" parent="ContenedorCuadro" unique_id=670022280]
 layout_mode = 0

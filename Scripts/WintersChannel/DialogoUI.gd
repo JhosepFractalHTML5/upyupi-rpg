@@ -65,20 +65,27 @@ func _input(event):
 			linea_terminada.emit()
 
 func actualizar_posicion(jugador: Node2D):
+	var altura_pantalla = get_viewport().get_visible_rect().size.y
+	
 	if jugador == null:
-		# Si no hay jugador (ej. un evento especial), lo dejamos abajo por defecto
-		contenedor.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+		# Si no hay jugador, lo dejamos abajo por defecto sin aplastarlo
+		contenedor.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_KEEP_SIZE)
+		contenedor.position.y = altura_pantalla - contenedor.size.y
 		return
 		
-	# Obtenemos la posición del jugador RELATIVA A LA PANTALLA (no al mundo 2D)
+	# Obtenemos la posición del jugador en la pantalla
 	var pos_pantalla = jugador.get_global_transform_with_canvas().origin
-	var altura_pantalla = get_viewport().get_visible_rect().size.y
 	
 	# Si el jugador está en la mitad inferior de la pantalla, subimos el cuadro
 	if pos_pantalla.y > (altura_pantalla / 2.0):
-		contenedor.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
-		contenedor.position.y = 20 # Un pequeño margen para que no pegue con el techo
+		# Lo anclamos al centro-arriba y le PROHIBIMOS cambiar de tamaño
+		contenedor.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP, Control.PRESET_MODE_KEEP_SIZE)
+		
+		# Lo pegamos exactamente al techo (0 espacio libre)
+		contenedor.position.y = 0 
 	else:
 		# Si el jugador está arriba, bajamos el cuadro
-		contenedor.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-		contenedor.position.y = altura_pantalla - contenedor.size.y - 20
+		contenedor.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM, Control.PRESET_MODE_KEEP_SIZE)
+		
+		# Lo pegamos exactamente al suelo
+		contenedor.position.y = altura_pantalla - contenedor.size.y
