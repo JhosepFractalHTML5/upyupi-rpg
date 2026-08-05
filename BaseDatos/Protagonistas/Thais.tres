@@ -7,6 +7,7 @@
 [ext_resource type="Resource" uid="uid://c7608y116kd6m" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/EscudoHumano.tres" id="3_j71ks"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_va4ce"]
 [ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="4_ycump"]
+[ext_resource type="Texture2D" uid="uid://b6b5e6skyi4cb" path="res://Graficos/WintersChannel/Protagonistas/RomnWhite.png" id="5_ycump"]
 [ext_resource type="Texture2D" uid="uid://nte4fbojchsc" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/ThaisNORMAL.png" id="6_50s43"]
 
 [resource]
@@ -15,6 +16,7 @@ nombre = "Thais"
 clase = "Trabajadora"
 nivel = 15
 nivel_maximo = 35
+textura_sprite = ExtResource("5_ycump")
 retrato_base = ExtResource("1_lj6a7")
 textura_panel = ExtResource("6_50s43")
 color_interfaz = Color(0.6392157, 0.4, 0.24313726, 1)

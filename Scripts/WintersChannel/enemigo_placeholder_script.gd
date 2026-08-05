@@ -32,15 +32,31 @@ func _on_jugador_sale(body):
 		jugador_en_rango = null
 
 # Escuchamos los botones del teclado/mando
+# Escuchamos los botones del teclado/mando
 func _unhandled_input(event):
-	# Si el jugador está cerca y presiona "ui_accept" (Enter, Z, Espacio)
 	if jugador_en_rango and event.is_action_pressed("ui_accept"):
-		# Si ya hay un diálogo activo, ignoramos para que no se abra dos veces
-		if not GestorDialogos.dialogo_activo:
-			get_viewport().set_input_as_handled() # Consumimos el input
+		
+		# --- EL SEGURO ANTI-SPAM ---
+		# Verificamos que NO haya un diálogo Y que Jhosep NO esté ya en medio de una cinemática
+		if not GestorDialogos.dialogo_activo and not jugador_en_rango.en_cinematica:
 			
-			# ¡Iniciamos el diálogo pasándole el ID y al jugador para que el cuadro lo esquive!
-			GestorDialogos.iniciar_dialogo(id_dialogo, jugador_en_rango)
+			get_viewport().set_input_as_handled()
+			var protagonista = jugador_en_rango 
+			
+			# 1. Bloqueamos al jugador INMEDIATAMENTE
+			# Al ponerse en 'true', el seguro de arriba impedirá que el botón Aceptar vuelva a entrar aquí.
+			protagonista.en_cinematica = true
+			
+			# 2. LA RUTA DE MOVIMIENTO (Ahora es intocable)
+			await protagonista.get_node("Ruta").saltar()
+			await protagonista.get_node("Ruta").esperar(0.5)
+			await protagonista.get_node("Ruta").mover(Vector2.DOWN, 1.5)
+			
+			# 3. Lanzamos el diálogo
+			GestorDialogos.iniciar_dialogo(id_dialogo, protagonista)
+			
+			# 4. Le quitamos la cinemática
+			protagonista.en_cinematica = false
 
 # --- TU FUNCIÓN DE BATALLA ORIGINAL (Intacta) ---
 func iniciar_encuentro():

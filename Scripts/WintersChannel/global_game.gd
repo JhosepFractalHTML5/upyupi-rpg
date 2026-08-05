@@ -1,8 +1,7 @@
 extends Node
 
 # --- ESTADO DEL GRUPO ---
-# Aquí guardamos los recursos (.tres) de los personajes. 
-# Sus inventarios consumibles ya están separados dentro de sus propios recursos~.
+
 var party_actual: Array[CharacterStats] = []
 
 # --- INVENTARIOS COMPARTIDOS (Overworld) ---
@@ -20,8 +19,7 @@ var volver_de_batalla: bool = false # Sensor para saber si acabamos de pelear
 var whenes_actuales: int = 0
 
 func _ready():
-	# Ufufu... Aquí le damos vida a tu protagonista.
-	# ¡Cambia la ruta por la ubicación real de tu recurso de Romn!
+
 	var jhosep = preload("res://BaseDatos/Protagonistas/Jhosep.tres")
 	if jhosep:
 		party_actual.append(jhosep)
