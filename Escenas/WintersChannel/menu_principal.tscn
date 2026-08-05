@@ -174,6 +174,12 @@ offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
 
+[node name="BtnSeleccionar" type="Button" parent="ContenedorPersonajes/Panel" unique_id=1808307341]
+layout_mode = 0
+offset_right = 933.0
+offset_bottom = 461.0
+flat = true
+
 [node name="Panel2" type="Panel" parent="ContenedorPersonajes" unique_id=1102085275]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
@@ -309,6 +315,12 @@ offset_right = 864.0
 offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
+
+[node name="BtnSeleccionar" type="Button" parent="ContenedorPersonajes/Panel2" unique_id=1267247470]
+layout_mode = 0
+offset_right = 933.0
+offset_bottom = 461.0
+flat = true
 
 [node name="Panel3" type="Panel" parent="ContenedorPersonajes" unique_id=1266111737]
 custom_minimum_size = Vector2(60, 60)
@@ -446,6 +458,12 @@ offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
 
+[node name="BtnSeleccionar" type="Button" parent="ContenedorPersonajes/Panel3" unique_id=845970274]
+layout_mode = 0
+offset_right = 933.0
+offset_bottom = 461.0
+flat = true
+
 [node name="Panel4" type="Panel" parent="ContenedorPersonajes" unique_id=388065742]
 custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
@@ -581,3 +599,51 @@ offset_right = 864.0
 offset_bottom = 457.0
 theme_override_font_sizes/font_size = 45
 text = "Inventario"
+
+[node name="BtnSeleccionar" type="Button" parent="ContenedorPersonajes/Panel4" unique_id=1099625682]
+layout_mode = 0
+offset_right = 933.0
+offset_bottom = 461.0
+flat = true
+
+[node name="ContenedorAbajo" type="HBoxContainer" parent="." unique_id=1784105911]
+offset_left = 25.0
+offset_top = 957.0
+offset_right = 1895.0
+offset_bottom = 1064.0
+
+[node name="FondoOpciones" type="PanelContainer" parent="ContenedorAbajo" unique_id=1999794886]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ContenedorAbajo/FondoOpciones" unique_id=1435258084]
+layout_mode = 2
+alignment = 1
+
+[node name="BtnItems" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=2049494807]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Items"
+
+[node name="BtnEquipamiento" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=576109933]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Equipamiento"
+
+[node name="BtnHabilidad" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=1369779930]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Habilidades"
+
+[node name="BtnEstado" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=576699075]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "Estado"
+
+[node name="FondoWhenes" type="PanelContainer" parent="ContenedorAbajo" unique_id=1585456952]
+layout_mode = 2
+
+[node name="LblWhenes" type="Label" parent="ContenedorAbajo/FondoWhenes" unique_id=439398052]
+layout_mode = 2
+theme_override_font_sizes/font_size = 72
+text = "WHENES: 0"
