@@ -604,6 +604,7 @@ text = "Inventario"
 layout_mode = 0
 offset_right = 933.0
 offset_bottom = 461.0
+scale = Vector2(1.0017649, 1)
 flat = true
 
 [node name="ContenedorAbajo" type="HBoxContainer" parent="." unique_id=1784105911]
@@ -647,3 +648,24 @@ layout_mode = 2
 layout_mode = 2
 theme_override_font_sizes/font_size = 72
 text = "WHENES: 0"
+
+[node name="PanelCategoriasItems" type="PanelContainer" parent="." unique_id=1917284871]
+offset_left = 100.0
+offset_top = 854.0
+offset_right = 304.0
+offset_bottom = 955.0
+
+[node name="VBox" type="VBoxContainer" parent="PanelCategoriasItems" unique_id=802277358]
+layout_mode = 2
+
+[node name="BtnConsumibles" type="Button" parent="PanelCategoriasItems/VBox" unique_id=1624133895]
+layout_mode = 2
+text = "Consumibles"
+
+[node name="BtnColeccion" type="Button" parent="PanelCategoriasItems/VBox" unique_id=84613714]
+layout_mode = 2
+text = "Coleccion"
+
+[node name="BtnClaves" type="Button" parent="PanelCategoriasItems/VBox" unique_id=1077696681]
+layout_mode = 2
+text = "Claves"

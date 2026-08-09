@@ -57,6 +57,8 @@ func _unhandled_input(event):
 			
 			# 4. Le quitamos la cinemática
 			protagonista.en_cinematica = false
+			
+			
 
 # --- TU FUNCIÓN DE BATALLA ORIGINAL (Intacta) ---
 func iniciar_encuentro():

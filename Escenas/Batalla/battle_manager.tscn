@@ -481,6 +481,7 @@ stretch_mode = 5
 anchors_preset = -1
 anchor_right = 0.2234375
 anchor_bottom = 1.0
+grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
 
@@ -496,7 +497,8 @@ scroll_following = true
 
 [node name="GridHabilidades" type="GridContainer" parent="CapaGUI/PanelLog" unique_id=448982781]
 custom_minimum_size = Vector2(421, 230)
-layout_mode = 0
+layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.0093240095
 anchor_top = 0.39074075
 anchor_right = 0.990676
@@ -530,7 +532,6 @@ offset_left = 838.0
 offset_top = 15.0
 offset_right = 1893.0
 offset_bottom = 216.0
-metadata/_edit_use_anchors_ = true
 
 [node name="VBox" type="VBoxContainer" parent="CapaGUI/PanelAccion" unique_id=1322249704]
 layout_mode = 0

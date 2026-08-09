@@ -2,28 +2,38 @@ extends CanvasLayer
 
 @onready var contenedor_personajes = $ContenedorPersonajes
 
-# --- NUEVOS NODOS ---
+# Nodos de abajo
 @onready var btn_items = $ContenedorAbajo/FondoOpciones/HBoxContainer/BtnItems
 @onready var lbl_whenes = $ContenedorAbajo/FondoWhenes/LblWhenes
 
-# --- MÁQUINA DE ESTADOS ---
-enum EstadoMenu { PRINCIPAL, SELECCIONANDO_PJ_ITEMS }
+# --- NUEVOS NODOS (FASE 1) ---
+@onready var panel_categorias = $PanelCategoriasItems
+@onready var btn_consumibles = $PanelCategoriasItems/VBox/BtnConsumibles
+@onready var btn_coleccion = $PanelCategoriasItems/VBox/BtnColeccion
+@onready var btn_claves = $PanelCategoriasItems/VBox/BtnClaves
+
+# --- MÁQUINA DE ESTADOS (¡Actualizada!) ---
+enum EstadoMenu { PRINCIPAL, SELECCIONANDO_CATEGORIA_ITEMS, SELECCIONANDO_PJ_ITEMS }
 var estado_actual = EstadoMenu.PRINCIPAL
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	hide()
 	
-	# Conectamos el botón de Items por código
-	if btn_items:
-		btn_items.pressed.connect(_on_btn_items_pressed)
+	if panel_categorias: panel_categorias.hide() # Lo ocultamos al nacer
+	
+	# Conexiones Automáticas
+	if btn_items: btn_items.pressed.connect(_on_btn_items_pressed)
+	
+	# Nuevas conexiones de categorías
+	if btn_consumibles: btn_consumibles.pressed.connect(_on_btn_consumibles_pressed)
+	if btn_coleccion: btn_coleccion.pressed.connect(_on_btn_coleccion_pressed)
+	if btn_claves: btn_claves.pressed.connect(_on_btn_claves_pressed)
 		
-	# Conectamos los botones invisibles de los personajes
 	var paneles = contenedor_personajes.get_children()
 	for i in range(paneles.size()):
 		var btn = paneles[i].get_node_or_null("BtnSeleccionar")
 		if btn:
-			# Le pasamos el índice (i) para saber a qué personaje elegimos
 			btn.pressed.connect(_on_personaje_seleccionado.bind(i))
 
 func _input(event):
@@ -33,11 +43,12 @@ func _input(event):
 		get_viewport().set_input_as_handled()
 		
 		if visible:
-			# Si estamos en un sub-menú, "ui_cancel" (B/Esc) nos devuelve a las opciones principales
+			# --- LA NUEVA ESCALERA DE RETROCESO ---
 			if estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
+				cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
+			elif estado_actual == EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS:
 				cambiar_estado(EstadoMenu.PRINCIPAL)
 			else:
-				# Si ya estamos en la raíz, cerramos el menú
 				cerrar_menu()
 		else:
 			abrir_menu()
@@ -46,7 +57,7 @@ func abrir_menu():
 	show()
 	actualizar_menu()
 	get_tree().paused = true
-	cambiar_estado(EstadoMenu.PRINCIPAL) # Siempre abrimos en las opciones de abajo
+	cambiar_estado(EstadoMenu.PRINCIPAL) 
 
 func cerrar_menu():
 	hide()
@@ -54,44 +65,62 @@ func cerrar_menu():
 
 func cambiar_estado(nuevo_estado):
 	estado_actual = nuevo_estado
-	
 	var paneles = contenedor_personajes.get_children()
 	
+	# 1. Apagamos "lo extra" por defecto
+	if panel_categorias: panel_categorias.hide()
+	for i in range(paneles.size()):
+		var btn = paneles[i].get_node_or_null("BtnSeleccionar")
+		if btn: btn.focus_mode = Control.FOCUS_NONE
+	
+	# 2. Encendemos solo lo que el estado actual necesita
 	if estado_actual == EstadoMenu.PRINCIPAL:
-		print("[MENÚ] Estado: Opciones Principales")
-		# Activamos las opciones y apagamos los paneles
+		print("[MENÚ] Opciones Principales")
 		btn_items.grab_focus()
+		
+	elif estado_actual == EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS:
+		print("[MENÚ] Eligiendo Categoría")
+		# Mostramos el mini-panel y ponemos el foco en "Consumibles"
+		if panel_categorias: 
+			panel_categorias.show()
+			btn_consumibles.grab_focus()
+			
+	elif estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
+		print("[MENÚ] ¿Qué mochila vemos?")
+		if panel_categorias: panel_categorias.show() # Se queda visible de fondo
 		
 		for i in range(paneles.size()):
 			var btn = paneles[i].get_node_or_null("BtnSeleccionar")
-			if btn: btn.focus_mode = Control.FOCUS_NONE # No se pueden seleccionar con teclado
-			
-	elif estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
-		print("[MENÚ] Estado: ¿A quién le vemos los items?")
-		# Permitimos seleccionar personajes (solo los que existen en la party)
-		for i in range(paneles.size()):
-			var btn = paneles[i].get_node_or_null("BtnSeleccionar")
-			if btn:
-				if i < GlobalGame.party_actual.size():
-					btn.focus_mode = Control.FOCUS_ALL
-				else:
-					btn.focus_mode = Control.FOCUS_NONE
+			if btn and i < GlobalGame.party_actual.size():
+				btn.focus_mode = Control.FOCUS_ALL
 					
-		# Le damos el foco al primer personaje (Jhosep)
 		var primer_btn = paneles[0].get_node_or_null("BtnSeleccionar")
 		if primer_btn: primer_btn.grab_focus()
 
-# --- ACCIONES DE BOTONES ---
+# --- ACCIONES DE BOTONES (Rutas del Roadmap) ---
+
 func _on_btn_items_pressed():
-	# Cuando hacemos clic o enter en "Items"
+	cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
+
+func _on_btn_consumibles_pressed():
+	# Si son consumibles, hay que preguntar QUÉ personaje
 	cambiar_estado(EstadoMenu.SELECCIONANDO_PJ_ITEMS)
 
+func _on_btn_coleccion_pressed():
+	# ¡FASE 4! Aquí saltaremos luego, no pregunta personaje
+	print("[SISTEMA] Has seleccionado la Mochila de Colección Global")
+
+func _on_btn_claves_pressed():
+	# ¡FASE 4! Aquí saltaremos luego, no pregunta personaje
+	print("[SISTEMA] Has seleccionado la Mochila de Objetos Clave Global")
+
 func _on_personaje_seleccionado(indice: int):
-	# Cuando hacemos clic o enter en un personaje
 	if estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 		var personaje = GlobalGame.party_actual[indice]
-		print("[MENÚ] Abriendo mochila de: ", personaje.nombre)
-		# TODO: Aquí luego abriremos el panel de inventario de este personaje
+		print("[SISTEMA] Abriendo panel grande para los consumibles de: ", personaje.nombre)
+		# TODO: ¡Aquí es donde inyectaremos la Fase 2 y 3!
+
+# (AQUÍ DEBE ESTAR TU FUNCION actualizar_menu() QUE NO BORRASTE)
 
 func actualizar_menu():
 	# --- ACTUALIZAR DINERO ---

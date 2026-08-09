@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="2_hmkp8"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_hmkp8"]
 [ext_resource type="Texture2D" uid="uid://vwwboq6glkd4" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/MassiNORMAL.png" id="6_2wvir"]
-[ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="7_l5piq"]
+[ext_resource type="Texture2D" uid="uid://fkm8jelqtwkf" path="res://Graficos/WintersChannel/Protagonistas/MassiLooker.png" id="7_l5piq"]
 
 [resource]
 script = ExtResource("1_upn5k")
