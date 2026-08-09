@@ -29,11 +29,11 @@ window/size/viewport_height=1080
 window/size/initial_position_type=0
 window/size/initial_position=Vector2i(300, 300)
 window/size/resizable=false
+window/size/window_width_override=960
+window/size/window_height_override=540
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
 window/snap/snap_2d_vertices_to_pixel=false
 window/snap/snap_2d_transforms_to_pixel=false
-window/canvas_textures/default_texture_filter=3
 
 [editor]
 

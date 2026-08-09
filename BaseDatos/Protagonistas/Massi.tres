@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://dg4pgruc1fxgv" path="res://Scripts/BaseDatos/estadisticas_personaje.gd" id="1_upn5k"]
 [ext_resource type="Resource" uid="uid://bo5fqbpcjwbyp" path="res://BaseDatos/Protagonistas/Habilidades/MassiHAB/RageBAIT.tres" id="2_hmkp8"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_hmkp8"]
+[ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="4_3c71j"]
+[ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/EXCFD.tres" id="5_1o5og"]
 [ext_resource type="Texture2D" uid="uid://vwwboq6glkd4" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/MassiNORMAL.png" id="6_2wvir"]
 [ext_resource type="Texture2D" uid="uid://fkm8jelqtwkf" path="res://Graficos/WintersChannel/Protagonistas/MassiLooker.png" id="7_l5piq"]
 
@@ -32,6 +34,7 @@ farmacologia = 1.05
 recuperacion_pt = 1.2
 tasa_experiencia = 0.9
 exp_actual = 70
+inventario = Array[ExtResource("3_hmkp8")]([ExtResource("4_3c71j"), ExtResource("4_3c71j"), ExtResource("5_1o5og"), ExtResource("5_1o5og")])
 drop_experiencia = 0
 drop_whenes = 0
 habilidades_disponibles = Array[ExtResource("1_hfphl")]([ExtResource("2_hmkp8")])

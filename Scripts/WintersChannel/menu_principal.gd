@@ -12,8 +12,18 @@ extends CanvasLayer
 @onready var btn_coleccion = $PanelCategoriasItems/VBox/BtnColeccion
 @onready var btn_claves = $PanelCategoriasItems/VBox/BtnClaves
 
-# --- MÁQUINA DE ESTADOS (¡Actualizada!) ---
-enum EstadoMenu { PRINCIPAL, SELECCIONANDO_CATEGORIA_ITEMS, SELECCIONANDO_PJ_ITEMS }
+# --- REFERENCIAS AL INVENTARIO VISUAL ---
+@onready var panel_gran_inventario = $PanelGranInventario # (O la ruta correcta si lo metiste en otro lado)
+@onready var lbl_nombre_item = $PanelGranInventario/HBoxPrincipal/LadoDetalles/LblNombreItem
+@onready var textura_mano = $PanelGranInventario/HBoxPrincipal/LadoDetalles/CajaIlustracion/TexturaMano
+@onready var textura_item_centro = $PanelGranInventario/HBoxPrincipal/LadoDetalles/CajaIlustracion/TexturaItemCentro
+@onready var lbl_descripcion = $PanelGranInventario/HBoxPrincipal/LadoDetalles/LblDescripcion
+@onready var grid_items = $PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems
+
+var personaje_viendo_inventario: CharacterStats = null
+
+# --- MÁQUINA DE ESTADOS (¡Actualizada con la fase de Inventario!) ---
+enum EstadoMenu { PRINCIPAL, SELECCIONANDO_CATEGORIA_ITEMS, SELECCIONANDO_PJ_ITEMS, VIENDO_INVENTARIO }
 var estado_actual = EstadoMenu.PRINCIPAL
 
 func _ready():
@@ -21,6 +31,7 @@ func _ready():
 	hide()
 	
 	if panel_categorias: panel_categorias.hide() # Lo ocultamos al nacer
+	if panel_gran_inventario: panel_gran_inventario.hide() # <-- ¡NUEVO! Ocultamos el gigante al nacer
 	
 	# Conexiones Automáticas
 	if btn_items: btn_items.pressed.connect(_on_btn_items_pressed)
@@ -44,7 +55,10 @@ func _input(event):
 		
 		if visible:
 			# --- LA NUEVA ESCALERA DE RETROCESO ---
-			if estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
+			if estado_actual == EstadoMenu.VIENDO_INVENTARIO:
+				panel_gran_inventario.hide() # Ocultamos el gigante
+				cambiar_estado(EstadoMenu.SELECCIONANDO_PJ_ITEMS) # Volvemos a los personajes
+			elif estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 				cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
 			elif estado_actual == EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS:
 				cambiar_estado(EstadoMenu.PRINCIPAL)
@@ -85,6 +99,7 @@ func cambiar_estado(nuevo_estado):
 			panel_categorias.show()
 			btn_consumibles.grab_focus()
 			
+			
 	elif estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 		print("[MENÚ] ¿Qué mochila vemos?")
 		if panel_categorias: panel_categorias.show() # Se queda visible de fondo
@@ -96,6 +111,11 @@ func cambiar_estado(nuevo_estado):
 					
 		var primer_btn = paneles[0].get_node_or_null("BtnSeleccionar")
 		if primer_btn: primer_btn.grab_focus()
+		
+	elif estado_actual == EstadoMenu.VIENDO_INVENTARIO:
+		print("[MENÚ] Navegando por el inventario grande")
+		# No hace falta darle grab_focus aquí porque nuestra función
+		# abrir_inventario_consumibles ya lo hace al final con _enfocar_primer_item()
 
 # --- ACCIONES DE BOTONES (Rutas del Roadmap) ---
 
@@ -118,7 +138,8 @@ func _on_personaje_seleccionado(indice: int):
 	if estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 		var personaje = GlobalGame.party_actual[indice]
 		print("[SISTEMA] Abriendo panel grande para los consumibles de: ", personaje.nombre)
-		# TODO: ¡Aquí es donde inyectaremos la Fase 2 y 3!
+		abrir_inventario_consumibles(personaje)
+		cambiar_estado(EstadoMenu.VIENDO_INVENTARIO)
 
 # (AQUÍ DEBE ESTAR TU FUNCION actualizar_menu() QUE NO BORRASTE)
 
@@ -206,3 +227,71 @@ func actualizar_menu():
 			
 			if nodo_fondo: nodo_fondo.hide()
 			if nodo_pose: nodo_pose.hide()
+
+func abrir_inventario_consumibles(personaje: CharacterStats):
+	personaje_viendo_inventario = personaje
+	panel_gran_inventario.show() 
+	
+	# --- FIX PARA EL BUG DE NAVEGACIÓN (LOS FANTASMAS) ---
+	for hijo in grid_items.get_children():
+		grid_items.remove_child(hijo) # 1. Lo arrancamos del Grid INMEDIATAMENTE
+		hijo.queue_free() # 2. Lo mandamos a borrar en paz
+		
+	var items_validos = 0
+		
+	# Recorrer el inventario real del personaje
+	for item in personaje.inventario:
+		if item == null: 
+			continue # ¡Por si hay huecos vacíos en el array del inventario!
+			
+		items_validos += 1
+		
+		var btn_item = Button.new()
+		
+		# --- FIX PARA EL TAMAÑO (PROBLEMA 1) ---
+		# Aumenta este Vector2 (ej. 96x96, 128x128) hasta que el botón se vea como quieres
+		btn_item.custom_minimum_size = Vector2(200, 200) 
+		
+		if item.icono:
+			btn_item.icon = item.icono
+			btn_item.expand_icon = true # Obliga a la textura a llenar el espacio
+			# Centra el icono para que no se vea raro al estirarse
+			btn_item.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER 
+		else:
+			btn_item.text = item.nombre.substr(0, 1) 
+			
+		# --- LA INTELIGENCIA DEL MENÚ ---
+		btn_item.focus_entered.connect(_actualizar_detalles_item.bind(item, personaje))
+		btn_item.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		
+		grid_items.add_child(btn_item)
+		
+	# Si realmente hay ítems después de limpiar vacíos, enfocamos el primero
+	if items_validos > 0:
+		call_deferred("_enfocar_primer_item")
+	else:
+		_limpiar_detalles()
+
+func _enfocar_primer_item():
+	if grid_items.get_child_count() > 0:
+		var primer_item = grid_items.get_child(0)
+		primer_item.grab_focus()
+		# TRUCO: Forzamos a que actualice el texto al instante, por si acaso Godot
+		# se pone caprichoso y no detecta el cambio de foco la primera vez.
+		primer_item.emit_signal("focus_entered")
+
+# Esta es la función que se dispara solita cuando tocas un ítem
+func _actualizar_detalles_item(item: Item, personaje: CharacterStats):
+	lbl_nombre_item.text = item.nombre
+	lbl_descripcion.text = item.descripcion
+	textura_item_centro.texture = item.icono
+	
+	# Para la mano: Si tienes una textura de mano específica guardada en tu personaje (ej. personaje.textura_mano),
+	# la asignarías así. Si usas una mano genérica, simplemente configúrala directo en el editor.
+	# textura_mano.texture = personaje.textura_mano
+
+func _limpiar_detalles():
+	lbl_nombre_item.text = "Mochila vacía"
+	lbl_descripcion.text = "No tienes objetos consumibles."
+	textura_item_centro.texture = null
+	

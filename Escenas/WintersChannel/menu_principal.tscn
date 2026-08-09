@@ -650,22 +650,190 @@ theme_override_font_sizes/font_size = 72
 text = "WHENES: 0"
 
 [node name="PanelCategoriasItems" type="PanelContainer" parent="." unique_id=1917284871]
-offset_left = 100.0
-offset_top = 854.0
-offset_right = 304.0
-offset_bottom = 955.0
+offset_left = 84.0
+offset_top = 796.0
+offset_right = 288.0
+offset_bottom = 954.0
 
 [node name="VBox" type="VBoxContainer" parent="PanelCategoriasItems" unique_id=802277358]
 layout_mode = 2
 
 [node name="BtnConsumibles" type="Button" parent="PanelCategoriasItems/VBox" unique_id=1624133895]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 text = "Consumibles"
 
 [node name="BtnColeccion" type="Button" parent="PanelCategoriasItems/VBox" unique_id=84613714]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 text = "Coleccion"
 
 [node name="BtnClaves" type="Button" parent="PanelCategoriasItems/VBox" unique_id=1077696681]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 text = "Claves"
+
+[node name="PanelGranInventario" type="PanelContainer" parent="." unique_id=728064215]
+offset_top = 6.0
+offset_right = 1920.0
+offset_bottom = 951.0
+
+[node name="HBoxPrincipal" type="HBoxContainer" parent="PanelGranInventario" unique_id=522228430]
+layout_mode = 2
+
+[node name="LadoDetalles" type="VBoxContainer" parent="PanelGranInventario/HBoxPrincipal" unique_id=651888323]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+
+[node name="LblNombreItem" type="Label" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles" unique_id=1205877598]
+layout_mode = 2
+text = "POCION DE EJJEMPLO"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="CajaIlustracion" type="Control" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles" unique_id=775124779]
+layout_mode = 2
+
+[node name="TexturaMano" type="TextureRect" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles/CajaIlustracion" unique_id=1229653627]
+layout_mode = 0
+offset_right = 500.0
+offset_bottom = 743.0
+
+[node name="TexturaItemCentro" type="TextureRect" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles/CajaIlustracion" unique_id=1463782456]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 78.0
+offset_right = 748.0
+offset_bottom = 798.0
+
+[node name="LblDescripcion" type="Label" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles" unique_id=285438996]
+layout_mode = 2
+text = "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS SDSDSDSSASDWASD"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="ScrollMochila" type="ScrollContainer" parent="PanelGranInventario/HBoxPrincipal" unique_id=1521237485]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.6
+draw_focus_border = true
+
+[node name="GridItems" type="GridContainer" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila" unique_id=2076443430]
+layout_mode = 2
+columns = 4
+
+[node name="Button" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1442989637]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button2" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1936232995]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button3" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=986434986]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button4" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=374034786]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button5" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1846705962]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button6" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1484660800]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button7" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=202277330]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button8" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=882613049]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button9" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=71426059]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button10" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=816714060]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button11" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=54872351]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button12" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=279518329]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button13" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1944564407]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button14" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1767127941]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button15" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=884623206]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true
+
+[node name="Button16" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1917066675]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+text = "SDSDSDSADASDASDSDASD"
+icon_alignment = 1
+expand_icon = true

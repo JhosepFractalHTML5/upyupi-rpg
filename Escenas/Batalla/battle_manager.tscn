@@ -66,7 +66,6 @@ offset_right = 1896.0
 offset_bottom = 727.0
 theme_override_constants/separation = 50
 alignment = 1
-metadata/_edit_use_anchors_ = true
 
 [node name="ContenedorParty" type="HBoxContainer" parent="CapaGUI" unique_id=1082091779]
 top_level = true
@@ -81,7 +80,6 @@ offset_right = 940.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
-metadata/_edit_use_anchors_ = true
 
 [node name="PanelHeroe" type="Panel" parent="CapaGUI/ContenedorParty" unique_id=87701573]
 custom_minimum_size = Vector2(360, 190)
@@ -444,7 +442,6 @@ offset_left = 448.0
 offset_top = 15.0
 offset_right = 826.0
 offset_bottom = 665.0
-metadata/_edit_use_anchors_ = true
 
 [node name="BtnAtacar" type="Button" parent="CapaGUI/MenuAcciones" unique_id=1346873177]
 custom_minimum_size = Vector2(0, 50)
@@ -482,8 +479,7 @@ anchors_preset = -1
 anchor_right = 0.2234375
 anchor_bottom = 1.0
 grow_horizontal = 2
-grow_vertical = 2
-metadata/_edit_use_anchors_ = true
+grow_vertical = 0
 
 [node name="TextoLog" type="RichTextLabel" parent="CapaGUI/PanelLog" unique_id=1464418765]
 custom_minimum_size = Vector2(421, 413)
@@ -525,7 +521,6 @@ offset_top = 665.0
 offset_right = 825.0
 offset_bottom = 705.0
 theme_override_constants/separation = 5
-metadata/_edit_use_anchors_ = true
 
 [node name="PanelAccion" type="Panel" parent="CapaGUI" unique_id=929255562]
 offset_left = 838.0

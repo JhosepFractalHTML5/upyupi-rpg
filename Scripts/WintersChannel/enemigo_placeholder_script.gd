@@ -32,7 +32,6 @@ func _on_jugador_sale(body):
 		jugador_en_rango = null
 
 # Escuchamos los botones del teclado/mando
-# Escuchamos los botones del teclado/mando
 func _unhandled_input(event):
 	if jugador_en_rango and event.is_action_pressed("ui_accept"):
 		
@@ -44,7 +43,6 @@ func _unhandled_input(event):
 			var protagonista = jugador_en_rango 
 			
 			# 1. Bloqueamos al jugador INMEDIATAMENTE
-			# Al ponerse en 'true', el seguro de arriba impedirá que el botón Aceptar vuelva a entrar aquí.
 			protagonista.en_cinematica = true
 			
 			# 2. LA RUTA DE MOVIMIENTO (Ahora es intocable)
@@ -55,9 +53,17 @@ func _unhandled_input(event):
 			# 3. Lanzamos el diálogo
 			GestorDialogos.iniciar_dialogo(id_dialogo, protagonista)
 			
+			# --- MAGIA DE ESPERA ---
+			# El código se pausa aquí y vigila la caja de texto. 
+			# No avanzará hasta que el diálogo termine.
+			while GestorDialogos.dialogo_activo:
+				await get_tree().process_frame
+			
 			# 4. Le quitamos la cinemática
 			protagonista.en_cinematica = false
 			
+			# 5. ¡A PELEAR! Lanzamos tu función de combate
+			iniciar_encuentro()
 			
 
 # --- TU FUNCIÓN DE BATALLA ORIGINAL (Intacta) ---
