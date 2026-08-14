@@ -623,23 +623,28 @@ alignment = 1
 
 [node name="BtnItems" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=2049494807]
 layout_mode = 2
-theme_override_font_sizes/font_size = 72
+theme_override_font_sizes/font_size = 64
 text = "Items"
 
 [node name="BtnEquipamiento" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=576109933]
 layout_mode = 2
-theme_override_font_sizes/font_size = 72
+theme_override_font_sizes/font_size = 64
 text = "Equipamiento"
 
 [node name="BtnHabilidad" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=1369779930]
 layout_mode = 2
-theme_override_font_sizes/font_size = 72
+theme_override_font_sizes/font_size = 64
 text = "Habilidades"
 
 [node name="BtnEstado" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=576699075]
 layout_mode = 2
-theme_override_font_sizes/font_size = 72
+theme_override_font_sizes/font_size = 64
 text = "Estado"
+
+[node name="BtnOrden" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=511279989]
+layout_mode = 2
+theme_override_font_sizes/font_size = 64
+text = "Orden"
 
 [node name="FondoWhenes" type="PanelContainer" parent="ContenedorAbajo" unique_id=1585456952]
 layout_mode = 2
@@ -674,9 +679,10 @@ theme_override_font_sizes/font_size = 30
 text = "Claves"
 
 [node name="PanelGranInventario" type="PanelContainer" parent="." unique_id=728064215]
-offset_top = 6.0
-offset_right = 1920.0
-offset_bottom = 951.0
+offset_left = 25.0
+offset_top = 16.0
+offset_right = 1895.0
+offset_bottom = 941.0
 
 [node name="HBoxPrincipal" type="HBoxContainer" parent="PanelGranInventario" unique_id=522228430]
 layout_mode = 2
@@ -689,6 +695,7 @@ size_flags_stretch_ratio = 0.4
 
 [node name="LblNombreItem" type="Label" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles" unique_id=1205877598]
 layout_mode = 2
+theme_override_font_sizes/font_size = 36
 text = "POCION DE EJJEMPLO"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -704,13 +711,14 @@ offset_bottom = 743.0
 
 [node name="TexturaItemCentro" type="TextureRect" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles/CajaIlustracion" unique_id=1463782456]
 layout_mode = 0
-offset_left = 28.0
-offset_top = 78.0
-offset_right = 748.0
-offset_bottom = 798.0
+offset_left = 39.0
+offset_top = 140.0
+offset_right = 759.0
+offset_bottom = 860.0
 
 [node name="LblDescripcion" type="Label" parent="PanelGranInventario/HBoxPrincipal/LadoDetalles" unique_id=285438996]
 layout_mode = 2
+theme_override_font_sizes/font_size = 30
 text = "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS SDSDSDSSASDWASD"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -724,6 +732,7 @@ draw_focus_border = true
 
 [node name="GridItems" type="GridContainer" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila" unique_id=2076443430]
 layout_mode = 2
+size_flags_horizontal = 4
 columns = 4
 
 [node name="Button" type="Button" parent="PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems" unique_id=1442989637]
