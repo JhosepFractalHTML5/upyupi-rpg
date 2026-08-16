@@ -687,7 +687,6 @@ button_mask = 0
 text = "Claves"
 
 [node name="PanelSubcategoriasColeccion" type="PanelContainer" parent="." unique_id=756847064]
-visible = false
 offset_left = 293.0
 offset_top = 796.0
 offset_right = 497.0
@@ -715,7 +714,6 @@ button_mask = 0
 text = "Skins"
 
 [node name="PanelGranInventario" type="PanelContainer" parent="." unique_id=728064215]
-visible = false
 offset_left = 25.0
 offset_top = 16.0
 offset_right = 1895.0
@@ -883,3 +881,52 @@ layout_mode = 2
 text = "SDSDSDSADASDASDSDASD"
 icon_alignment = 1
 expand_icon = true
+
+[node name="PanelCarruselCartas" type="Panel" parent="." unique_id=18186967]
+offset_left = 25.0
+offset_top = 16.0
+offset_right = 1895.0
+offset_bottom = 941.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxCarrusel" type="HBoxContainer" parent="PanelCarruselCartas" unique_id=41417604]
+layout_mode = 0
+offset_right = 1870.0
+offset_bottom = 925.0
+
+[node name="ZonaIzquierda" type="VBoxContainer" parent="PanelCarruselCartas/HBoxCarrusel" unique_id=1252956567]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+alignment = 1
+
+[node name="RetratoCarrusel" type="TextureRect" parent="PanelCarruselCartas/HBoxCarrusel/ZonaIzquierda" unique_id=82345552]
+layout_mode = 2
+
+[node name="LblNombreCarrusel" type="Label" parent="PanelCarruselCartas/HBoxCarrusel/ZonaIzquierda" unique_id=681684763]
+layout_mode = 2
+text = "Jhosep"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LblConteoCartas" type="Label" parent="PanelCarruselCartas/HBoxCarrusel/ZonaIzquierda" unique_id=742539310]
+layout_mode = 2
+text = "1/6"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ZonaCartas" type="Control" parent="PanelCarruselCartas/HBoxCarrusel" unique_id=2063266378]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PistaMovimiento" type="Control" parent="PanelCarruselCartas/HBoxCarrusel/ZonaCartas" unique_id=1041996668]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -49.5
+offset_right = 1436.0
+offset_bottom = 50.5
+grow_vertical = 2

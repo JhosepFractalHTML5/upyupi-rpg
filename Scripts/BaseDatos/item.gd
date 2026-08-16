@@ -9,7 +9,7 @@ class_name Item
 @export_group("Categorización")
 @export_enum("Consumible", "Coleccion", "Clave") var categoria: String = "Consumible"
 @export_enum("Ninguna", "Refuerzo", "Ofensivo", "Cartas", "FotosRoll", "Skins", "Aventura", "Secundarias", "Utilidades") var subcategoria: String = "Ninguna"
-
+@export_enum("Ninguno", "Jhosep", "Romn", "Massi", "Thais", "Global") var personaje_coleccion: String = "Ninguno"
 @export_group("Datos de Combate (Solo Consumibles)")
 @export_enum("aliado", "enemigo", "usuario", "todos_aliados", "todos_enemigos") var objetivo: String = "aliado"
 @export_enum("NINGUNO", "CURAR_PV", "CURAR_PH", "CURAR_PT", "REVIVIR", "DANO_FIJO") var tipo_efecto: String = "NINGUNO"

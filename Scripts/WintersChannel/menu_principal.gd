@@ -24,6 +24,23 @@ extends CanvasLayer
 @onready var btn_fotos = $PanelSubcategoriasColeccion/VBox/BtnFotos
 @onready var btn_skins = $PanelSubcategoriasColeccion/VBox/BtnSkins
 
+# --- REFERENCIAS DEL CARRUSEL (FASE 2 Y 3) ---
+@onready var panel_carrusel = $PanelCarruselCartas
+@onready var retrato_carrusel = $PanelCarruselCartas/HBoxCarrusel/ZonaIzquierda/RetratoCarrusel
+@onready var lbl_nombre_carrusel = $PanelCarruselCartas/HBoxCarrusel/ZonaIzquierda/LblNombreCarrusel
+@onready var lbl_conteo_carrusel = $PanelCarruselCartas/HBoxCarrusel/ZonaIzquierda/LblConteoCartas
+@onready var pista_movimiento = $PanelCarruselCartas/HBoxCarrusel/ZonaCartas/PistaMovimiento
+
+# --- MEMORIA DEL CARRUSEL ---
+var cartas_agrupadas: Dictionary = {}
+var carrusel_personajes: Array = [] # Lista de nombres (Ej: ["Jhosep", "Romn"])
+var indice_carrusel_y: int = 0 # En qué fila (personaje) estamos
+var indices_carrusel_x: Dictionary = {} # En qué carta está cada personaje (Ej: {"Jhosep": 2})
+
+# --- DISTANCIAS (Ajusta estos números a tu gusto luego) ---
+const ESPACIO_Y = 220 # Distancia hacia abajo entre cada fila de personaje
+const ESPACIO_X = 160 # Distancia a la derecha entre carta y carta
+
 var personaje_viendo_inventario: CharacterStats = null
 var item_a_usar: Item = null # <-- ¡NUEVA! Recuerda qué ítem seleccionaste
 
@@ -34,7 +51,8 @@ enum EstadoMenu {
 	SELECCIONANDO_PJ_ITEMS, 
 	VIENDO_INVENTARIO, 
 	SELECCIONANDO_OBJETIVO_ITEM,
-	SELECCIONANDO_SUBCAT_COLECCION # <-- ¡NUEVO ESTADO!
+	SELECCIONANDO_SUBCAT_COLECCION,
+	VIENDO_CARRUSEL_CARTAS
 }
 var estado_actual = EstadoMenu.PRINCIPAL
 
@@ -63,14 +81,46 @@ func _ready():
 func _input(event):
 	if GestorDialogos.dialogo_activo: return
 	
+	# --- CONTROLES DE DIRECCIÓN DEL CARRUSEL ---
+	if visible and estado_actual == EstadoMenu.VIENDO_CARRUSEL_CARTAS:
+		if event.is_action_pressed("ui_up"):
+			get_viewport().set_input_as_handled()
+			if indice_carrusel_y > 0:
+				indice_carrusel_y -= 1
+				_actualizar_carrusel_visual()
+				
+		elif event.is_action_pressed("ui_down"):
+			get_viewport().set_input_as_handled()
+			if indice_carrusel_y < carrusel_personajes.size() - 1:
+				indice_carrusel_y += 1
+				_actualizar_carrusel_visual()
+				
+		elif event.is_action_pressed("ui_left"):
+			get_viewport().set_input_as_handled()
+			var pj_actual = carrusel_personajes[indice_carrusel_y]
+			if indices_carrusel_x[pj_actual] > 0:
+				indices_carrusel_x[pj_actual] -= 1
+				_actualizar_carrusel_visual()
+				
+		elif event.is_action_pressed("ui_right"):
+			get_viewport().set_input_as_handled()
+			var pj_actual = carrusel_personajes[indice_carrusel_y]
+			if indices_carrusel_x[pj_actual] < 5: # Límite de 6 cartas (0 a 5)
+				indices_carrusel_x[pj_actual] += 1
+				_actualizar_carrusel_visual()
+	
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
 		
 		if visible:
-			# --- LA ESCALERA DE RETROCESO (Corregida) ---
+			# --- LA ESCALERA DE RETROCESO (Corregida y Limpia) ---
+			
+			# ¡NUEVO! Volver del carrusel al submenú de Colección
+			if estado_actual == EstadoMenu.VIENDO_CARRUSEL_CARTAS:
+				cambiar_estado(EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION)
 			
 			# 1. Si estamos a punto de curar a alguien, cancelamos y volvemos a la mochila
-			if estado_actual == EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM:
+			elif estado_actual == EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM:
 				cambiar_estado(EstadoMenu.VIENDO_INVENTARIO)
 				abrir_inventario_consumibles(personaje_viendo_inventario) 
 				
@@ -79,19 +129,19 @@ func _input(event):
 				panel_gran_inventario.hide() 
 				cambiar_estado(EstadoMenu.SELECCIONANDO_PJ_ITEMS) 
 				
-			# --- ¡NUEVO ESCALÓN! ---
+			# 3. Volver de las subcategorías a las categorías principales
 			elif estado_actual == EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION:
 				cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
 				
-			# 3. Si estamos en los personajes, volvemos a las categorías
+			# 4. Si estamos en los personajes, volvemos a las categorías
 			elif estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 				cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
 				
-			# 4. Si estamos en categorías, volvemos a las opciones principales
+			# 5. Si estamos en categorías, volvemos a las opciones principales
 			elif estado_actual == EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS:
 				cambiar_estado(EstadoMenu.PRINCIPAL)
 				
-			# 5. Salir del menú por completo
+			# 6. Salir del menú por completo
 			else:
 				cerrar_menu()
 		else:
@@ -108,6 +158,7 @@ func cerrar_menu():
 	get_tree().paused = false
 
 func cambiar_estado(nuevo_estado):
+	if panel_carrusel: panel_carrusel.hide()
 	estado_actual = nuevo_estado
 	
 	# --- ¡NUEVO! Ocultar personajes si estamos viendo la mochila grande ---	
@@ -121,6 +172,7 @@ func cambiar_estado(nuevo_estado):
 	# 1. Apagamos "lo extra" por defecto
 	if panel_categorias: panel_categorias.hide()
 	if panel_subcat_coleccion: panel_subcat_coleccion.hide()
+	if panel_carrusel: panel_carrusel.hide()
 	for i in range(paneles.size()):
 		var btn = paneles[i].get_node_or_null("BtnSeleccionar")
 		if btn: btn.focus_mode = Control.FOCUS_NONE
@@ -166,14 +218,21 @@ func cambiar_estado(nuevo_estado):
 					
 		var primer_btn = paneles[0].get_node_or_null("BtnSeleccionar")
 		if primer_btn: primer_btn.grab_focus()
-		
+			
 	# --- ¡NUEVO ESTADO! ---
 	elif estado_actual == EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION:
 		print("[MENÚ] Eligiendo Subcategoría de Colección")
-		if panel_categorias: panel_categorias.show() # Dejamos el anterior visible de fondo
+		if panel_categorias: panel_categorias.show()
 		if panel_subcat_coleccion: 
 			panel_subcat_coleccion.show()
 			btn_cartas.grab_focus()
+			
+	# --- ¡NUEVO ESTADO: CARRUSEL! ---
+	elif estado_actual == EstadoMenu.VIENDO_CARRUSEL_CARTAS:
+		print("[MENÚ] Entrando al sistema de Carrusel...")
+		# Apagamos los paneles anteriores para que no estorben
+		if panel_categorias: panel_categorias.hide()
+		if panel_subcat_coleccion: panel_subcat_coleccion.hide()
 
 # --- ACCIONES DE BOTONES ---
 
@@ -189,8 +248,17 @@ func _on_btn_coleccion_pressed():
 
 # --- PLACEHOLDERS DE SUBCATEGORÍAS ---
 func _on_btn_cartas_pressed():
-	print("[SISTEMA] Se ha presionado la sección de Cartas")
-	# Aquí irá tu genial idea
+	print("[SISTEMA] Ordenando barajas por personaje...")
+	cartas_agrupadas.clear()
+	
+	for carta in GlobalGame.inventario_cartas:
+		if carta == null: continue
+		var dueño = carta.personaje_coleccion
+		if not cartas_agrupadas.has(dueño):
+			cartas_agrupadas[dueño] = []
+		cartas_agrupadas[dueño].append(carta)
+		
+	abrir_carrusel()
 
 func _on_btn_fotos_pressed():
 	print("[SISTEMA] Se ha presionado la sección de FotosRoll")
@@ -426,3 +494,96 @@ func _on_item_pressed(item: Item, personaje: CharacterStats):
 		item_a_usar = item
 		lbl_descripcion.text = "Selecciona a un aliado para aplicarle este objeto..."
 		cambiar_estado(EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM)
+		
+# --- FASE 3: LÓGICA DEL CARRUSEL ---
+func abrir_carrusel():
+	carrusel_personajes = cartas_agrupadas.keys()
+	indice_carrusel_y = 0
+	
+	# Limpiamos la pista por si abriste el menú antes
+	for hijo in pista_movimiento.get_children():
+		hijo.queue_free()
+		
+	indices_carrusel_x.clear()
+	
+	# Generamos las filas de cartas
+	for i in range(carrusel_personajes.size()):
+		var personaje_nombre = carrusel_personajes[i]
+		var cartas = cartas_agrupadas[personaje_nombre]
+		indices_carrusel_x[personaje_nombre] = 0 # Iniciamos su cursor X en 0
+		
+		# 1. Creamos la "Fila" que contendrá las 6 cartas
+		var fila = Control.new()
+		fila.name = "Fila_" + personaje_nombre
+		fila.position.y = i * ESPACIO_Y # Separación vertical
+		# Este pivot hace que al encogerse, lo hagan desde su centro-izquierdo
+		fila.pivot_offset = Vector2(0, 100) 
+		pista_movimiento.add_child(fila)
+		
+		# 2. Creamos los 6 recuadros obligatorios
+		for j in range(6):
+			var tex = TextureRect.new()
+			tex.custom_minimum_size = Vector2(140, 200) # Tamaño de la carta gigante
+			tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			tex.position.x = j * ESPACIO_X # Separación horizontal
+			
+			if j < cartas.size():
+				# Si tiene la carta, la mostramos
+				tex.texture = cartas[j].icono
+			else:
+				# Si no tiene la carta, dibujamos un espacio oscuro de "Vacío"
+				tex.modulate = Color(0.2, 0.2, 0.2, 0.5)
+				# (Opcional) tex.texture = preload("res://Ruta/A/BordeVacio.png")
+				
+			fila.add_child(tex)
+			
+	if panel_categorias: panel_categorias.hide()
+	if panel_subcat_coleccion: panel_subcat_coleccion.hide()
+	panel_carrusel.show()
+	
+	cambiar_estado(EstadoMenu.VIENDO_CARRUSEL_CARTAS)
+	_actualizar_carrusel_visual()
+
+func _actualizar_carrusel_visual():
+	if carrusel_personajes.is_empty(): return
+	
+	var pj_actual = carrusel_personajes[indice_carrusel_y]
+	var cartas = cartas_agrupadas[pj_actual]
+	
+	# --- ACTUALIZAR UI IZQUIERDA ---
+	lbl_nombre_carrusel.text = pj_actual
+	lbl_conteo_carrusel.text = str(cartas.size()) + " / 6"
+	
+	# Buscamos el retrato en la party (Si es Jhosep, Romn, etc.)
+	retrato_carrusel.texture = null
+	for heroe in GlobalGame.party_actual:
+		if heroe.nombre == pj_actual:
+			retrato_carrusel.texture = heroe.retrato_base # O la textura que prefieras
+			break
+			
+	# --- TWEENS: ANIMACIÓN DEL CARRUSEL ---
+	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	var tiempo_anim = 0.25 # Velocidad del deslizamiento
+	
+	# 1. Mover la Pista entera Arriba/Abajo
+	var target_y = -indice_carrusel_y * ESPACIO_Y
+	tween.tween_property(pista_movimiento, "position:y", target_y, tiempo_anim)
+	
+	# 2. Escalar y mover cada fila individual
+	for i in range(carrusel_personajes.size()):
+		var fila = pista_movimiento.get_child(i)
+		var nombre_fila = carrusel_personajes[i]
+		
+		if i == indice_carrusel_y:
+			# FILA ACTIVA: Crece al 100%, se vuelve opaca y se desliza a los lados
+			tween.tween_property(fila, "scale", Vector2(1.0, 1.0), tiempo_anim)
+			tween.tween_property(fila, "modulate:a", 1.0, tiempo_anim)
+			
+			var target_x = -indices_carrusel_x[nombre_fila] * ESPACIO_X
+			tween.tween_property(fila, "position:x", target_x, tiempo_anim)
+		else:
+			# FILAS INACTIVAS: Se encogen, se vuelven semi-transparentes
+			tween.tween_property(fila, "scale", Vector2(0.65, 0.65), tiempo_anim)
+			tween.tween_property(fila, "modulate:a", 0.4, tiempo_anim)
+			# (El eje X de las inactivas se queda donde estaba para dar efecto de memoria)
