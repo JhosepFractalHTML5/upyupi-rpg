@@ -18,19 +18,16 @@ class_name Item
 # --- NUEVO: REGLAS DE MUERTE Y RESURRECCIÓN ---
 @export var puede_revivir: bool = false 
 
-func usar(usuario: CharacterStats, blanco: CharacterStats, bm: Node):
-	# Ufufu~ No puedes obligar a alguien a comerse una Fotografía o una Skin.
+func usar(usuario: CharacterStats, blanco: CharacterStats, bm: Node = null):
 	if categoria != "Consumible":
 		return
 		
 	# --- SEGURO ANTI-ZOMBIES ---
-	# Si está muerto y el objeto no es capaz de revivir, el efecto falla dolorosamente.
 	if blanco.pv_actuales <= 0 and not puede_revivir:
-		bm.ui.narrar("¡" + blanco.nombre + " ya es un cadáver... esto no ayudará!")
+		if bm != null: bm.ui.narrar("¡" + blanco.nombre + " ya es un cadáver... esto no ayudará!")
 		return
 
 	# --- CÁLCULO DE FARMACOLOGÍA ---
-	# Verificamos si el usuario tiene la estadística, si no, multiplicamos por 1.0
 	var multiplicador_farma = 1.0
 	if "farmacologia" in usuario:
 		multiplicador_farma = usuario.farmacologia
@@ -41,26 +38,27 @@ func usar(usuario: CharacterStats, blanco: CharacterStats, bm: Node):
 	match tipo_efecto:
 		"CURAR_PV":
 			blanco.pv_actuales = clampi(blanco.pv_actuales + efecto_final, 0, blanco.pv_maximos)
-			bm.ui.narrar("¡" + usuario.nombre + " usa " + nombre + " y cura " + str(efecto_final) + " PV a " + blanco.nombre + "!")
+			if bm != null: bm.ui.narrar("¡" + usuario.nombre + " usa " + nombre + " y cura " + str(efecto_final) + " PV a " + blanco.nombre + "!")
 			
 		"REVIVIR":
 			if blanco.pv_actuales <= 0:
 				blanco.pv_actuales = clampi(efecto_final, 1, blanco.pv_maximos)
-				bm.ui.narrar("¡" + blanco.nombre + " fue arrancado de las garras de la muerte!")
+				if bm != null: bm.ui.narrar("¡" + blanco.nombre + " fue arrancado de las garras de la muerte!")
 			else:
-				bm.ui.narrar("¡No tiene sentido! ¡" + blanco.nombre + " ya está respirando!")
+				if bm != null: bm.ui.narrar("¡No tiene sentido! ¡" + blanco.nombre + " ya está respirando!")
 				
 		"CURAR_PH":
 			blanco.ph_actuales = clampi(blanco.ph_actuales + efecto_final, 0, blanco.ph_maximos)
-			bm.ui.narrar("¡" + blanco.nombre + " recupera " + str(efecto_final) + " PH!")
+			if bm != null: bm.ui.narrar("¡" + blanco.nombre + " recupera " + str(efecto_final) + " PH!")
 			
 		"CURAR_PT":
 			blanco.pt_actuales = clampi(blanco.pt_actuales + efecto_final, 0, blanco.pt_maximos)
-			bm.ui.narrar("¡" + blanco.nombre + " restaura " + str(efecto_final) + " Puntos de Tensión!")
+			if bm != null: bm.ui.narrar("¡" + blanco.nombre + " restaura " + str(efecto_final) + " Puntos de Tensión!")
 			
-		"DANO_FIJO": # Para los consumibles Ofensivos (ej. Bombas)
+		"DANO_FIJO": 
 			blanco.pv_actuales = max(0, blanco.pv_actuales - efecto_final)
-			bm.ui.narrar("¡El " + nombre + " le inflige " + str(efecto_final) + " de daño a " + blanco.nombre + "!")
+			if bm != null: bm.ui.narrar("¡El " + nombre + " le inflige " + str(efecto_final) + " de daño a " + blanco.nombre + "!")
 			
-	# Pausa dramática para que el jugador lea el log~
-	await bm.get_tree().create_timer(1.0).timeout
+	# Pausa dramática solo si estamos en batalla
+	if bm != null:
+		await bm.get_tree().create_timer(1.0).timeout

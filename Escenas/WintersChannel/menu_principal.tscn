@@ -624,26 +624,31 @@ alignment = 1
 [node name="BtnItems" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=2049494807]
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
+button_mask = 0
 text = "Items"
 
 [node name="BtnEquipamiento" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=576109933]
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
+button_mask = 0
 text = "Equipamiento"
 
 [node name="BtnHabilidad" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=1369779930]
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
+button_mask = 0
 text = "Habilidades"
 
 [node name="BtnEstado" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=576699075]
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
+button_mask = 0
 text = "Estado"
 
 [node name="BtnOrden" type="Button" parent="ContenedorAbajo/FondoOpciones/HBoxContainer" unique_id=511279989]
 layout_mode = 2
 theme_override_font_sizes/font_size = 64
+button_mask = 0
 text = "Orden"
 
 [node name="FondoWhenes" type="PanelContainer" parent="ContenedorAbajo" unique_id=1585456952]
@@ -666,19 +671,51 @@ layout_mode = 2
 [node name="BtnConsumibles" type="Button" parent="PanelCategoriasItems/VBox" unique_id=1624133895]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
+button_mask = 0
 text = "Consumibles"
 
 [node name="BtnColeccion" type="Button" parent="PanelCategoriasItems/VBox" unique_id=84613714]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
+button_mask = 0
 text = "Coleccion"
 
 [node name="BtnClaves" type="Button" parent="PanelCategoriasItems/VBox" unique_id=1077696681]
 layout_mode = 2
 theme_override_font_sizes/font_size = 30
+button_mask = 0
 text = "Claves"
 
+[node name="PanelSubcategoriasColeccion" type="PanelContainer" parent="." unique_id=756847064]
+visible = false
+offset_left = 293.0
+offset_top = 796.0
+offset_right = 497.0
+offset_bottom = 954.0
+
+[node name="VBox" type="VBoxContainer" parent="PanelSubcategoriasColeccion" unique_id=14938380]
+layout_mode = 2
+
+[node name="BtnCartas" type="Button" parent="PanelSubcategoriasColeccion/VBox" unique_id=715673801]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_mask = 0
+text = "Cartas"
+
+[node name="BtnFotos" type="Button" parent="PanelSubcategoriasColeccion/VBox" unique_id=1183360156]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_mask = 0
+text = "FotosRoll"
+
+[node name="BtnSkins" type="Button" parent="PanelSubcategoriasColeccion/VBox" unique_id=43294063]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+button_mask = 0
+text = "Skins"
+
 [node name="PanelGranInventario" type="PanelContainer" parent="." unique_id=728064215]
+visible = false
 offset_left = 25.0
 offset_top = 16.0
 offset_right = 1895.0

@@ -8,8 +8,8 @@
 [ext_resource type="Resource" uid="uid://by4b3l3yap5ja" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/Yaces.tres" id="3_kimsq"]
 [ext_resource type="Resource" uid="uid://b2k2h85kolwtt" path="res://BaseDatos/Protagonistas/Habilidades/JhosepHAB/LuzCalida.tres" id="4_2p4ai"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="5_y3ewx"]
-[ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Pocion.tres" id="6_ibe7l"]
-[ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/EXCFD.tres" id="7_kimsq"]
+[ext_resource type="Resource" uid="uid://0mlbm8o17q8m" path="res://BaseDatos/Items/Consumibles/Test/Pocion.tres" id="6_ibe7l"]
+[ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/Test/EXCFD.tres" id="7_kimsq"]
 [ext_resource type="Texture2D" uid="uid://s4ivtknphdhl" path="res://Graficos/WintersChannel/Protagonistas/JhosepVail.png" id="9_ibe7l"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_kimsq"]
@@ -27,7 +27,7 @@ icono_timeline = ExtResource("3_36wyd")
 textura_panel = SubResource("CompressedTexture2D_kimsq")
 color_interfaz = Color(0.60784316, 0.34901962, 0.7137255, 1)
 pv_maximos = 120
-pv_actuales = 120
+pv_actuales = 7
 ph_maximos = 55
 ph_actuales = 55
 ataque = 15

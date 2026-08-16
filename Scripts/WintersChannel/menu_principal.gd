@@ -19,11 +19,23 @@ extends CanvasLayer
 @onready var textura_item_centro = $PanelGranInventario/HBoxPrincipal/LadoDetalles/CajaIlustracion/TexturaItemCentro
 @onready var lbl_descripcion = $PanelGranInventario/HBoxPrincipal/LadoDetalles/LblDescripcion
 @onready var grid_items = $PanelGranInventario/HBoxPrincipal/ScrollMochila/GridItems
+@onready var panel_subcat_coleccion = $PanelSubcategoriasColeccion
+@onready var btn_cartas = $PanelSubcategoriasColeccion/VBox/BtnCartas
+@onready var btn_fotos = $PanelSubcategoriasColeccion/VBox/BtnFotos
+@onready var btn_skins = $PanelSubcategoriasColeccion/VBox/BtnSkins
 
 var personaje_viendo_inventario: CharacterStats = null
+var item_a_usar: Item = null # <-- ¡NUEVA! Recuerda qué ítem seleccionaste
 
 # --- MÁQUINA DE ESTADOS ---
-enum EstadoMenu { PRINCIPAL, SELECCIONANDO_CATEGORIA_ITEMS, SELECCIONANDO_PJ_ITEMS, VIENDO_INVENTARIO }
+enum EstadoMenu { 
+	PRINCIPAL, 
+	SELECCIONANDO_CATEGORIA_ITEMS, 
+	SELECCIONANDO_PJ_ITEMS, 
+	VIENDO_INVENTARIO, 
+	SELECCIONANDO_OBJETIVO_ITEM,
+	SELECCIONANDO_SUBCAT_COLECCION # <-- ¡NUEVO ESTADO!
+}
 var estado_actual = EstadoMenu.PRINCIPAL
 
 func _ready():
@@ -32,7 +44,11 @@ func _ready():
 	
 	if panel_categorias: panel_categorias.hide() 
 	if panel_gran_inventario: panel_gran_inventario.hide() 
+	if panel_subcat_coleccion: panel_subcat_coleccion.hide()
 	
+	if btn_cartas: btn_cartas.pressed.connect(_on_btn_cartas_pressed)
+	if btn_fotos: btn_fotos.pressed.connect(_on_btn_fotos_pressed)
+	if btn_skins: btn_skins.pressed.connect(_on_btn_skins_pressed)
 	if btn_items: btn_items.pressed.connect(_on_btn_items_pressed)
 	if btn_consumibles: btn_consumibles.pressed.connect(_on_btn_consumibles_pressed)
 	if btn_coleccion: btn_coleccion.pressed.connect(_on_btn_coleccion_pressed)
@@ -51,13 +67,31 @@ func _input(event):
 		get_viewport().set_input_as_handled()
 		
 		if visible:
-			if estado_actual == EstadoMenu.VIENDO_INVENTARIO:
+			# --- LA ESCALERA DE RETROCESO (Corregida) ---
+			
+			# 1. Si estamos a punto de curar a alguien, cancelamos y volvemos a la mochila
+			if estado_actual == EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM:
+				cambiar_estado(EstadoMenu.VIENDO_INVENTARIO)
+				abrir_inventario_consumibles(personaje_viendo_inventario) 
+				
+			# 2. Si estamos en la mochila, la cerramos y volvemos a los personajes
+			elif estado_actual == EstadoMenu.VIENDO_INVENTARIO:
 				panel_gran_inventario.hide() 
 				cambiar_estado(EstadoMenu.SELECCIONANDO_PJ_ITEMS) 
+				
+			# --- ¡NUEVO ESCALÓN! ---
+			elif estado_actual == EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION:
+				cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
+				
+			# 3. Si estamos en los personajes, volvemos a las categorías
 			elif estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 				cambiar_estado(EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS)
+				
+			# 4. Si estamos en categorías, volvemos a las opciones principales
 			elif estado_actual == EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS:
 				cambiar_estado(EstadoMenu.PRINCIPAL)
+				
+			# 5. Salir del menú por completo
 			else:
 				cerrar_menu()
 		else:
@@ -76,7 +110,7 @@ func cerrar_menu():
 func cambiar_estado(nuevo_estado):
 	estado_actual = nuevo_estado
 	
-	# --- ¡NUEVO! Ocultar personajes si estamos viendo la mochila grande ---
+	# --- ¡NUEVO! Ocultar personajes si estamos viendo la mochila grande ---	
 	if estado_actual == EstadoMenu.VIENDO_INVENTARIO:
 		contenedor_personajes.hide()
 	else:
@@ -86,6 +120,7 @@ func cambiar_estado(nuevo_estado):
 	
 	# 1. Apagamos "lo extra" por defecto
 	if panel_categorias: panel_categorias.hide()
+	if panel_subcat_coleccion: panel_subcat_coleccion.hide()
 	for i in range(paneles.size()):
 		var btn = paneles[i].get_node_or_null("BtnSeleccionar")
 		if btn: btn.focus_mode = Control.FOCUS_NONE
@@ -115,6 +150,30 @@ func cambiar_estado(nuevo_estado):
 		
 	elif estado_actual == EstadoMenu.VIENDO_INVENTARIO:
 		print("[MENÚ] Navegando por el inventario grande")
+	
+	# --- ¡NUEVO ESTADO! ---
+	elif estado_actual == EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM:
+		print("[MENÚ] ¿A quién le aplicamos el ítem?")
+		
+		# Ocultamos el inventario gigante y traemos de vuelta a los personajes
+		panel_gran_inventario.hide()
+		contenedor_personajes.show()
+		
+		for i in range(paneles.size()):
+			var btn = paneles[i].get_node_or_null("BtnSeleccionar")
+			if btn and i < GlobalGame.party_actual.size():
+				btn.focus_mode = Control.FOCUS_ALL
+					
+		var primer_btn = paneles[0].get_node_or_null("BtnSeleccionar")
+		if primer_btn: primer_btn.grab_focus()
+		
+	# --- ¡NUEVO ESTADO! ---
+	elif estado_actual == EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION:
+		print("[MENÚ] Eligiendo Subcategoría de Colección")
+		if panel_categorias: panel_categorias.show() # Dejamos el anterior visible de fondo
+		if panel_subcat_coleccion: 
+			panel_subcat_coleccion.show()
+			btn_cartas.grab_focus()
 
 # --- ACCIONES DE BOTONES ---
 
@@ -125,7 +184,19 @@ func _on_btn_consumibles_pressed():
 	cambiar_estado(EstadoMenu.SELECCIONANDO_PJ_ITEMS)
 
 func _on_btn_coleccion_pressed():
-	print("[SISTEMA] Has seleccionado la Mochila de Colección Global")
+	# Ahora en lugar del print, abrimos el sub-menú
+	cambiar_estado(EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION)
+
+# --- PLACEHOLDERS DE SUBCATEGORÍAS ---
+func _on_btn_cartas_pressed():
+	print("[SISTEMA] Se ha presionado la sección de Cartas")
+	# Aquí irá tu genial idea
+
+func _on_btn_fotos_pressed():
+	print("[SISTEMA] Se ha presionado la sección de FotosRoll")
+
+func _on_btn_skins_pressed():
+	print("[SISTEMA] Se ha presionado la sección de Skins (Aún no implementado)")
 
 func _on_btn_claves_pressed():
 	print("[SISTEMA] Has seleccionado la Mochila de Objetos Clave Global")
@@ -133,9 +204,43 @@ func _on_btn_claves_pressed():
 func _on_personaje_seleccionado(indice: int):
 	if estado_actual == EstadoMenu.SELECCIONANDO_PJ_ITEMS:
 		var personaje = GlobalGame.party_actual[indice]
-		print("[SISTEMA] Abriendo panel grande para los consumibles de: ", personaje.nombre)
 		abrir_inventario_consumibles(personaje)
 		cambiar_estado(EstadoMenu.VIENDO_INVENTARIO)
+		
+	# --- ¡AQUÍ SE USA EL OBJETO! ---
+	elif estado_actual == EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM:
+		var objetivo_seleccionado = GlobalGame.party_actual[indice]
+		
+		# 1. Aplicamos el efecto (El "null" evita que crashee buscando a la UI de Batalla)
+		if item_a_usar.objetivo == "todos_aliados":
+			for aliado in GlobalGame.party_actual:
+				item_a_usar.usar(personaje_viendo_inventario, aliado, null)
+		else:
+			item_a_usar.usar(personaje_viendo_inventario, objetivo_seleccionado, null)
+			
+		# 2. Eliminamos la poción de la mochila del dueño
+		personaje_viendo_inventario.inventario.erase(item_a_usar)
+		
+		# 3. ¡Magia! Actualizamos el menú completo para que las barras de Vida suban en tiempo real
+		actualizar_menu()
+		
+		# 4. Comprobamos si nos quedan MÁS de esta misma poción para seguir curando
+		var tiene_mas = false
+		var siguiente_instancia = null
+		
+		for i in personaje_viendo_inventario.inventario:
+			if i != null and i.nombre == item_a_usar.nombre:
+				tiene_mas = true
+				siguiente_instancia = i
+				break
+				
+		if tiene_mas:
+			# Preparamos la siguiente poción en el cañón para seguir curando a gusto
+			item_a_usar = siguiente_instancia
+		else:
+			# Si ya no le quedan pociones, regresamos obligatoriamente a la mochila
+			cambiar_estado(EstadoMenu.VIENDO_INVENTARIO)
+			abrir_inventario_consumibles(personaje_viendo_inventario) # Recarga los cuadritos
 
 func actualizar_menu():
 	if lbl_whenes:
@@ -310,7 +415,14 @@ func _limpiar_detalles():
 	textura_item_centro.texture = null
 
 # --- FASE 5: USO DE OBJETOS ---
+# --- FASE 5: USO DE OBJETOS ---
 func _on_item_pressed(item: Item, personaje: CharacterStats):
-	print("[SISTEMA] Se pulsó 'Aceptar' sobre el ítem: ", item.nombre)
-	# TODO: Aquí pondremos el código para instanciar/mostrar el mini-menú 
-	# que pregunte: "¿En quién quieres usar " + item.nombre + "?"
+	if item.subcategoria == "Ofensivo":
+		# ¡Alerta de uso indebido!
+		lbl_descripcion.text = "¡No puedes usar un objeto ofensivo fuera de combate!"
+		return
+		
+	if item.subcategoria == "Refuerzo":
+		item_a_usar = item
+		lbl_descripcion.text = "Selecciona a un aliado para aplicarle este objeto..."
+		cambiar_estado(EstadoMenu.SELECCIONANDO_OBJETIVO_ITEM)

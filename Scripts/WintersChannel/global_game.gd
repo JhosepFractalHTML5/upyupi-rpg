@@ -4,11 +4,17 @@ extends Node
 
 var party_actual: Array[CharacterStats] = []
 
-# --- INVENTARIOS COMPARTIDOS (Overworld) ---
-# Lo que no se usa en batalla va en la mochila general.
-var inventario_equipamiento: Array = []
-var inventario_clave: Array = []
-var inventario_cartas: Array = []
+# --- INVENTARIOS GLOBALES E INFINITOS ---
+
+# Categoría: COLECCIÓN
+var inventario_cartas: Array[Item] = []
+var inventario_fotos_roll: Array[Item] = []
+var inventario_skins: Array[Item] = [] # (Lo dejamos preparado por si decides usarlo en el futuro)
+
+# Categoría: CLAVES
+var inventario_aventura: Array[Item] = []
+var inventario_secundarias: Array[Item] = []
+var inventario_utilidades: Array[Item] = []
 
 # --- MEMORIA DEL OVERWORLD ---
 var mapa_anterior_ruta: String = ""
