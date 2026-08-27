@@ -33,13 +33,16 @@ extends CanvasLayer
 
 # --- MEMORIA DEL CARRUSEL ---
 var cartas_agrupadas: Dictionary = {}
-var carrusel_personajes: Array = [] # Lista de nombres (Ej: ["Jhosep", "Romn"])
-var indice_carrusel_y: int = 0 # En qué fila (personaje) estamos
+var carrusel_personajes_base: Array = [] # Lista original ordenada (Ej: Jhosep, Romn)
+var filas_infinitas: Array = [] # ¡El cilindro! La lista multiplicada muchas veces
+var indice_carrusel_y: int = 0 # En qué fila (personaje) estamos de la lista infinita
 var indices_carrusel_x: Dictionary = {} # En qué carta está cada personaje (Ej: {"Jhosep": 2})
 
-# --- DISTANCIAS (Ajusta estos números a tu gusto luego) ---
-const ESPACIO_Y = 220 # Distancia hacia abajo entre cada fila de personaje
-const ESPACIO_X = 160 # Distancia a la derecha entre carta y carta
+# --- DISTANCIAS ---
+const ESPACIO_Y = 220 
+const ESPACIO_X = 170 # Ampliado un poquito para las cartas MEGA GRANDES
+const CENTRO_PANTALLA_Y = 340 # <-- Empuja la carta activa hacia abajo (Ajusta a tu gusto)
+const CENTRO_PANTALLA_X = 60  # <-- Empuja la carta activa a la derecha (Ajusta a tu gusto)
 
 var personaje_viendo_inventario: CharacterStats = null
 var item_a_usar: Item = null # <-- ¡NUEVA! Recuerda qué ítem seleccionaste
@@ -63,6 +66,7 @@ func _ready():
 	if panel_categorias: panel_categorias.hide() 
 	if panel_gran_inventario: panel_gran_inventario.hide() 
 	if panel_subcat_coleccion: panel_subcat_coleccion.hide()
+	if panel_carrusel: panel_carrusel.hide()
 	
 	if btn_cartas: btn_cartas.pressed.connect(_on_btn_cartas_pressed)
 	if btn_fotos: btn_fotos.pressed.connect(_on_btn_fotos_pressed)
@@ -81,33 +85,36 @@ func _ready():
 func _input(event):
 	if GestorDialogos.dialogo_activo: return
 	
-	# --- CONTROLES DE DIRECCIÓN DEL CARRUSEL ---
+# --- CONTROLES DE DIRECCIÓN DEL CARRUSEL ---
 	if visible and estado_actual == EstadoMenu.VIENDO_CARRUSEL_CARTAS:
-		if event.is_action_pressed("ui_up"):
-			get_viewport().set_input_as_handled()
-			if indice_carrusel_y > 0:
+		if not carrusel_personajes_base.is_empty():
+			if event.is_action_pressed("ui_up"):
+				get_viewport().set_input_as_handled()
+				_verificar_bucle_infinito()
 				indice_carrusel_y -= 1
+				_verificar_bucle_infinito()
 				_actualizar_carrusel_visual()
-				
-		elif event.is_action_pressed("ui_down"):
-			get_viewport().set_input_as_handled()
-			if indice_carrusel_y < carrusel_personajes.size() - 1:
+					
+			elif event.is_action_pressed("ui_down"):
+				get_viewport().set_input_as_handled()
+				_verificar_bucle_infinito()
 				indice_carrusel_y += 1
+				_verificar_bucle_infinito()
 				_actualizar_carrusel_visual()
-				
-		elif event.is_action_pressed("ui_left"):
-			get_viewport().set_input_as_handled()
-			var pj_actual = carrusel_personajes[indice_carrusel_y]
-			if indices_carrusel_x[pj_actual] > 0:
-				indices_carrusel_x[pj_actual] -= 1
-				_actualizar_carrusel_visual()
-				
-		elif event.is_action_pressed("ui_right"):
-			get_viewport().set_input_as_handled()
-			var pj_actual = carrusel_personajes[indice_carrusel_y]
-			if indices_carrusel_x[pj_actual] < 5: # Límite de 6 cartas (0 a 5)
-				indices_carrusel_x[pj_actual] += 1
-				_actualizar_carrusel_visual()
+					
+			elif event.is_action_pressed("ui_left"):
+				get_viewport().set_input_as_handled()
+				var pj_actual = filas_infinitas[indice_carrusel_y] 
+				if indices_carrusel_x[pj_actual] > 0:
+					indices_carrusel_x[pj_actual] -= 1
+					_actualizar_carrusel_visual()
+					
+			elif event.is_action_pressed("ui_right"):
+				get_viewport().set_input_as_handled()
+				var pj_actual = filas_infinitas[indice_carrusel_y]
+				if indices_carrusel_x[pj_actual] < 5: 
+					indices_carrusel_x[pj_actual] += 1
+					_actualizar_carrusel_visual()
 	
 	if event.is_action_pressed("ui_cancel"):
 		get_viewport().set_input_as_handled()
@@ -146,6 +153,24 @@ func _input(event):
 				cerrar_menu()
 		else:
 			abrir_menu()
+
+func _verificar_bucle_infinito():
+	var tam = carrusel_personajes_base.size()
+	var teletransportado = false
+	
+	# Si estamos muy arriba, bajamos el cilindro
+	if indice_carrusel_y <= tam * 2:
+		indice_carrusel_y += tam * 4
+		teletransportado = true
+		
+	# Si estamos muy abajo, subimos el cilindro
+	elif indice_carrusel_y >= tam * 7:
+		indice_carrusel_y -= tam * 4
+		teletransportado = true
+		
+	# ¡EL SECRETO! Actualizamos los clones en 0 segundos antes de movernos
+	if teletransportado:
+		_actualizar_carrusel_visual(true)
 
 func abrir_menu():
 	show()
@@ -230,9 +255,10 @@ func cambiar_estado(nuevo_estado):
 	# --- ¡NUEVO ESTADO: CARRUSEL! ---
 	elif estado_actual == EstadoMenu.VIENDO_CARRUSEL_CARTAS:
 		print("[MENÚ] Entrando al sistema de Carrusel...")
-		# Apagamos los paneles anteriores para que no estorben
+		contenedor_personajes.hide()
 		if panel_categorias: panel_categorias.hide()
 		if panel_subcat_coleccion: panel_subcat_coleccion.hide()
+		if panel_carrusel: panel_carrusel.show()
 
 # --- ACCIONES DE BOTONES ---
 
@@ -497,93 +523,134 @@ func _on_item_pressed(item: Item, personaje: CharacterStats):
 		
 # --- FASE 3: LÓGICA DEL CARRUSEL ---
 func abrir_carrusel():
-	carrusel_personajes = cartas_agrupadas.keys()
-	indice_carrusel_y = 0
+	# 1. ORDEN FIJO ABSOLUTO: Los 4 Protagonistas Siempre
+	carrusel_personajes_base = ["Jhosep", "Romn", "Massi", "Thais"]
 	
-	# Limpiamos la pista por si abriste el menú antes
+	# Le creamos una lista vacía a los protas que aún no tengan cartas
+	# para que el juego no crashee y dibuje sus cartas oscurecidas
+	for pj in carrusel_personajes_base:
+		if not cartas_agrupadas.has(pj):
+			cartas_agrupadas[pj] = []
+			
+	# Limpieza de la pista visual
 	for hijo in pista_movimiento.get_children():
+		pista_movimiento.remove_child(hijo)
 		hijo.queue_free()
-		
 	indices_carrusel_x.clear()
+	filas_infinitas.clear()
 	
-	# Generamos las filas de cartas
-	for i in range(carrusel_personajes.size()):
-		var personaje_nombre = carrusel_personajes[i]
-		var cartas = cartas_agrupadas[personaje_nombre]
-		indices_carrusel_x[personaje_nombre] = 0 # Iniciamos su cursor X en 0
+	# Inicializamos los cursores X en 0 para los 4 personajes
+	for pj in carrusel_personajes_base:
+		indices_carrusel_x[pj] = 0
 		
-		# 1. Creamos la "Fila" que contendrá las 6 cartas
+	# TRUCO BUCLE INFINITO: Multiplicamos la lista de 4 unas 9 veces (36 filas)
+	for i in range(9):
+		filas_infinitas.append_array(carrusel_personajes_base)
+		
+	# Nos paramos exactamente en el bloque central (Esto caerá siempre en Jhosep)
+	indice_carrusel_y = 4 * carrusel_personajes_base.size()
+	
+# 2. Generamos TODAS las filas clonadas
+	for i in range(filas_infinitas.size()):
+		var personaje_nombre = filas_infinitas[i]
+		var cartas = cartas_agrupadas[personaje_nombre]
+		
 		var fila = Control.new()
-		fila.name = "Fila_" + personaje_nombre
-		fila.position.y = i * ESPACIO_Y # Separación vertical
-		# Este pivot hace que al encogerse, lo hagan desde su centro-izquierdo
-		fila.pivot_offset = Vector2(0, 100) 
+		fila.name = "Fila_" + str(i) + "_" + personaje_nombre
+		fila.position.y = i * ESPACIO_Y 
+		fila.size = Vector2(140, 200) # <-- ¡NUEVA! Evita que nazca con tamaño 0x0
+		fila.pivot_offset = Vector2(70, 100) 
 		pista_movimiento.add_child(fila)
 		
-		# 2. Creamos los 6 recuadros obligatorios
+		# Dibujamos las 6 ranuras
 		for j in range(6):
 			var tex = TextureRect.new()
-			tex.custom_minimum_size = Vector2(140, 200) # Tamaño de la carta gigante
+			tex.custom_minimum_size = Vector2(140, 200)
+			tex.size = Vector2(140, 200) # <-- ¡NUEVA! Fuerza el tamaño real instantáneamente
 			tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			tex.position.x = j * ESPACIO_X # Separación horizontal
+			tex.position.x = j * ESPACIO_X
 			
 			if j < cartas.size():
-				# Si tiene la carta, la mostramos
 				tex.texture = cartas[j].icono
 			else:
-				# Si no tiene la carta, dibujamos un espacio oscuro de "Vacío"
-				tex.modulate = Color(0.2, 0.2, 0.2, 0.5)
-				# (Opcional) tex.texture = preload("res://Ruta/A/BordeVacio.png")
+				# Carta vacía/bloqueada
+				tex.modulate = Color(0.1, 0.1, 0.1, 0.4)
 				
 			fila.add_child(tex)
 			
+	contenedor_personajes.hide()
 	if panel_categorias: panel_categorias.hide()
 	if panel_subcat_coleccion: panel_subcat_coleccion.hide()
-	panel_carrusel.show()
+	if panel_carrusel: panel_carrusel.show()
 	
 	cambiar_estado(EstadoMenu.VIENDO_CARRUSEL_CARTAS)
-	_actualizar_carrusel_visual()
-
-func _actualizar_carrusel_visual():
-	if carrusel_personajes.is_empty(): return
 	
-	var pj_actual = carrusel_personajes[indice_carrusel_y]
+
+	call_deferred("_actualizar_carrusel_visual", true)
+
+func _actualizar_carrusel_visual(instantaneo: bool = false):
+	if carrusel_personajes_base.is_empty(): return
+	
+	var pj_actual = filas_infinitas[indice_carrusel_y]
 	var cartas = cartas_agrupadas[pj_actual]
 	
-	# --- ACTUALIZAR UI IZQUIERDA ---
 	lbl_nombre_carrusel.text = pj_actual
 	lbl_conteo_carrusel.text = str(cartas.size()) + " / 6"
 	
-	# Buscamos el retrato en la party (Si es Jhosep, Romn, etc.)
 	retrato_carrusel.texture = null
 	for heroe in GlobalGame.party_actual:
 		if heroe.nombre == pj_actual:
-			retrato_carrusel.texture = heroe.retrato_base # O la textura que prefieras
+			retrato_carrusel.texture = heroe.textura_panel
 			break
 			
-	# --- TWEENS: ANIMACIÓN DEL CARRUSEL ---
-	var tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	var tiempo_anim = 0.25 # Velocidad del deslizamiento
+	var tween
+	if not instantaneo:
+		tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	var tiempo_anim = 0.0 if instantaneo else 0.25
 	
-	# 1. Mover la Pista entera Arriba/Abajo
-	var target_y = -indice_carrusel_y * ESPACIO_Y
-	tween.tween_property(pista_movimiento, "position:y", target_y, tiempo_anim)
+	# 1. Mover la Pista con el OFFSET para que no toque el techo
+	var target_y = (-indice_carrusel_y * ESPACIO_Y) + CENTRO_PANTALLA_Y
+	
+	if instantaneo:
+		pista_movimiento.position.y = target_y
+	else:
+		tween.tween_property(pista_movimiento, "position:y", target_y, tiempo_anim)
 	
 	# 2. Escalar y mover cada fila individual
-	for i in range(carrusel_personajes.size()):
+	for i in range(filas_infinitas.size()):
 		var fila = pista_movimiento.get_child(i)
-		var nombre_fila = carrusel_personajes[i]
+		var nombre_fila = filas_infinitas[i]
 		
-		if i == indice_carrusel_y:
-			# FILA ACTIVA: Crece al 100%, se vuelve opaca y se desliza a los lados
-			tween.tween_property(fila, "scale", Vector2(1.0, 1.0), tiempo_anim)
-			tween.tween_property(fila, "modulate:a", 1.0, tiempo_anim)
-			
-			var target_x = -indices_carrusel_x[nombre_fila] * ESPACIO_X
-			tween.tween_property(fila, "position:x", target_x, tiempo_anim)
+		var distancia_al_centro = abs(i - indice_carrusel_y)
+		var target_x = (-indices_carrusel_x[nombre_fila] * ESPACIO_X) + CENTRO_PANTALLA_X
+		
+		if distancia_al_centro == 0:
+			if instantaneo:
+				fila.scale = Vector2(1.2, 1.2)
+				fila.modulate = Color(1, 1, 1, 1.0)
+				fila.position.x = target_x
+			else:
+				tween.tween_property(fila, "scale", Vector2(1.2, 1.2), tiempo_anim)
+				tween.tween_property(fila, "modulate", Color(1, 1, 1, 1.0), tiempo_anim)
+				tween.tween_property(fila, "position:x", target_x, tiempo_anim)
+				
+		elif distancia_al_centro == 1:
+			if instantaneo:
+				fila.scale = Vector2(0.7, 0.7)
+				fila.modulate = Color(1, 1, 1, 0.4)
+				fila.position.x = target_x
+			else:
+				tween.tween_property(fila, "scale", Vector2(0.7, 0.7), tiempo_anim)
+				tween.tween_property(fila, "modulate", Color(1, 1, 1, 0.4), tiempo_anim)
+				tween.tween_property(fila, "position:x", target_x, tiempo_anim)
+				
 		else:
-			# FILAS INACTIVAS: Se encogen, se vuelven semi-transparentes
-			tween.tween_property(fila, "scale", Vector2(0.65, 0.65), tiempo_anim)
-			tween.tween_property(fila, "modulate:a", 0.4, tiempo_anim)
-			# (El eje X de las inactivas se queda donde estaba para dar efecto de memoria)
+			if instantaneo:
+				fila.scale = Vector2(0.5, 0.5)
+				fila.modulate = Color(1, 1, 1, 0.0)
+				fila.position.x = target_x
+			else:
+				tween.tween_property(fila, "scale", Vector2(0.5, 0.5), tiempo_anim)
+				tween.tween_property(fila, "modulate", Color(1, 1, 1, 0.0), tiempo_anim)
+				tween.tween_property(fila, "position:x", target_x, tiempo_anim)

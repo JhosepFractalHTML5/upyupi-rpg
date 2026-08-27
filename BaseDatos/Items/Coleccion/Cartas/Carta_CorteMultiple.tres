@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Item" format=3 uid="uid://basydn5yxn5t"]
+
+[ext_resource type="Texture2D" uid="uid://nte4fbojchsc" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/ThaisNORMAL.png" id="1_ne735"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="1_us10a"]
+
+[resource]
+script = ExtResource("1_us10a")
+nombre = "Carta CorteMultiple"
+descripcion = ""
+icono = ExtResource("1_ne735")
+categoria = "Coleccion"
+subcategoria = "Cartas"
+personaje_coleccion = "Romn"
+metadata/_custom_type_script = "uid://bygmjwrduthq1"

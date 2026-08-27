@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://cqd5gja8t6i8i"]
+
+[ext_resource type="Script" uid="uid://b2uqrcxlgbtuu" path="res://BaseDatos/Items/Coleccion/Cartas/TestCartas.gd" id="1_5p5gf"]
+[ext_resource type="Texture2D" uid="uid://caavu51hbd6qy" path="res://Graficos/Batalla/Enemigos/Test/UENOONKDS.png" id="1_8yubd"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pdph1"]
+size = Vector2(152, 189)
+
+[node name="StaticBody2D" type="StaticBody2D" unique_id=913890563]
+script = ExtResource("1_5p5gf")
+
+[node name="AreaInteraccion" type="Area2D" parent="." unique_id=1092380653]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AreaInteraccion" unique_id=929006950]
+position = Vector2(2, 2.5)
+shape = SubResource("RectangleShape2D_pdph1")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1780613680]
+texture = ExtResource("1_8yubd")

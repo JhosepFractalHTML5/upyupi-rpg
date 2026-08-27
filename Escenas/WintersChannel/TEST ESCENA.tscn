@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://d1d3hk67dndjv" path="res://Escenas/Almas/Test/cofre.tscn" id="2_6ypk8"]
 [ext_resource type="PackedScene" uid="uid://dyguv7qb6we0e" path="res://Escenas/WintersChannel/menu_principal.tscn" id="3_relv3"]
 [ext_resource type="PackedScene" uid="uid://bfr7rcjr2icpn" path="res://Escenas/Almas/Test/enemigo_overworld.tscn" id="4_mxiyh"]
+[ext_resource type="PackedScene" uid="uid://cqd5gja8t6i8i" path="res://BaseDatos/Items/Coleccion/Cartas/TesTcars.tscn" id="5_o6on6"]
 
 [node name="Node2D" type="Node2D" unique_id=969277939]
 y_sort_enabled = true
@@ -29,3 +30,6 @@ visible = false
 
 [node name="EnemigoOverworld" parent="." unique_id=720559432 instance=ExtResource("4_mxiyh")]
 position = Vector2(734, 149)
+
+[node name="StaticBody2D" parent="." unique_id=913890563 instance=ExtResource("5_o6on6")]
+position = Vector2(542, 752)

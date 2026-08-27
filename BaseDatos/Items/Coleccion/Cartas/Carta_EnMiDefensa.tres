@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Item" format=3 uid="uid://ds4t8m2c3gob7"]
+
+[ext_resource type="Texture2D" uid="uid://dgwtca3cw622l" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/RomnNORMAL.png" id="1_hhiva"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="1_mcuso"]
+
+[resource]
+script = ExtResource("1_mcuso")
+nombre = "Carta EnMiDefensa"
+descripcion = ""
+icono = ExtResource("1_hhiva")
+categoria = "Coleccion"
+subcategoria = "Cartas"
+personaje_coleccion = "Jhosep"
+metadata/_custom_type_script = "uid://bygmjwrduthq1"

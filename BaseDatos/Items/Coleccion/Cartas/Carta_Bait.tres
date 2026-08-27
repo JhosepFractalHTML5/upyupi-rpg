@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Item" format=3 uid="uid://b66mcoa12uwbt"]
+
+[ext_resource type="Texture2D" uid="uid://caavu51hbd6qy" path="res://Graficos/Batalla/Enemigos/Test/UENOONKDS.png" id="1_tsymi"]
+[ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="2_rnhnf"]
+
+[resource]
+script = ExtResource("2_rnhnf")
+nombre = "Carta Bait"
+descripcion = ""
+icono = ExtResource("1_tsymi")
+categoria = "Coleccion"
+subcategoria = "Cartas"
+personaje_coleccion = "Massi"
+metadata/_custom_type_script = "uid://bygmjwrduthq1"
