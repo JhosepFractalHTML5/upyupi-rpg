@@ -1,6 +1,9 @@
 [gd_scene format=3 uid="uid://dyguv7qb6we0e"]
 
 [ext_resource type="Script" uid="uid://bp3ymmiapoah1" path="res://Scripts/WintersChannel/menu_principal.gd" id="1_xybeo"]
+[ext_resource type="Script" uid="uid://b3ooahfrc4syb" path="res://Escenas/WintersChannel/menu_personajes.gd" id="2_5si4e"]
+[ext_resource type="Script" uid="uid://blumqr2mkbybn" path="res://Escenas/WintersChannel/menu_inventario.gd" id="3_mvqil"]
+[ext_resource type="Script" uid="uid://dbtgpg86yajd7" path="res://Escenas/WintersChannel/menu_carrusel.gd" id="4_gifd4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ho6bx"]
 bg_color = Color(0.011764706, 0, 0.1882353, 0.78431374)
@@ -37,6 +40,7 @@ offset_top = 16.0
 offset_right = 1895.0
 offset_bottom = 941.0
 columns = 2
+script = ExtResource("2_5si4e")
 
 [node name="Panel" type="Panel" parent="ContenedorPersonajes" unique_id=116619269]
 custom_minimum_size = Vector2(60, 60)
@@ -724,6 +728,7 @@ offset_left = 25.0
 offset_top = 16.0
 offset_right = 1895.0
 offset_bottom = 941.0
+script = ExtResource("3_mvqil")
 
 [node name="HBoxPrincipal" type="HBoxContainer" parent="PanelGranInventario" unique_id=522228430]
 layout_mode = 2
@@ -895,6 +900,7 @@ offset_right = 1895.0
 offset_bottom = 941.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
+script = ExtResource("4_gifd4")
 
 [node name="HBoxCarrusel" type="HBoxContainer" parent="PanelCarruselCartas" unique_id=41417604]
 layout_mode = 0
