@@ -1,4 +1,4 @@
-extends Control # O HBoxContainer/VBoxContainer, dependiendo de qué nodo sea
+extends GridContainer
 
 # El menú principal escuchará este "grito" para saber a quién elegiste
 signal personaje_seleccionado(indice: int)

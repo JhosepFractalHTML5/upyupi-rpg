@@ -8,8 +8,8 @@ var party_actual: Array[CharacterStats] = []
 
 # Categoría: COLECCIÓN
 var inventario_cartas: Array[Item] = []
-var inventario_fotos_roll: Array[Item] = []
-var inventario_skins: Array[Item] = [] # (Lo dejamos preparado por si decides usarlo en el futuro)
+var inventario_fotos_roll: Array[String] = ["NORMAL"] 
+var inventario_skins: Array[Item] = []
 
 # Categoría: CLAVES
 var inventario_aventura: Array[Item] = []

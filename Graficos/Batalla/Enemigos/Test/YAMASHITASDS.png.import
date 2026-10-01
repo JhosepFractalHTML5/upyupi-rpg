@@ -2,16 +2,12 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vwwboq6glkd4"
-path="res://.godot/imported/MassiNORMAL.png-c06a6429bdb3955d6c4305c6ff42c19d.ctex"
-metadata={
-"vram_texture": false
-}
+uid="uid://bc3ago4p010yr"
+valid=false
 
 [deps]
 
-source_file="res://Graficos/Batalla/Protagonistas/FotoRoll/01/MassiNORMAL.png"
-dest_files=["res://.godot/imported/MassiNORMAL.png-c06a6429bdb3955d6c4305c6ff42c19d.ctex"]
+source_file="res://Graficos/Batalla/Enemigos/Test/YAMASHITASDS.png"
 
 [params]
 
@@ -26,6 +22,8 @@ compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
+mipmaps/preserve_alpha_test_coverage=false
+mipmaps/alpha_test_threshold=0.5
 roughness/mode=0
 roughness/src_normal=""
 process/channel_remap/red=0

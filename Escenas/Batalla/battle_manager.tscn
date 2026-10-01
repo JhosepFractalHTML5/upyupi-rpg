@@ -10,8 +10,13 @@
 [ext_resource type="Texture2D" uid="uid://l2j3eqgic6iu" path="res://Graficos/Batalla/Estados Alterados/Def Down.png" id="13_a8tfd"]
 [ext_resource type="Texture2D" uid="uid://dobd3c6e2kr4t" path="res://Graficos/Batalla/Estados Alterados/Agi Up.png" id="14_4ttgc"]
 [ext_resource type="Texture2D" uid="uid://chylasppm5jmj" path="res://Graficos/Batalla/Estados Alterados/Agi Down.png" id="15_1nfk3"]
+[ext_resource type="Script" uid="uid://cx65upxs5qvul" path="res://Escenas/Batalla/ui_listas_accion.gd" id="16_0p4xp"]
+[ext_resource type="Script" uid="uid://brwn8l45lynjm" path="res://Escenas/Batalla/ui_victoria.gd" id="16_3th56"]
 [ext_resource type="Texture2D" uid="uid://de7s7s65s00ii" path="res://Graficos/Batalla/Estados Alterados/Suerte Up.png" id="16_bf3yi"]
+[ext_resource type="Script" uid="uid://ylducc5x1f5f" path="res://Escenas/Batalla/gestor_reparto.gd" id="16_lnql5"]
+[ext_resource type="Script" uid="uid://bwf4jxelq4ukr" path="res://Escenas/Batalla/ui_party.gd" id="16_oc83v"]
 [ext_resource type="Texture2D" uid="uid://b1jikalkyrnqg" path="res://Graficos/Batalla/Estados Alterados/Suerte Down.png" id="17_cykjq"]
+[ext_resource type="Script" uid="uid://we48yucfebte" path="res://Escenas/Batalla/selector_objetivos.gd" id="17_ncuui"]
 [ext_resource type="Texture2D" uid="uid://bwlxj2drlxog5" path="res://Graficos/Batalla/Estados Alterados/Provocacion (Escudo Humano).png" id="18_orxq1"]
 [ext_resource type="Texture2D" uid="uid://cfd5sicftdcgy" path="res://Graficos/Batalla/Estados Alterados/Distraido.png" id="19_0vkes"]
 [ext_resource type="Texture2D" uid="uid://dli7yvwwoo2t1" path="res://Graficos/Batalla/Estados Alterados/Defensa Defender.png" id="20_3onrk"]
@@ -38,14 +43,9 @@ bg_color = Color(0.08627451, 0.08627451, 0.08627451, 0.92156863)
 script = ExtResource("1_r0ul7")
 ayudante_actual = ExtResource("8_jknig")
 
-[node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064 node_paths=PackedStringArray("contenedor_botin")]
+[node name="CapaGUI" type="CanvasLayer" parent="." unique_id=8010064]
 script = ExtResource("9_oxep1")
-contenedor_botin = NodePath("PanelVictoria/FondoBotin/ContenedorBotin")
-icono_bolsillo_vacio = ExtResource("4_cw1wa")
-icono_ph = ExtResource("4_cw1wa")
-icono_pt = ExtResource("4_cw1wa")
 icono_pv = ExtResource("4_cw1wa")
-icono_whenes = ExtResource("4_cw1wa")
 icon_atk_up = ExtResource("10_oc83v")
 icon_atk_down = ExtResource("11_jknig")
 icon_def_up = ExtResource("12_c0ri4")
@@ -80,6 +80,7 @@ offset_right = 940.0
 offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
+script = ExtResource("16_oc83v")
 
 [node name="PanelHeroe" type="Panel" parent="CapaGUI/ContenedorParty" unique_id=87701573]
 custom_minimum_size = Vector2(360, 190)
@@ -480,6 +481,10 @@ anchor_right = 0.2234375
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
+script = ExtResource("16_0p4xp")
+icono_bolsillo_vacio = ExtResource("17_cykjq")
+icono_ph = ExtResource("4_cw1wa")
+icono_pt = ExtResource("4_cw1wa")
 
 [node name="TextoLog" type="RichTextLabel" parent="CapaGUI/PanelLog" unique_id=1464418765]
 custom_minimum_size = Vector2(421, 413)
@@ -537,13 +542,16 @@ offset_bottom = 201.0
 layout_mode = 2
 horizontal_alignment = 1
 
-[node name="PanelVictoria" type="Panel" parent="CapaGUI" unique_id=1365226076]
+[node name="PanelVictoria" type="Panel" parent="CapaGUI" unique_id=1365226076 node_paths=PackedStringArray("contenedor_botin")]
 visible = false
 offset_left = 430.0
 offset_top = 293.0
 offset_right = 1358.0
 offset_bottom = 1069.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_pjwkw")
+script = ExtResource("16_3th56")
+contenedor_botin = NodePath("FondoBotin/ContenedorBotin")
+icono_whenes = ExtResource("19_0vkes")
 
 [node name="ContenedorExpHeroes" type="VBoxContainer" parent="CapaGUI/PanelVictoria" unique_id=1413485698]
 layout_mode = 0
@@ -573,3 +581,9 @@ layout_mode = 0
 offset_right = 559.0
 offset_bottom = 776.0
 theme_override_constants/separation = 20
+
+[node name="GestorReparto" type="Node" parent="." unique_id=1048385478]
+script = ExtResource("16_lnql5")
+
+[node name="SelectorObjetivos" type="Node" parent="." unique_id=366754074]
+script = ExtResource("17_ncuui")

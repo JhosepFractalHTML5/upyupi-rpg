@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dgwtca3cw622l"
-path="res://.godot/imported/RomnNORMAL.png-a9bfdcd128aa413719e8758b91c46fa5.ctex"
+uid="uid://ba6efwhapqhry"
+path="res://.godot/imported/JhosepPRIS.png-65274ca0a6d6c25f765e87d5008da56d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Graficos/Batalla/Protagonistas/FotoRoll/01/RomnNORMAL.png"
-dest_files=["res://.godot/imported/RomnNORMAL.png-a9bfdcd128aa413719e8758b91c46fa5.ctex"]
+source_file="res://Graficos/Batalla/Protagonistas/FotoRoll/PRIS/JhosepPRIS.png"
+dest_files=["res://.godot/imported/JhosepPRIS.png-65274ca0a6d6c25f765e87d5008da56d.ctex"]
 
 [params]
 
@@ -26,6 +26,8 @@ compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
+mipmaps/preserve_alpha_test_coverage=false
+mipmaps/alpha_test_threshold=0.5
 roughness/mode=0
 roughness/src_normal=""
 process/channel_remap/red=0

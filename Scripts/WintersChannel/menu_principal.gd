@@ -19,8 +19,9 @@ extends CanvasLayer
 @onready var btn_fotos = $PanelSubcategoriasColeccion/VBox/BtnFotos
 @onready var btn_skins = $PanelSubcategoriasColeccion/VBox/BtnSkins
 
-# --- REFERENCIAS DEL CARRUSEL ---
+# --- REFERENCIAS ---
 @onready var panel_carrusel = $PanelCarruselCartas
+@onready var panel_fotosroll = $PanelFotosRoll
 
 var personaje_viendo_inventario: CharacterStats = null
 var item_a_usar: Item = null # <-- ¡NUEVA! Recuerda qué ítem seleccionaste
@@ -33,7 +34,8 @@ enum EstadoMenu {
 	VIENDO_INVENTARIO, 
 	SELECCIONANDO_OBJETIVO_ITEM,
 	SELECCIONANDO_SUBCAT_COLECCION,
-	VIENDO_CARRUSEL_CARTAS
+	VIENDO_CARRUSEL_CARTAS,
+	VIENDO_FOTOSROLL
 }
 var estado_actual = EstadoMenu.PRINCIPAL
 
@@ -54,7 +56,6 @@ func _ready():
 	if btn_coleccion: btn_coleccion.pressed.connect(_on_btn_coleccion_pressed)
 	if btn_claves: btn_claves.pressed.connect(_on_btn_claves_pressed)
 	
-	contenedor_personajes.personaje_seleccionado.connect(_on_personaje_seleccionado)
 	contenedor_personajes.personaje_seleccionado.connect(_on_personaje_seleccionado)
 	if panel_gran_inventario:
 		panel_gran_inventario.item_seleccionado_para_uso.connect(_preparar_uso_de_item)
@@ -94,6 +95,11 @@ func _input(event):
 			elif estado_actual == EstadoMenu.SELECCIONANDO_CATEGORIA_ITEMS:
 				cambiar_estado(EstadoMenu.PRINCIPAL)
 				
+			elif estado_actual == EstadoMenu.VIENDO_FOTOSROLL:
+				if panel_fotosroll.pop_up_opciones.visible:
+					return
+				cambiar_estado(EstadoMenu.SELECCIONANDO_SUBCAT_COLECCION)
+				
 			# 6. Salir del menú por completo
 			else:
 				cerrar_menu()
@@ -112,6 +118,7 @@ func cerrar_menu():
 
 func cambiar_estado(nuevo_estado):
 	if panel_carrusel: panel_carrusel.hide()
+	if panel_fotosroll: panel_fotosroll.hide()
 	estado_actual = nuevo_estado
 	
 	# --- ¡NUEVO! Ocultar personajes si estamos viendo la mochila grande ---	
@@ -119,8 +126,6 @@ func cambiar_estado(nuevo_estado):
 		contenedor_personajes.hide()
 	else:
 		contenedor_personajes.show()
-		
-	var paneles = contenedor_personajes.get_children()
 	
 	# 1. Apagamos "lo extra" por defecto
 	if panel_categorias: panel_categorias.hide()
@@ -174,6 +179,13 @@ func cambiar_estado(nuevo_estado):
 		if panel_categorias: panel_categorias.hide()
 		if panel_subcat_coleccion: panel_subcat_coleccion.hide()
 		if panel_carrusel: panel_carrusel.show()
+		
+	elif estado_actual == EstadoMenu.VIENDO_FOTOSROLL:
+		print("[MENÚ] Viendo galería FotosRoll")
+		contenedor_personajes.hide() # <--- ¡NUEVO! Oculta a los personajes grandes del fondo
+		if panel_categorias: panel_categorias.hide()
+		if panel_subcat_coleccion: panel_subcat_coleccion.hide()
+		if panel_fotosroll: panel_fotosroll.show() # <--- ¡NUEVO! Fuerza la visibilidad del FotosRoll
 
 # --- ACCIONES DE BOTONES ---
 
@@ -195,7 +207,9 @@ func _on_btn_cartas_pressed():
 	cambiar_estado(EstadoMenu.VIENDO_CARRUSEL_CARTAS)
 
 func _on_btn_fotos_pressed():
-	print("[SISTEMA] Se ha presionado la sección de FotosRoll")
+	print("[SISTEMA] Abriendo Galería FotosRoll...")
+	panel_fotosroll.abrir()
+	cambiar_estado(EstadoMenu.VIENDO_FOTOSROLL)
 
 func _on_btn_skins_pressed():
 	print("[SISTEMA] Se ha presionado la sección de Skins (Aún no implementado)")

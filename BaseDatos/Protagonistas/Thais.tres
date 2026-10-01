@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bn6ewhblhrdq1" path="res://BaseDatos/Items/Consumibles/Test/EXCFD.tres" id="3_i8hy7"]
 [ext_resource type="Script" uid="uid://bygmjwrduthq1" path="res://Scripts/BaseDatos/item.gd" id="3_va4ce"]
 [ext_resource type="Texture2D" uid="uid://b6b5e6skyi4cb" path="res://Graficos/WintersChannel/Protagonistas/RomnWhite.png" id="5_ycump"]
-[ext_resource type="Texture2D" uid="uid://nte4fbojchsc" path="res://Graficos/Batalla/Protagonistas/FotoRoll/01/ThaisNORMAL.png" id="6_50s43"]
+[ext_resource type="Texture2D" uid="uid://nte4fbojchsc" path="res://Graficos/Batalla/Protagonistas/FotoRoll/NORMAL/ThaisNORMAL.png" id="6_50s43"]
 
 [resource]
 script = ExtResource("1_u1ook")

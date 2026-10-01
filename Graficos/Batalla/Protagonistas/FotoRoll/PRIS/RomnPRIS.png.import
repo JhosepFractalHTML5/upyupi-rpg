@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://nte4fbojchsc"
-path="res://.godot/imported/ThaisNORMAL.png-b9d0ec609fb532488b7f3b59941693c6.ctex"
+uid="uid://mnai7gdp0kh2"
+path="res://.godot/imported/RomnPRIS.png-083f24f576686b1378db6055ff9a0efd.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Graficos/Batalla/Protagonistas/FotoRoll/01/ThaisNORMAL.png"
-dest_files=["res://.godot/imported/ThaisNORMAL.png-b9d0ec609fb532488b7f3b59941693c6.ctex"]
+source_file="res://Graficos/Batalla/Protagonistas/FotoRoll/PRIS/RomnPRIS.png"
+dest_files=["res://.godot/imported/RomnPRIS.png-083f24f576686b1378db6055ff9a0efd.ctex"]
 
 [params]
 
@@ -26,6 +26,8 @@ compress/normal_map=0
 compress/channel_pack=0
 mipmaps/generate=false
 mipmaps/limit=-1
+mipmaps/preserve_alpha_test_coverage=false
+mipmaps/alpha_test_threshold=0.5
 roughness/mode=0
 roughness/src_normal=""
 process/channel_remap/red=0

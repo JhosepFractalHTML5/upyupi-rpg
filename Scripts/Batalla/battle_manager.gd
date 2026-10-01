@@ -9,20 +9,16 @@ var enemigos_actuales: Array[CharacterStats] = []
 var combatientes: Array[CharacterStats] = []
 var turno_actual: int = 0
 var indice_oleada: int = 0
-var timer_estados: Timer
-var indice_rotacion_estado: int = 0
 var exp_acumulada: int = 0
 var whenes_acumulados: int = 0
 var items_dropeados: Array = []
-var items_a_distribuir: Array[Item] = [] 
-var item_en_reparto: Item = null 
 
+@onready var gestor_reparto = $GestorReparto
+@onready var selector_objetivos = $SelectorObjetivos
 @onready var ui: BattleUI = $CapaGUI
 
 # ===== ESTADO DE SELECCIÓN =====
-var seleccionando_objetivo: bool = false
 var seleccionando_item: bool = false
-var indice_objetivo_actual: int = 0
 var accion_pendiente: String = ""
 var habilidad_pendiente: Habilidad = null
 var item_pendiente: Item = null
@@ -33,11 +29,6 @@ var bloquear_todo_input: bool = false # <--- SOLUCIÓN DE MISTRAL: El gran sello
 # ===== INICIALIZACIÓN =====
 func _ready():
 	randomize()
-	timer_estados = Timer.new()
-	timer_estados.wait_time = 1.0
-	timer_estados.autostart = true
-	timer_estados.timeout.connect(_rotar_estados_enemigos)
-	add_child(timer_estados)
 
 	ui.btn_atacar.pressed.connect(_on_btn_atacar_pressed)
 	ui.btn_defender.pressed.connect(_on_btn_defender_pressed)
@@ -45,40 +36,11 @@ func _ready():
 	ui.btn_items.pressed.connect(_on_btn_items_pressed)
 	ui.btn_huir.pressed.connect(_on_btn_huir_pressed)
 	
-	ui.heroe_elegido_para_item.connect(_on_heroe_elegido_para_item)
 	party_jugador = GlobalGame.party_actual
 	oleadas_enemigos = GlobalGame.oleadas_combate_actual.duplicate(true)
 	iniciar_batalla()
-
-# ===== PROCESAMIENTO DE FRAME =====
-func _process(_delta):
-	if not seleccionando_objetivo:
-		return
-
-	var es_apuntado_aliado = false
-	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
-		es_apuntado_aliado = true
-	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
-		es_apuntado_aliado = true
-
-	if es_apuntado_aliado:
-		for enemigo in sprites_enemigos.keys():
-			if is_instance_valid(enemigo) and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
-				sprites_enemigos[enemigo].modulate.a = 1.0
-		var paneles = ui.contenedor_party.get_children()
-		for i in range(paneles.size()):
-			if i < party_jugador.size():
-				paneles[i].modulate.a = 0.4 + abs(sin(Time.get_ticks_msec() * 0.005) * 0.6) if i == indice_objetivo_actual else 1.0
-	else:
-		for p in ui.contenedor_party.get_children():
-			p.modulate.a = 1.0
-		if enemigos_actuales.size() > 0:
-			if indice_objetivo_actual >= enemigos_actuales.size():
-				indice_objetivo_actual = 0
-			var objetivo_actual = enemigos_actuales[indice_objetivo_actual]
-			for enemigo in sprites_enemigos.keys():
-				if is_instance_valid(enemigo) and enemigo.pv_actuales > 0 and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
-					sprites_enemigos[enemigo].modulate.a = 0.4 + abs(sin(Time.get_ticks_msec() * 0.005) * 0.6) if enemigo == objetivo_actual else 1.0
+	selector_objetivos.objetivo_confirmado.connect(_on_objetivo_confirmado)
+	selector_objetivos.seleccion_cancelada.connect(cancelar_seleccion)
 
 # ===== BLOQUEO DE BOTONES =====
 func _bloquear_botones_accion():
@@ -154,7 +116,8 @@ func actualizar_sprites_enemigos():
 		icono.position.y = 30
 		icono.hide()
 		rect.add_child(icono)
-
+	ui.iniciar_sistema_estados(enemigos_actuales, sprites_enemigos)
+	
 # ===== CONTROL DE RONDAS Y TURNOS =====
 func iniciar_ronda():
 	combatientes.clear()
@@ -450,31 +413,8 @@ func _ejecutar_habilidad_preparada(atacante: CharacterStats, defensor: Character
 	ui.actualizar_interfaz_party(party_jugador)
 
 # ===== SELECCIÓN DE OBJETIVOS =====
-func iniciar_seleccion_objetivo():
-	seleccionando_objetivo = true
-	indice_objetivo_actual = 0
-	_actualizar_texto_seleccion()
-
-func _actualizar_texto_seleccion():
-	var es_apuntado_aliado = false
-	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
-		es_apuntado_aliado = true
-	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
-		es_apuntado_aliado = true
-
-	var nombre_obj = ""
-	if es_apuntado_aliado:
-		if indice_objetivo_actual < party_jugador.size():
-			nombre_obj = party_jugador[indice_objetivo_actual].nombre
-	else:
-		if indice_objetivo_actual < enemigos_actuales.size():
-			if is_instance_valid(enemigos_actuales[indice_objetivo_actual]):
-				nombre_obj = enemigos_actuales[indice_objetivo_actual].nombre
-
-	ui.narrar("Selecciona objetivo:\n> " + nombre_obj + " <")
 
 func _unhandled_input(event):
-	# SOLUCIÓN DE MISTRAL: La cortina de hierro contra inputs
 	if bloquear_todo_input:
 		return
 
@@ -506,66 +446,26 @@ func _unhandled_input(event):
 		get_viewport().set_input_as_handled()
 		return
 
-	if not seleccionando_objetivo:
-		return
-
-	var max_objetivos = enemigos_actuales.size()
-	if (accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado") or \
-	   (accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado"):
-		max_objetivos = party_jugador.size()
-
-	if event.is_action_pressed("ui_right"):
-		indice_objetivo_actual = (indice_objetivo_actual + 1) % max_objetivos
-		_actualizar_texto_seleccion()
-	elif event.is_action_pressed("ui_left"):
-		indice_objetivo_actual = (indice_objetivo_actual - 1 + max_objetivos) % max_objetivos
-		_actualizar_texto_seleccion()
-	elif event.is_action_pressed("ui_accept"):
-		confirmar_seleccion()
-		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel"):
-		cancelar_seleccion()
-		get_viewport().set_input_as_handled()
-
-func cancelar_seleccion():
-	seleccionando_objetivo = false
-	for enemigo in sprites_enemigos.keys():
-		if is_instance_valid(enemigo) and enemigo.pv_actuales > 0:
-			if sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
-				sprites_enemigos[enemigo].modulate.a = 1.0
-	for p in ui.contenedor_party.get_children():
-		p.modulate.a = 1.0
-	ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
-	_desbloquear_botones_accion() 
-	ui.set_menu_activo(true)
-
-func confirmar_seleccion():
-	bloquear_todo_input = true # ¡Aquí se sella el trato, empieza la animación!
-	seleccionando_objetivo = false
-	var atacante = combatientes[turno_actual]
-	var defensor: CharacterStats = null
-
+# ===== SELECCIÓN DE OBJETIVOS =====
+func iniciar_seleccion_objetivo():
 	var es_apuntado_aliado = false
 	if accion_pendiente == "HABILIDAD" and habilidad_pendiente and habilidad_pendiente.objetivo == "aliado":
 		es_apuntado_aliado = true
 	elif accion_pendiente == "ITEM" and item_pendiente and item_pendiente.objetivo == "aliado":
 		es_apuntado_aliado = true
 
-	if es_apuntado_aliado:
-		if indice_objetivo_actual >= party_jugador.size():
-			indice_objetivo_actual = 0
-		defensor = party_jugador[indice_objetivo_actual]
-	else:
-		if indice_objetivo_actual >= enemigos_actuales.size():
-			indice_objetivo_actual = 0
-		defensor = enemigos_actuales[indice_objetivo_actual]
+	var blancos_posibles = party_jugador if es_apuntado_aliado else enemigos_actuales
+	selector_objetivos.iniciar(blancos_posibles, self, ui)
 
-	for enemigo in sprites_enemigos.keys():
-		if is_instance_valid(enemigo) and enemigo.pv_actuales > 0:
-			if sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
-				sprites_enemigos[enemigo].modulate.a = 1.0
-	for p in ui.contenedor_party.get_children():
-		p.modulate.a = 1.0
+func cancelar_seleccion():
+	# El selector ya limpió la transparencia, solo restauramos la UI
+	ui.narrar("¿Qué hará " + combatientes[turno_actual].nombre + "?")
+	_desbloquear_botones_accion() 
+	ui.set_menu_activo(true)
+
+func _on_objetivo_confirmado(defensor: CharacterStats):
+	bloquear_todo_input = true # Entramos a animación
+	var atacante = combatientes[turno_actual]
 
 	if accion_pendiente == "ATACAR":
 		ui.narrar("¡" + atacante.nombre + " ataca a " + defensor.nombre + "!")
@@ -648,9 +548,7 @@ func _procesar_fin_oleada():
 		await get_tree().create_timer(1.0).timeout
 		cargar_oleada(indice_oleada)
 	else:
-		if timer_estados:
-			timer_estados.stop()
-
+		ui.detener_sistema_estados() # <--- ¡MÁGIA MODULAR!
 		ui.narrar("¡Has ganado la batalla!")
 		await get_tree().create_timer(1.5).timeout
 
@@ -666,11 +564,12 @@ func _procesar_fin_oleada():
 		ui.narrar("¡El grupo obtiene experiencia y botín!")
 
 		GlobalGame.agregar_whenes(whenes_acumulados)
-		items_a_distribuir.clear()
 		
+		# --- NUEVO REPARTO MODULAR ---
+		var consumibles_a_repartir: Array[Item] = []
 		for item in items_dropeados:
 			if item.categoria == "Consumible":
-				items_a_distribuir.append(item)
+				consumibles_a_repartir.append(item)
 			else:
 				GlobalGame.inventario_equipamiento.append(item) 
 
@@ -683,43 +582,14 @@ func _procesar_fin_oleada():
 				ui.abrir_menu_inversion(heroe)
 				await ui.inversion_completada
 
-		if items_a_distribuir.size() > 0:
-			iniciar_distribucion_items()
+		if consumibles_a_repartir.size() > 0:
+			gestor_reparto.iniciar_reparto(consumibles_a_repartir, party_jugador, ui)
+			await gestor_reparto.reparto_finalizado # ¡Esperamos elegantemente a que termine!
 		else:
 			ui.narrar("Presiona 'Aceptar' para continuar...")
-			bloquear_todo_input = false # Aseguramos de desbloquear para que pueda salir
-			esperando_cierre_batalla = true
-
-# ===== FASE DE REPARTO DE OBJETOS =====
-func iniciar_distribucion_items():
-	_mostrar_siguiente_item()
-
-func _mostrar_siguiente_item():
-	if items_a_distribuir.size() > 0:
-		item_en_reparto = items_a_distribuir.pop_front() 
-		ui.abrir_menu_reparto(item_en_reparto, party_jugador)
-	else:
-		item_en_reparto = null
-		ui.narrar("¡Se han recogido todos los objetos!\nPresiona 'Aceptar' para continuar...")
-		bloquear_todo_input = false # Aseguramos de desbloquear para que pueda salir
+			
+		bloquear_todo_input = false 
 		esperando_cierre_batalla = true
-
-func _on_heroe_elegido_para_item(heroe: CharacterStats):
-	if item_en_reparto != null:
-		var item_caido = heroe.recibir_item_batalla(item_en_reparto)
-		
-		if item_caido == null:
-			ui.narrar("¡" + heroe.nombre + " guardó " + item_en_reparto.nombre + " en sus bolsillos!")
-		else:
-			ui.narrar("¡Bolsillos llenos! " + heroe.nombre + " empuja " + item_en_reparto.nombre + " en su inventario...\n¡Pero " + item_caido.nombre + " cae al vacío y se pierde!")
-			ui.agregar_al_log("[PÉRDIDA] " + item_caido.nombre + " empujado al abismo por " + item_en_reparto.nombre + ".")
-		
-		if item_caido == null:
-			await get_tree().create_timer(1.2).timeout
-		else:
-			await get_tree().create_timer(2.2).timeout
-		
-		_mostrar_siguiente_item()
 
 func pasar_turno():
 	turno_actual += 1
@@ -757,96 +627,26 @@ func _procesar_fin_de_ronda():
 
 	iniciar_ronda()
 
-# ===== UTILIDADES VISUALES =====
-func mostrar_numero_flotante(objetivo: CharacterStats, cantidad: int, tipo: String):
-	var color = Color.RED
-	if tipo == "atipico":
-		color = Color.PURPLE
-	elif tipo == "cura":
-		color = Color.GREEN
+# ===== PUENTES VISUALES (Delegados a la UI) =====
 
-	var nodo_objetivo = null
+# Un traductor interno: Pide Stats y devuelve Nodos Visuales
+func _obtener_nodo_visual(objetivo: CharacterStats) -> Control:
 	if party_jugador.has(objetivo) and is_instance_valid(objetivo):
 		var index = party_jugador.find(objetivo)
 		if index >= 0 and index < ui.contenedor_party.get_child_count():
-			nodo_objetivo = ui.contenedor_party.get_child(index)
+			return ui.contenedor_party.get_child(index)
 	elif sprites_enemigos.has(objetivo) and is_instance_valid(objetivo):
-		nodo_objetivo = sprites_enemigos[objetivo]
+		return sprites_enemigos[objetivo]
+	return null
 
-	if not nodo_objetivo or not is_instance_valid(nodo_objetivo):
-		return
-
-	var lbl = Label.new()
-	lbl.text = str(cantidad)
-	lbl.modulate = color
-	lbl.add_theme_font_size_override("font_size", 28)
-	lbl.add_theme_color_override("font_outline_color", Color.BLACK)
-	lbl.add_theme_constant_override("outline_size", 6)
-	lbl.z_index = 50
-
-	var pos_global = nodo_objetivo.global_position
-	lbl.position = pos_global + (nodo_objetivo.size / 2.0) - Vector2(10, 20)
-	ui.add_child(lbl)
-
-	var tween = get_tree().create_tween()
-	tween.tween_property(lbl, "position:y", lbl.position.y - 50, 1.0).set_trans(Tween.TRANS_QUINT).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(lbl, "modulate:a", 0.0, 1.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.tween_callback(lbl.queue_free)
+func mostrar_numero_flotante(objetivo: CharacterStats, cantidad: int, tipo: String):
+	var nodo = _obtener_nodo_visual(objetivo)
+	if nodo:
+		ui.mostrar_numero_flotante(nodo, cantidad, tipo)
 
 func animar_parpadeo_enemigo(enemigo: CharacterStats):
 	if is_instance_valid(enemigo) and sprites_enemigos.has(enemigo) and is_instance_valid(sprites_enemigos[enemigo]):
-		var sprite = sprites_enemigos[enemigo]
-		var tween = get_tree().create_tween()
-		tween.tween_property(sprite, "modulate:a", 0.0, 0.1)
-		tween.tween_property(sprite, "modulate:a", 1.0, 0.1)
-		tween.tween_property(sprite, "modulate:a", 0.0, 0.1)
-		tween.tween_property(sprite, "modulate:a", 1.0, 0.1)
-
-# ===== SISTEMA DE ESTADOS VISUALES =====
-func _rotar_estados_enemigos():
-	indice_rotacion_estado += 1
-	for enemigo in enemigos_actuales:
-		if not is_instance_valid(enemigo): continue
-		if not sprites_enemigos.has(enemigo): continue
-		
-		var rect = sprites_enemigos[enemigo]
-		if not is_instance_valid(rect): continue
-
-		var nodo_icono = rect.get_node_or_null("IconoEstado")
-		if not is_instance_valid(nodo_icono): continue
-
-		var activos = []
-		if enemigo.niveles_stat["ataque"] > 0 and ui.icon_atk_up:
-			activos.append(ui.icon_atk_up)
-		elif enemigo.niveles_stat["ataque"] < 0 and ui.icon_atk_down:
-			activos.append(ui.icon_atk_down)
-		if enemigo.niveles_stat["defensa"] > 0 and ui.icon_def_up:
-			activos.append(ui.icon_def_up)
-		elif enemigo.niveles_stat["defensa"] < 0 and ui.icon_def_down:
-			activos.append(ui.icon_def_down)
-		if enemigo.niveles_stat["agilidad"] > 0 and ui.icon_agi_up:
-			activos.append(ui.icon_agi_up)
-		elif enemigo.niveles_stat["agilidad"] < 0 and ui.icon_agi_down:
-			activos.append(ui.icon_agi_down)
-		if enemigo.niveles_stat["suerte"] > 0 and ui.icon_suerte_up:
-			activos.append(ui.icon_suerte_up)
-		elif enemigo.niveles_stat["suerte"] < 0 and ui.icon_suerte_down:
-			activos.append(ui.icon_suerte_down)
-
-		if enemigo.turnos_provocacion > 0 and ui.icon_provocacion:
-			activos.append(ui.icon_provocacion)
-		if enemigo.turnos_distraido > 0 and ui.icon_distraido:
-			activos.append(ui.icon_distraido)
-		if enemigo.turnos_enamorado > 0 and ui.icon_enamorado:
-			activos.append(ui.icon_enamorado)
-		if enemigo.esta_defendiendo and ui.icon_defensa:
-			activos.append(ui.icon_defensa)
-
-		if activos.is_empty():
-			nodo_icono.hide()
-		else:
-			nodo_icono.show()
-			nodo_icono.texture = activos[indice_rotacion_estado % activos.size()]
+		ui.animar_parpadeo_enemigo(sprites_enemigos[enemigo])
 
 # ===== SELECCIÓN DE OBJETIVO POR AGGRO =====
 func obtener_objetivo_por_aggro(objetivos_posibles: Array) -> CharacterStats:
